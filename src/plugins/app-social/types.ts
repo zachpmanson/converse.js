@@ -25,3 +25,9 @@ export type BrowsableFeed = {
     is_feed: boolean; // Whether it looks like an Atom social feed
     probed: boolean; // Whether disco#info was fetched (false past the browse cap)
 };
+
+/**
+ * The handle returned by `createSocialEditor`. Derived through a type-only dynamic
+ * import so the code-split editor module is never statically pulled into the core bundle.
+ */
+export type EditorHandle = ReturnType<typeof import('./lexical-editor.js').createSocialEditor>;

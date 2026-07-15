@@ -24,4 +24,9 @@ export type BrowsableFeed = {
     is_feed: boolean;
     probed: boolean;
 };
+/**
+ * The handle returned by `createSocialEditor`. Derived through a type-only dynamic
+ * import so the code-split editor module is never statically pulled into the core bundle.
+ */
+export type EditorHandle = ReturnType<typeof import('./lexical-editor.js').createSocialEditor>;
 //# sourceMappingURL=types.d.ts.map

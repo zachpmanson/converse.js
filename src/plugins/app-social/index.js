@@ -13,6 +13,13 @@ converse.plugins.add('converse-app-social', {
     dependencies: ['converse-rootview', 'converse-microblog'],
 
     initialize() {
+        api.settings.extend({
+            // Spike: use the Lexical-based rich-text composer for Social posts
+            // (WYSIWYG, publishing Movim-compatible dual content: markdown +
+            // XHTML) instead of the plain textarea. Off by default.
+            social_rich_compose: false,
+        });
+
         api.listen.on('afterMessageBodyTransformed', addHashtagAnnotations);
 
         // A desktop-notification click for a comment on one of our posts asks the

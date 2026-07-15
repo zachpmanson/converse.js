@@ -27,6 +27,7 @@ export function requestOpenPost(ref) {
 }
 
 import './compose.js';
+import './compose-rich.js';
 import './message.js';
 import './feed.js';
 import './post.js';
