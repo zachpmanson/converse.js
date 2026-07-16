@@ -5,33 +5,9 @@
  * @param {() => void} [opts.onChange] - Called after each edit (e.g. to toggle a
  *      disabled Post button). Kept optional so the caller can avoid per-keystroke
  *      re-renders.
- * @returns {{
- *   editor: import('lexical').LexicalEditor,
- *   getMarkdown: () => string,
- *   getHtml: () => string,
- *   isEmpty: () => boolean,
- *   insertText: (text: string) => void,
- *   format: (type: import('lexical').TextFormatType) => boolean,
- *   getEmojiQuery: () => string|null,
- *   replaceEmojiTrigger: (query: string, replacement: string) => void,
- *   clear: () => void,
- *   focus: () => void,
- *   destroy: () => void,
- * }}
+ * @returns {import('./types').SocialEditor}
  */
 export function createSocialEditor(rootEl: HTMLElement, { onChange }?: {
     onChange?: () => void;
-}): {
-    editor: import("lexical").LexicalEditor;
-    getMarkdown: () => string;
-    getHtml: () => string;
-    isEmpty: () => boolean;
-    insertText: (text: string) => void;
-    format: (type: import("lexical").TextFormatType) => boolean;
-    getEmojiQuery: () => string | null;
-    replaceEmojiTrigger: (query: string, replacement: string) => void;
-    clear: () => void;
-    focus: () => void;
-    destroy: () => void;
-};
+}): import("./types").SocialEditor;
 //# sourceMappingURL=lexical-editor.d.ts.map

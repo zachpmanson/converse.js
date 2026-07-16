@@ -152,8 +152,5 @@ export default (el) => html`
                 ${el._publishing ? __('Posting…') : __('Post')}
             </button>
         </div>
-
-        <!-- TODO(spike, next): a vanilla mention typeahead (the Lexical typeahead menu
-             plugin is React-only). -->
     </div>
 `;
