@@ -46,6 +46,11 @@ export default (el) => html`
             ${fmtButton(el, 'strikethrough', __('Strikethrough'), 'strikethrough')}
             ${fmtButton(el, 'code', __('Monospace'), 'code')}
 
+            <converse-social-emoji-dropdown
+                .model=${el.model}
+                @emojipicked=${(/** @type {CustomEvent} */ ev) => el.onEmoji(ev.detail.text)}
+            ></converse-social-emoji-dropdown>
+
             <span class="social-rich__spacer"></span>
 
             <button
@@ -58,9 +63,8 @@ export default (el) => html`
             </button>
         </div>
 
-        <!-- TODO(spike, next): reuse the emoji picker (chat's converse-emoji-dropdown is
-             chatbox-model-coupled, so it needs a small adapter), XEP-0363 attach/upload
-             (insert the returned URL as an image node / enclosure), and a vanilla mention
-             typeahead (the Lexical typeahead menu plugin is React-only). -->
+        <!-- TODO(spike, next): XEP-0363 attach/upload (insert the returned URL as an
+             image node / enclosure), and a vanilla mention typeahead (the Lexical
+             typeahead menu plugin is React-only). -->
     </div>
 `;

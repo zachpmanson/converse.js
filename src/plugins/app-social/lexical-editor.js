@@ -124,7 +124,13 @@ export function createSocialEditor(rootEl, { onChange } = {}) {
 
         insertText: (text) =>
             editor.update(() => {
-                const selection = $getSelection();
+                let selection = $getSelection();
+                if (!$isRangeSelection(selection)) {
+                    // Focus may sit in the emoji picker rather than the editor, so there
+                    // is no live range selection: fall back to appending at the very end.
+                    $getRoot().selectEnd();
+                    selection = $getSelection();
+                }
                 if ($isRangeSelection(selection)) selection.insertText(text);
             }),
 
