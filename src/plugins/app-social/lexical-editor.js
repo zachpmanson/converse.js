@@ -13,7 +13,7 @@
  *   createSocialEditor(rootEl) → { getMarkdown, getHtml, isEmpty, insertText,
  *                                  format, clear, focus, destroy }
  */
-import { $getRoot, $getSelection, $isRangeSelection, createEditor, FORMAT_TEXT_COMMAND } from 'lexical';
+import { $getRoot, $getSelection, $isRangeSelection, $isTextNode, createEditor, FORMAT_TEXT_COMMAND } from 'lexical';
 import { HeadingNode, QuoteNode, registerRichText } from '@lexical/rich-text';
 import { createEmptyHistoryState, registerHistory } from '@lexical/history';
 import { $generateHtmlFromNodes } from '@lexical/html';
@@ -54,6 +54,12 @@ const TRANSFORMERS = [
     LINK,
 ];
 
+// An emoji-shortname autocomplete trigger: a `:` that starts a token (at the very
+// start of the text node, or right after whitespace) followed by at least one
+// shortname character. Capture group 1 is the typed query (the chars after the
+// colon). A closing `:` ends the token, so a completed `:smile:` no longer matches.
+const EMOJI_TRIGGER = /(?:^|\s):([-+\w]+)$/;
+
 // Class names Lexical stamps onto its DOM for styling hooks. Kept minimal; these
 // are editor-only and get stripped from the published XHTML (see the composer's
 // htmlToXhtml normaliser), so they never reach the wire.
@@ -87,6 +93,8 @@ const THEME = {
  *   isEmpty: () => boolean,
  *   insertText: (text: string) => void,
  *   format: (type: import('lexical').TextFormatType) => boolean,
+ *   getEmojiQuery: () => string|null,
+ *   replaceEmojiTrigger: (query: string, replacement: string) => void,
  *   clear: () => void,
  *   focus: () => void,
  *   destroy: () => void,
@@ -110,6 +118,10 @@ export function createSocialEditor(rootEl, { onChange } = {}) {
         registerMarkdownShortcuts(editor, TRANSFORMERS),
         onChange ? editor.registerUpdateListener(() => onChange()) : () => {},
     );
+    // N.B. the rich-text preset deliberately blurs the editor on a bare Escape
+    // (KEY_ESCAPE_COMMAND -> editor.blur()): the keyboard user's escape hatch out
+    // of the editor. The composer's emoji autocomplete consumes Escape while its
+    // menu is open, so the hatch only engages when no menu is showing.
 
     return {
         editor,
@@ -136,6 +148,40 @@ export function createSocialEditor(rootEl, { onChange } = {}) {
 
         /** Toggle an inline format on the selection: 'bold' | 'italic' | 'strikethrough' | 'code'. */
         format: (type) => editor.dispatchCommand(FORMAT_TEXT_COMMAND, type),
+
+        /**
+         * If the collapsed caret sits right after an emoji-shortname trigger
+         * (a `:foo` token), return the typed query (`foo`), else `null`. Used to
+         * drive the composer's inline emoji autocomplete.
+         */
+        getEmojiQuery: () =>
+            editor.getEditorState().read(() => {
+                const selection = $getSelection();
+                if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
+                const node = selection.anchor.getNode();
+                if (!$isTextNode(node)) return null;
+                const before = node.getTextContent().slice(0, selection.anchor.offset);
+                return before.match(EMOJI_TRIGGER)?.[1] ?? null;
+            }),
+
+        /**
+         * Replace the `:query` trigger immediately before the caret with `replacement`
+         * (the resolved emoji glyph). A no-op if the caret has since moved off the
+         * trigger. The caret ends up just after the inserted glyph.
+         * @param {string} query - The chars typed after the colon (without the colon).
+         * @param {string} replacement
+         */
+        replaceEmojiTrigger: (query, replacement) =>
+            editor.update(() => {
+                const selection = $getSelection();
+                if (!$isRangeSelection(selection) || !selection.isCollapsed()) return;
+                const node = selection.anchor.getNode();
+                if (!$isTextNode(node)) return;
+                const offset = selection.anchor.offset;
+                const trigger = `:${query}`;
+                if (!node.getTextContent().slice(0, offset).endsWith(trigger)) return;
+                node.spliceText(offset - trigger.length, trigger.length, replacement, true);
+            }),
 
         clear: () =>
             editor.update(() => {

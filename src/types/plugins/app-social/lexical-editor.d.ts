@@ -12,6 +12,8 @@
  *   isEmpty: () => boolean,
  *   insertText: (text: string) => void,
  *   format: (type: import('lexical').TextFormatType) => boolean,
+ *   getEmojiQuery: () => string|null,
+ *   replaceEmojiTrigger: (query: string, replacement: string) => void,
  *   clear: () => void,
  *   focus: () => void,
  *   destroy: () => void,
@@ -26,6 +28,8 @@ export function createSocialEditor(rootEl: HTMLElement, { onChange }?: {
     isEmpty: () => boolean;
     insertText: (text: string) => void;
     format: (type: import("lexical").TextFormatType) => boolean;
+    getEmojiQuery: () => string | null;
+    replaceEmojiTrigger: (query: string, replacement: string) => void;
     clear: () => void;
     focus: () => void;
     destroy: () => void;
