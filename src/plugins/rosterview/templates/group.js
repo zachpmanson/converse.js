@@ -71,7 +71,7 @@ export default (o) => {
                 : ``}
         </a>
         <ul
-            class="items-list roster-group-contacts ${collapsed.includes(o.name) ? 'collapsed' : ''}"
+            class="items-list roster-group-contacts ${collapsed.includes(o.name) ? 'roster-group-contacts--collapsed' : ''}"
             data-group="${o.name}"
         >
             ${repeat(o.contacts, (c) => c.get('jid'), renderContact)}

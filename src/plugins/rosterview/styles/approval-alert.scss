@@ -1,5 +1,8 @@
 .chat-body {
-    converse-contact-approval-alert {
+    // render() returns an empty string when there's nothing to show, but the
+    // custom element itself stays in the DOM — only reserve margin once it
+    // actually has content to show.
+    converse-contact-approval-alert:has(*) {
         margin: 0.5em;
     }
 }

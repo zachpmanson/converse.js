@@ -193,6 +193,12 @@
                 &:before {
                     content: " ";
                 }
+                // getNotificationsText() interpolates straight into this div,
+                // empty string when there's nothing to say — collapse it
+                // instead of reserving a line of height for no text.
+                &:empty {
+                    display: none;
+                }
             }
 
             progress {

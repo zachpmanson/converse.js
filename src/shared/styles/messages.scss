@@ -437,3 +437,51 @@
         opacity: 1;
     }
 }
+
+// Slide-up animation for newly-arrived messages. The message list
+// (.chat-content__messages) is flex-direction: column-reverse, so animating
+// height from 0 up to natural size makes an incoming message unfold at the
+// bottom and push earlier messages upward, staying pinned to the bottom —
+// `transform: translateY` can't do this since it only moves the one element.
+//
+// Height can't animate to `auto` directly, so this uses the grid trick: make
+// the element a one-row grid and interpolate grid-template-rows 0fr -> 1fr
+// (the child needs min-height:0 + overflow:hidden to be clippable). Both are
+// scoped to `.is-fresh` only, so a settled message goes back to normal layout
+// and nothing (e.g. hover menus) stays clipped.
+//
+// `.is-fresh` itself is applied by the embedding page (not Converse), which
+// is what actually knows whether a message just arrived live versus was
+// part of a bulk history/scrollback load.
+@keyframes converse-message-slide-up {
+    from {
+        grid-template-rows: 0fr;
+    }
+    to {
+        grid-template-rows: 1fr;
+    }
+}
+converse-chat-message.is-fresh {
+    display: grid;
+    grid-template-rows: 1fr;
+    animation: converse-message-slide-up 0.25s ease-out;
+
+    > * {
+        min-height: 0;
+        overflow: hidden;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    converse-chat-message.is-fresh {
+        display: block;
+        animation: none;
+    }
+}
+
+// Breathing room below the newest message. Messages render oldest-first, so
+// the most recent one is the last <converse-chat-message> in DOM order — it
+// otherwise sits flush against the message-list's bottom edge, right up
+// against the divider above the compose textarea.
+converse-chat-message:last-child {
+    margin-bottom: 1em;
+}

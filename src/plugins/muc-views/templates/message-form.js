@@ -21,22 +21,6 @@ export default (el) => {
             <input type="submit" class="btn btn-primary" name="join" value="Join" />
         </form>
         <form class="chat-message-form" @submit="${/** @param {SubmitEvent} ev */ (ev) => el.onFormSubmitted(ev)}">
-            ${show_toolbar
-                ? html` <converse-chat-toolbar
-                      class="btn-toolbar chat-toolbar no-text-select"
-                      .model=${el.model}
-                      ?hidden_occupants="${el.model.get("hidden_occupants")}"
-                      ?is_groupchat="${el.model.get("message_type") === "groupchat"}"
-                      ?show_call_button="${show_call_button}"
-                      ?show_emoji_button="${show_emoji_button}"
-                      ?show_location_button="${show_location_button}"
-                      ?show_send_button="${show_send_button}"
-                      ?show_spoiler_button="${show_spoiler_button}"
-                      ?show_toolbar="${show_toolbar}"
-                      message_limit="${message_limit}"
-                  ></converse-chat-toolbar>`
-                : ""}
-
             <input
                 type="text"
                 placeholder="${label_spoiler_hint || ""}"
@@ -75,5 +59,21 @@ export default (el) => {
                     aria-relevant="additions"
                 ></span>
             </div>
+
+            ${show_toolbar
+                ? html` <converse-chat-toolbar
+                      class="btn-toolbar chat-toolbar no-text-select"
+                      .model=${el.model}
+                      ?hidden_occupants="${el.model.get("hidden_occupants")}"
+                      ?is_groupchat="${el.model.get("message_type") === "groupchat"}"
+                      ?show_call_button="${show_call_button}"
+                      ?show_emoji_button="${show_emoji_button}"
+                      ?show_location_button="${show_location_button}"
+                      ?show_send_button="${show_send_button}"
+                      ?show_spoiler_button="${show_spoiler_button}"
+                      ?show_toolbar="${show_toolbar}"
+                      message_limit="${message_limit}"
+                  ></converse-chat-toolbar>`
+                : ""}
         </form>`;
 };

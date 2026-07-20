@@ -23,21 +23,6 @@ export default (el) => {
         class="chat-message-form"
         @submit="${/** @param {SubmitEvent} ev */ (ev) => el.onFormSubmitted(ev)}"
     >
-        ${show_toolbar
-            ? html` <converse-chat-toolbar
-                  class="btn-toolbar chat-toolbar no-text-select"
-                  .model=${el.model}
-                  ?composing_spoiler="${composing_spoiler}"
-                  ?show_call_button="${show_call_button}"
-                  ?show_emoji_button="${show_emoji_button}"
-                  ?show_location_button="${show_location_button}"
-                  ?show_send_button="${show_send_button}"
-                  ?show_spoiler_button="${show_spoiler_button}"
-                  ?show_toolbar="${show_toolbar}"
-                  message_limit="${message_limit}"
-              ></converse-chat-toolbar>`
-            : ""}
-
         <input
             type="text"
             enterkeyhint="send"
@@ -69,5 +54,20 @@ export default (el) => {
                         ${composing_spoiler ? "spoiler" : ""}"
             placeholder="${label_message}"
         ></textarea>
+
+        ${show_toolbar
+            ? html` <converse-chat-toolbar
+                  class="btn-toolbar chat-toolbar no-text-select"
+                  .model=${el.model}
+                  ?composing_spoiler="${composing_spoiler}"
+                  ?show_call_button="${show_call_button}"
+                  ?show_emoji_button="${show_emoji_button}"
+                  ?show_location_button="${show_location_button}"
+                  ?show_send_button="${show_send_button}"
+                  ?show_spoiler_button="${show_spoiler_button}"
+                  ?show_toolbar="${show_toolbar}"
+                  message_limit="${message_limit}"
+              ></converse-chat-toolbar>`
+            : ""}
     </form>`;
 };

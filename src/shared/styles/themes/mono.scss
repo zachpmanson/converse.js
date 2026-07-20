@@ -1,0 +1,136 @@
+&[data-converse-theme="mono"],
+&[data-bs-theme="mono"] {
+    $theme: 'mono' !default;
+
+    // Deliberately monochrome: white surfaces, near-black ink for text and
+    // every accent that would otherwise be green/orange/blue. Presence dots
+    // and genuine links (below) are the only things that keep real hue, so
+    // those specific meanings still read at a glance.
+    --foreground-color: #1a1a1a;
+    --background-color: #ffffff;
+    --background-color-rgb: 255, 255, 255;
+
+    --blue: #1a1a1a;
+    --blue-rgb: 26, 26, 26;
+    --dark-blue: #000000;
+    --light-blue: #4d4d4d;
+    --light-blue-rgb: 77, 77, 77;
+    --dark-green: #1a1a1a;
+    --green: #333333;
+    --green-rgb: 51, 51, 51;
+    --red: #000000;
+    --red-rgb: 0, 0, 0;
+    --orange: #808080;
+    --orange-rgb: 128, 128, 128;
+    --redder-orange: #1a1a1a;
+
+    --chat-rgb: var(--blue-rgb);
+    --muc-rgb: var(--blue-rgb);
+
+    // Bootstrap-facing variables
+    --primary-color: var(--blue) !important;
+    --primary-rgb: var(--blue-rgb);
+    --secondary-color: var(--light-blue) !important;
+    --secondary-rgb: var(--light-blue-rgb);
+    --success-color: var(--green);
+    --success-color-rgb: var(--green-rgb);
+    --danger-color: var(--red);
+    --danger-color-rgb: var(--red-rgb);
+    --warning-color: var(--orange);
+    --info-color: var(--light-blue);
+    --info-color-rgb: var(--light-blue-rgb);
+
+    --converse-info: var(--info-color);
+    --converse-info-rgb: var(--info-color-rgb);
+    --converse-link-color: var(--link-color) !important;
+    --converse-link-hover-color: var(--link-color-hover) !important;
+    --converse-success: var(--success-color);
+    --converse-success-rgb: var(--success-color-rgb);
+    --converse-danger: var(--danger-color);
+    --converse-danger-rgb: var(--danger-color-rgb);
+
+    --converse-body-bg: var(--background-color);
+    --converse-body-color: var(--foreground-color) !important;
+    --converse-highlight-color: var(--blue);
+    .navbar-nav {
+        --converse-nav-link-color: var(--link-color) !important;
+    }
+    .popover {
+        --converse-popover-header-color: var(--background-color) !important;
+        --converse-popover-header-bg: var(--info-color) !important;
+    }
+    .modal {
+        --converse-modal-color: var(--foreground-color) !important;
+    }
+    .toast {
+        --converse-toast-color: var(--background-color);
+        --converse-toast-bg: var(--secondary-color) !important;
+    }
+
+    // Presence dots keep real hue (standard online/away/busy convention)
+    // even though everything else in this theme is monochrome.
+    --chat-status-away: #ffc107;
+    --chat-status-busy: #dc3545;
+    --chat-status-offline: #c4c4c4;
+    --chat-status-online: #28a745;
+
+    --controlbox-color: var(--light-blue);
+    --disabled-color: #808080;
+    --error-color: var(--red);
+    --focus-color: var(--light-blue);
+    --heading-color: var(--light-blue);
+    --link-color: #1a1a1a;
+    --subdued-color: #808080;
+
+    // Classic's default `black` selection background is unreadable now that
+    // our foreground text is itself near-black — use light grey instead.
+    --selection-color: #d0d0d0;
+
+    --highlight-color: var(--blue);
+    --highlight-color-hover: var(--blue);
+
+    // 1:1 chat
+    --chat-color: var(--dark-green);
+    --chat-header-fg-color: var(--foreground-color);
+    --chat-header-bg-color: #f5f5f5;
+
+    // MUC
+    --muc-color: var(--redder-orange);
+    --muc-header-fg-color: var(--foreground-color);
+    --muc-header-bg-color: #f5f5f5;
+
+    // Headlines
+    --headlines-color: var(--orange);
+    --headlines-header-fg-color: var(--background-color);
+    --headlines-header-bg-color: var(--headlines-color);
+
+    // Derived colors
+    --brand-heading-color: var(--blue);
+    --chat-color-hover: var(--chat-color);
+    --danger-color-hover: var(--danger-color);
+    --global-background-color: var(--background-color);
+    --link-color-hover: #000000;
+    --muc-color-hover: var(--muc-color);
+    --primary-color-hover: var(--dark-blue);
+    --secondary-color-hover: #ddd;
+    --success-color-hover: var(--success-color);
+    --warning-color-hover: #666666;
+
+    // Flat look — no drop shadows anywhere.
+    --raised-el-shadow: none;
+    --converse-box-shadow: none;
+    --converse-box-shadow-sm: none;
+    --converse-box-shadow-lg: none;
+    --converse-box-shadow-inset: none;
+
+    // Converse uses <a> for lots of UI chrome (section toggles, action links)
+    // that carries no real destination (href-less or href="#"). Colour only
+    // anchors with a populated, meaningful href blue; everything else stays
+    // ink via --link-color above.
+    a[href]:not([href=""]):not([href="#"]) {
+        color: #0d6efd;
+        &:hover {
+            color: #0a58ca;
+        }
+    }
+}

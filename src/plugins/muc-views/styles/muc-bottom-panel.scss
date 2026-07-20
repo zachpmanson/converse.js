@@ -11,7 +11,7 @@
             color: var(--foreground-color);
 
             &.muc-bottom-panel--muted {
-                border-top: 0.25em solid var(--muc-color) !important;
+                border-top: 0.1rem solid var(--muc-color) !important;
                 display: block;
                 height: 6em;
                 padding-top: 2em;
@@ -37,7 +37,7 @@
 
         converse-muc-bottom-panel {
             .chat-message-form {
-                border-top: 0.25em solid var(--muc-color) !important;
+                border-top: 0.1rem solid var(--muc-color) !important;
                 border-inline-end: 0 !important;
 
                 .suggestion-box__results--above {
@@ -57,6 +57,7 @@
                     border: none;
                     border-bottom-right-radius: 0;
                     field-sizing: content;
+                    padding: 1em 0.5em 0.5em 0.5rem;
                 }
             }
         }
