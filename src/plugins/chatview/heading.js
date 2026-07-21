@@ -28,9 +28,11 @@ export default class ChatHeading extends CustomElement {
         this.listenTo(this.model, 'vcard:change', () => this.requestUpdate());
         if (this.model.contact) {
             this.listenTo(this.model.contact, 'destroy', () => this.requestUpdate());
+            this.listenTo(this.model.contact, 'presence:change', () => this.requestUpdate());
         }
         this.model.rosterContactAdded?.then(() => {
             this.listenTo(this.model.contact, 'change:nickname', () => this.requestUpdate());
+            this.listenTo(this.model.contact, 'presence:change', () => this.requestUpdate());
             this.requestUpdate();
         });
         this.requestUpdate();
