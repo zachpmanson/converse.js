@@ -41,10 +41,12 @@
                 }
 
                 .chat-textarea, input {
-                    outline: 1px solid var(--background-color);
-                    &:active, &:focus{
-                        outline-width: 2px;
-                    }
+                    // No focus outline. It was background-coloured (invisible by
+                    // design) but sits just outside the textarea's black top
+                    // border, so it painted a white strip over the messages right
+                    // above the divider — thickening to 2px on focus. Drop it and
+                    // suppress the browser default so the divider reads cleanly.
+                    outline: none;
                     &.correcting {
                         background-color: var(--chat-correcting-color);
                     }

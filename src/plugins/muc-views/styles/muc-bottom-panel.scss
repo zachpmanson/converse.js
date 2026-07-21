@@ -43,10 +43,10 @@
                     bottom: 4.5em;
                 }
                 .chat-textarea, input {
-                    outline: 1px solid var(--background-color) !important;
-                    &:active, &:focus{
-                        outline-width: 2px !important;
-                    }
+                    // No focus outline — see chat-bottom-panel.scss; the
+                    // background-coloured outline painted a white strip over the
+                    // messages just above the black divider, thickening on focus.
+                    outline: none !important;
                     &.correcting {
                         background-color: var(--chatroom-correcting-color);
                     }
