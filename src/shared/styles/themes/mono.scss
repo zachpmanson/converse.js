@@ -86,8 +86,11 @@
     // our foreground text is itself near-black — use light grey instead.
     --selection-color: #d0d0d0;
 
-    --highlight-color: var(--blue);
-    --highlight-color-hover: var(--blue);
+    // Message hover / correcting / reply-preview background. Must stay light so
+    // the near-black foreground text remains readable on top of it (classic
+    // uses --lighter-blue here; var(--blue) would paint it near-black).
+    --highlight-color: #ececec;
+    --highlight-color-hover: #e0e0e0;
 
     // 1:1 chat
     --chat-color: var(--dark-green);
