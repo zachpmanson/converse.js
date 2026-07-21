@@ -1,6 +1,15 @@
 converse-reply-preview {
     display: block;
 
+    // With no active reply the element renders `nothing` into its (light-DOM)
+    // self, leaving an empty block that still paints a faint line above the
+    // compose box. Collapse it entirely unless it actually holds a reply
+    // banner. Keyed on the .reply-preview child (not :empty) so lit's leftover
+    // comment markers don't keep it visible.
+    &:not(:has(.reply-preview)) {
+        display: none;
+    }
+
     .reply-preview {
         display: flex;
         align-items: center;
