@@ -31,7 +31,12 @@ export default (el) => {
         dnd: __("Busy"),
         offline: __("Offline"),
     };
-    const chat_status_text = chat_status ? (i18n_status[chat_status] ?? chat_status) : null;
+    // Prefer the custom status message the contact set (e.g. "In a meeting"),
+    // falling back to the generic presence label. The dot still reflects the
+    // actual presence state either way.
+    const status_message = type !== HEADLINES_TYPE ? contact?.get("status")?.trim() : null;
+    const chat_status_text =
+        status_message || (chat_status ? (i18n_status[chat_status] ?? chat_status) : null);
     const avatar = html`<span title="${i18n_profile}">
         <converse-avatar
             .model=${el.model.contact || el.model}

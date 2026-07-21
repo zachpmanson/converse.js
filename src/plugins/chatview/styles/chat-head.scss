@@ -61,6 +61,7 @@
             // plus a subdued label.
             .chat-head__status {
                 display: block;
+                margin-top: 0.35em;
                 font-size: var(--font-size-small);
                 color: var(--chat-header-fg-color);
                 opacity: 0.7;
