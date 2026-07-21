@@ -438,42 +438,35 @@
     }
 }
 
-// Slide-up animation for newly-arrived messages. The message list
-// (.chat-content__messages) is flex-direction: column-reverse, so animating
-// height from 0 up to natural size makes an incoming message unfold at the
-// bottom and push earlier messages upward, staying pinned to the bottom —
-// `transform: translateY` can't do this since it only moves the one element.
+// Slide-and-fade-in for newly-arrived messages. We deliberately do NOT animate
+// height/layout here. The message list (.chat-content__messages) is
+// flex-direction: column-reverse and Converse scrolls it to the bottom when a
+// message arrives; an earlier version unfolded the row by animating its height
+// (0fr -> 1fr grid trick), but that grows the row *after* the scroll is set, so
+// the view reconciled with an awkward downward jump once the growth finished.
 //
-// Height can't animate to `auto` directly, so this uses the grid trick: make
-// the element a one-row grid and interpolate grid-template-rows 0fr -> 1fr
-// (the child needs min-height:0 + overflow:hidden to be clippable). Both are
-// scoped to `.is-fresh` only, so a settled message goes back to normal layout
-// and nothing (e.g. hover menus) stays clipped.
+// A transform + opacity animation leaves layout untouched — the row already
+// occupies its final slot, so the message just slides up into place with the
+// scroll staying put. No reflow, nothing to clip, no post-animation skip.
 //
 // `.is-fresh` itself is applied by the embedding page (not Converse), which
 // is what actually knows whether a message just arrived live versus was
 // part of a bulk history/scrollback load.
 @keyframes converse-message-slide-up {
     from {
-        grid-template-rows: 0fr;
+        opacity: 0;
+        transform: translateY(1em);
     }
     to {
-        grid-template-rows: 1fr;
+        opacity: 1;
+        transform: none;
     }
 }
 converse-chat-message.is-fresh {
-    display: grid;
-    grid-template-rows: 1fr;
     animation: converse-message-slide-up 0.25s ease-out;
-
-    > * {
-        min-height: 0;
-        overflow: hidden;
-    }
 }
 @media (prefers-reduced-motion: reduce) {
     converse-chat-message.is-fresh {
-        display: block;
         animation: none;
     }
 }
