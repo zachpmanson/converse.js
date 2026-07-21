@@ -74,7 +74,10 @@
     --chat-status-offline: #c4c4c4;
     --chat-status-online: #28a745;
 
-    --controlbox-color: var(--light-blue);
+    // Drives the left sidebar's borders (its right edge + the profile section's
+    // bottom border) and the controlbox icon fills. Use the ink colour so those
+    // borders are black like the rest of the mono chrome, not mid-grey.
+    --controlbox-color: var(--foreground-color);
     --disabled-color: #808080;
     --error-color: var(--red);
     --focus-color: var(--light-blue);
