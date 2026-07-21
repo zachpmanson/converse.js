@@ -58,35 +58,43 @@ Nix build:
   (`github:zachpmanson/converse.js`, `inputs.nixpkgs.follows = "nixpkgs"`),
   matching the pattern used by the other zachpmanson web apps — each repo
   exposes its own build as a flake output; nothing `buildNpmPackage`-shaped
-  lives in `~/nix`. (This supersedes an earlier plan for a `flake = false`
-  `converse-src` input + a `default.nix` inside `~/nix`, which was never
-  actually committed.)
+  lives in `~/nix`. (An earlier approach, actually shipped in `~/nix` commit
+  `2ffc984`, took the other route — a `flake = false` `converse-src` input +
+  a `buildNpmPackage` `default.nix` inside `~/nix`, using
+  `npmDepsFetcherVersion = 2` to tolerate the lockfile gaps. We consolidated
+  onto the fork-owns-its-build approach and removed that in the merge
+  `25ba082`.)
 - `~/nix/hosts/naboo/services/caddy.nix`: builds `converseRoot` from
   `inputs.converse.packages.<system>.converse`, serving the whole `dist/`
   under `/dist/` plus a mono-theme `index.html`. The `/dist/` prefix keeps
   Converse's default `assets_path` (`/dist`) and webpack `publicPath: 'auto'`
   resolving chunks/webfonts/sounds/emoji.
 
-## Not done / blocked
+## Done — live
 
-**Deploy to naboo.** All the config is committed in `~/nix`
-(commit `556ccae`, on top of the lockfile + flake commits pushed to this
-fork's `master`) but **not yet applied to naboo** — that needs a
-`nixos-rebuild switch` on the server, and `~/nix` itself may still need a
-`git push` depending on how naboo pulls its config. After deploying, load
-`chat.zachmanson.com` and confirm:
-- the mono theme renders (monochrome light palette), not the built-in classic;
-- assets load same-origin from `/dist/` (no requests to `cdn.conversejs.org`,
-  no `/theme.css` 404 — it's been deleted);
-- the new-message slide-up animation still fires on live messages.
+Deployed to naboo (`~/nix` merge `25ba082`, `make naboo-deploy`) and verified
+on `chat.zachmanson.com`:
 
-### Already done (was the old #1 / #2)
+- `index.html` serves `theme: "mono"` / `dark_theme: "mono"` and local
+  `/dist/` assets; no `cdn.conversejs.org` requests.
+- `/dist/converse.min.{css,js}` and the rest of the dist tree (emoji.json,
+  wasm, sounds…) return 200 same-origin; the mono theme is present in the
+  served CSS.
+- `/theme.css` is gone (404, and nothing references it — every rule migrated
+  into the fork source).
 
-- **Lockfile regen** — done. `undici-types` is deduped to a single 8.3.0
-  (commit "Regenerate package-lock.json with undici-types deduped"); only the
+### Also done
+
+- **Lockfile regen** — `undici-types` deduped to a single 8.3.0; only the
   local `src/headless` / `src/log` workspaces lack `resolved` URLs now, which
   is expected.
-- **Live-site config flip** — staged in `~/nix` (see the Nix build list
-  above): `index.html` uses `theme: "mono"` / `dark_theme: "mono"` and local
-  `/dist/` assets, the CDN `<script>`/`<link>` tags are gone, and `theme.css`
-  is deleted. Just needs the deploy above to go live.
+- **naboo ssh alias / deploy tooling** — `~/nix` gained a dedicated `naboo`
+  ssh alias (`home/mac-common.nix`) so deploys stop piggybacking on the `nc`
+  (nextcloud) alias that only coincidentally shares the box; `make`'s `HOST`
+  defaults to `naboo`. `naboo.zachmanson.com` is a parked address — the real
+  box is `nextcloud.zachmanson.com`, which the alias points at.
+
+## Follow-ups (optional)
+
+- The `naboo` ssh alias only reaches `~/.ssh/config` after this Mac's next
+  `darwin-rebuild switch`; until then use `make naboo-deploy HOST=nc`.
