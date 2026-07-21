@@ -12,7 +12,6 @@
             }
 
             .chat-message-form {
-                border-top: 0.1rem solid var(--chat-color);
                 border-right: 0 !important;
                 border-bottom: 0;
                 border-inline-start: 0;
@@ -61,6 +60,12 @@
                     padding: 1em 0.5em 0.5em 0.5rem;
                     width: 100%;
                     border: none;
+                    // Black divider directly above the compose box. Lives on the
+                    // textarea (not the form) so it sits right atop the input
+                    // rather than above the toolbar that renders beneath it; the
+                    // form's `display: contents` panel ancestors made the
+                    // form-level border-top land in the wrong place.
+                    border-top: 0.1rem solid var(--chat-color);
                     min-height: var(--chat-textarea-height);
                     margin-bottom: -4px; // Not clear why this is necessary :(
                     resize: none;

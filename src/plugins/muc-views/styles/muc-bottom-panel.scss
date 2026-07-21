@@ -37,7 +37,6 @@
 
         converse-muc-bottom-panel {
             .chat-message-form {
-                border-top: 0.1rem solid var(--muc-color) !important;
                 border-inline-end: 0 !important;
 
                 .suggestion-box__results--above {
@@ -55,6 +54,9 @@
                 .chat-textarea {
                     width: 100%;
                     border: none;
+                    // Black divider directly above the compose box — on the
+                    // textarea rather than the form (see chat-bottom-panel.scss).
+                    border-top: 0.1rem solid var(--muc-color);
                     border-bottom-right-radius: 0;
                     field-sizing: content;
                     padding: 1em 0.5em 0.5em 0.5rem;
