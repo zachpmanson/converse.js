@@ -30,7 +30,7 @@ export class LocationButton extends CustomElement {
             ?disabled=${this.fetching_location}
             @click=${this.shareLocation}
         >
-            <converse-icon color="var(${color})" class="fa fa-globe" size="1em"></converse-icon>
+            <converse-icon color="var(${color})" class="fa fa-map-marker-alt" size="1em"></converse-icon>
         </button>`;
     }
 
