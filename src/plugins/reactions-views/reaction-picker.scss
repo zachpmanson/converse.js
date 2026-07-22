@@ -159,13 +159,6 @@ converse-reaction-picker {
     }
 }
 
-/* The message's full-emoji-picker dropdown is opened programmatically from the
-   menu's "+" (openAt), so hide its own toggle button — otherwise a stray "+"
-   shows on every message. */
-converse-emoji-picker-dropdown.msg-reaction-picker > .dropdown-toggle {
-    display: none;
-}
-
 /* Inline quick-react emoji row inside the message action menu */
 .chat-msg__quick-reactions {
     display: flex;
@@ -173,25 +166,37 @@ converse-emoji-picker-dropdown.msg-reaction-picker > .dropdown-toggle {
     gap: 0.15rem;
     padding: 0.2rem 0.4rem;
 
-    .quick-reaction {
+    // The quick-react buttons and the "+" picker toggle share one look. A fixed
+    // box taller than the emoji glyph keeps the hover background around the whole
+    // glyph (emoji render taller than their font-size / line box).
+    .quick-reaction,
+    .quick-reaction--more > .dropdown-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         border: none;
         background: transparent;
         cursor: pointer;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         line-height: 1;
-        padding: 0.15rem 0.2rem;
+        min-height: 1.9rem;
+        min-width: 1.9rem;
+        padding: 0 0.25rem;
         border-radius: 6px;
+        color: var(--foreground-color);
 
         &:hover,
         &:focus {
             background-color: var(--highlight-color-hover);
         }
+    }
 
-        &--more {
+    // The "+" full-picker toggle is a converse-emoji-picker-dropdown element.
+    .quick-reaction--more {
+        display: inline-flex;
+
+        > .dropdown-toggle {
             font-size: 1rem;
-            color: var(--foreground-color);
-            display: inline-flex;
-            align-items: center;
         }
     }
 }

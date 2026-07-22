@@ -35,22 +35,16 @@ function tplQuickReactionRow(el) {
                 ${emoji}
             </button>`
         )}
-        <button
-            type="button"
-            class="quick-reaction quick-reaction--more"
+        <converse-emoji-picker-dropdown
+            class="quick-reaction--more"
             title="${__('More reactions…')}"
-            @click=${(/** @type {MouseEvent} */ ev) => {
-                // Jump straight to the full emoji picker at the cursor, rather
-                // than opening the popular-reactions panel first.
-                /** @type {any} */ (el.querySelector('converse-emoji-picker-dropdown'))?.openAt(
-                    ev.clientX,
-                    ev.clientY
-                );
+            .message_model=${el.model}
+            @emoji-picker-selected=${(/** @type {CustomEvent} */ ev) => {
+                sendReaction(el.model, ev.detail.emoji);
+                /** @type {any} */ (ev.currentTarget).hide?.();
                 closeMenu(ev);
             }}
-        >
-            <converse-icon class="fas fa-plus" size="0.9em"></converse-icon>
-        </button>
+        ></converse-emoji-picker-dropdown>
     </div>`;
 }
 
@@ -83,17 +77,5 @@ converse.plugins.add('converse-reaction-views', {
             return buttons;
         });
 
-        api.listen.on('getMessageActionContent', (el, content) => {
-            // The full emoji picker, opened directly by the inline row's "+".
-            // Its own toggle button is hidden (CSS) — we drive it via openAt().
-            return html`${content}<converse-emoji-picker-dropdown
-                class="msg-reaction-picker"
-                .message_model=${el.model}
-                @emoji-picker-selected=${(/** @type {CustomEvent} */ ev) => {
-                    sendReaction(el.model, ev.detail.emoji);
-                    /** @type {any} */ (ev.currentTarget).hide?.();
-                }}
-            ></converse-emoji-picker-dropdown>`;
-        });
     },
 });
