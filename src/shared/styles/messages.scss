@@ -445,27 +445,40 @@
 // (0fr -> 1fr grid trick), but that grows the row *after* the scroll is set, so
 // the view reconciled with an awkward downward jump once the growth finished.
 //
-// A transform-only animation leaves layout untouched — the row already
-// occupies its final slot, so the message just slides up into place with the
-// scroll staying put. No reflow, nothing to clip, no post-animation skip.
-// Pure slide, no opacity fade (by request).
+// Slide-up reveal for newly-arrived messages — no fade, no layout change, no
+// scroll skip. The trick: keep the message element at its natural (full) height
+// and just clip it (overflow: hidden), then slide its *content* up inside that
+// fixed box. Because the element's own box never changes size or position,
+// Converse's scroll-to-bottom stays correct.
+//
+// Earlier attempts each failed one way: animating the element's height (grid
+// unfold) changed layout after the scroll was set -> downward skip; animating
+// the element's own transform kept layout stable but slid it from below its
+// resting slot, which the scroll pins to the bottom edge -> the whole slide
+// happened off-screen (looked like no animation). Sliding the child within a
+// clipped, full-height box keeps the motion on-screen and jank-free.
 //
 // `.is-fresh` itself is applied by the embedding page (not Converse), which
 // is what actually knows whether a message just arrived live versus was
-// part of a bulk history/scrollback load.
+// part of a bulk history/scrollback load. animationend bubbles from the child,
+// so the page's listener on the element still fires.
 @keyframes converse-message-slide-up {
     from {
-        transform: translateY(2.5em);
+        transform: translateY(2em);
     }
     to {
         transform: none;
     }
 }
 converse-chat-message.is-fresh {
-    animation: converse-message-slide-up 0.3s ease-out;
+    overflow: hidden;
+
+    > * {
+        animation: converse-message-slide-up 0.3s ease-out;
+    }
 }
 @media (prefers-reduced-motion: reduce) {
-    converse-chat-message.is-fresh {
+    converse-chat-message.is-fresh > * {
         animation: none;
     }
 }
