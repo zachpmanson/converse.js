@@ -35,11 +35,24 @@ function tplActivityIndicator() {
 function tplRoomItem(el, room) {
     const i18n_leave_room = __('Leave this groupchat');
     const has_unread_msgs = room.get('num_unread_general') || room.get('has_activity');
+    const action_btns = [
+        html`<a
+            class="dropdown-item close-room"
+            role="button"
+            data-room-jid="${room.get('jid')}"
+            data-room-name="${room.getDisplayName()}"
+            title="${i18n_leave_room}"
+            @click=${(/** @type {Event} */ ev) => el.closeRoom(ev)}
+        >
+            <converse-icon class="fa fa-sign-out-alt" size="1em"></converse-icon>&nbsp;${__('Leave')}
+        </a>`,
+    ];
     return html` <li
         class="list-item controlbox-padded available-chatroom d-flex flex-row ${isCurrentlyOpen(room)
             ? 'open'
             : ''} ${has_unread_msgs ? 'unread-msgs' : ''}"
         data-room-jid="${room.get('jid')}"
+        @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
     >
         <a
             class="list-item-link open-room available-room w-100"
@@ -66,20 +79,10 @@ function tplRoomItem(el, room) {
             >
         </a>
 
-        <a
-            class="list-item-action close-room"
-            tabindex="0"
-            data-room-jid="${room.get('jid')}"
-            data-room-name="${room.getDisplayName()}"
-            title="${i18n_leave_room}"
-            @click=${(/** @type {Event} */ ev) => el.closeRoom(ev)}
-        >
-            <converse-icon
-                class="fa fa-sign-out-alt"
-                size="1.2em"
-                color="${isCurrentlyOpen(room) ? 'var(--foreground-color)' : ''}"
-            ></converse-icon>
-        </a>
+        <converse-dropdown
+            class="btn-group dropstart list-item-action room-actions"
+            .items=${action_btns}
+        ></converse-dropdown>
     </li>`;
 }
 
