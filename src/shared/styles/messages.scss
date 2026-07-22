@@ -455,14 +455,14 @@
 // part of a bulk history/scrollback load.
 @keyframes converse-message-slide-up {
     from {
-        transform: translateY(1em);
+        transform: translateY(2.5em);
     }
     to {
         transform: none;
     }
 }
 converse-chat-message.is-fresh {
-    animation: converse-message-slide-up 0.25s ease-out;
+    animation: converse-message-slide-up 0.3s ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
     converse-chat-message.is-fresh {
