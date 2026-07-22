@@ -7,7 +7,7 @@ import { __ } from 'i18n';
 import { html } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { getAuthorStyle } from 'utils/color.js';
-import { getUnreadMsgsDisplay } from 'shared/chat/utils.js';
+import { getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
 
 const i18n_occupant_hint = /** @param {MUCOccupant} o */ (o) => {
     return __('Click to mention %1$s in your message.', o.get('nick'));
@@ -170,7 +170,11 @@ export default (el) => {
 
     const num_unread = getUnreadMsgsDisplay(o);
     return html`
-        <li class="list-item occupant" id="${o.id}">
+        <li
+            class="list-item occupant"
+            id="${o.id}"
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
+        >
             <a @click="${(ev) => el.onOccupantClicked(ev, o)}">
                 <div class="row g-0">
                     <div class="col-auto">

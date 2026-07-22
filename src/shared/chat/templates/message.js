@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { api, converse } from '@converse/headless';
 import { shouldRenderMediaFromURL } from '../../../utils/url.js';
 import { getAuthorStyle } from '../../../utils/color.js';
-import { getHats } from '../utils.js';
+import { getHats, openDropdownAt } from '../utils.js';
 import { __ } from 'i18n';
 import 'shared/avatar/avatar.js';
 import 'shared/chat/unfurl.js';
@@ -101,6 +101,7 @@ export default (el) => {
                         ? 'chat-msg__body--received'
                         : ''} ${el.model.get('is_delayed') ? 'chat-msg__body--delayed' : ''}"
                     style="position: relative;"
+                    @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
                 >
                     <div class="chat-msg__message">
                         ${is_action

@@ -7,6 +7,7 @@ import { __ } from 'i18n';
 import 'shared/components/list-filter.js';
 import './../sidebar-occupant.js';
 import tplOccupantsFilter from './occupants-filter.js';
+import { openDropdownAt } from 'shared/chat/utils.js';
 
 /**
  * @param {import('../occupants').default} el
@@ -92,7 +93,10 @@ export default (el) => {
     return html`
         <div class="occupants">
             <div class="occupants-header">
-                <div class="occupants-header--title">
+                <div
+                    class="occupants-header--title"
+                    @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
+                >
                     <span class="occupants-heading sidebar-heading">${el.model.occupants.length} ${i18n_participants}</span>
                     ${btns.length === 1
                         ? btns[0]

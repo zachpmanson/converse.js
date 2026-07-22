@@ -17,6 +17,44 @@ export function isMobileViewport() {
 }
 
 /**
+ * `@contextmenu` handler that opens a row's overflow `<converse-dropdown>` menu
+ * at the cursor (right-click), in addition to its usual "…" toggle button.
+ * @param {MouseEvent} ev
+ * @param {Element} rootEl - element whose subtree contains the `<converse-dropdown>`
+ */
+export function openDropdownAt(ev, rootEl) {
+    const target = /** @type {Element} */ (ev.target);
+    // Leave the native browser menu for real content links, form controls, media
+    // players and message media images. `href="#"` rows (the roster contact link,
+    // the message author link) are intentionally NOT excluded, so right-clicking
+    // a contact/message still opens its menu.
+    if (
+        target.closest?.(
+            'a[href]:not([href="#"]):not([href=""]), button, input, textarea, select, audio, video, .chat-image'
+        )
+    ) {
+        return;
+    }
+
+    const dropdown = /** @type {import('shared/components/dropdown.js').default} */ (
+        rootEl.querySelector('converse-dropdown')
+    );
+    // No menu, not yet rendered, or empty -> do nothing (fall through to native).
+    if (!dropdown || !dropdown.menu || !dropdown.menu.querySelector('.dropdown-item')) return;
+
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    // Right-click doesn't fire the outside-`click` closer, so close any other
+    // open dropdowns before opening this one.
+    document.querySelectorAll('converse-dropdown').forEach((el) => {
+        if (el !== dropdown) /** @type {any} */ (el).hide?.();
+    });
+
+    dropdown.showAt(ev.clientX, ev.clientY);
+}
+
+/**
  * @param {import('@converse/headless/types/shared/chatbox').default} model
  */
 export function getChatStyle(model) {

@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { _converse, u } from '@converse/headless';
 import { __ } from 'i18n';
+import { openDropdownAt } from 'shared/chat/utils.js';
 
 /**
  * @param {import('../occupant').default} el
@@ -18,7 +19,10 @@ export default (el) => {
     const hats = el.model?.get('hats')?.length ? el.model.get('hats').map(({ title }) => title) : [];
 
     return html` <span class="sidebar-occupant">
-        <div class="sidebar-heading">
+        <div
+            class="sidebar-heading"
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
+        >
             <span
                 ><button
                     type="button"

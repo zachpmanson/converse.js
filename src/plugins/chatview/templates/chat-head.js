@@ -2,7 +2,7 @@ import { html } from "lit";
 import { until } from "lit/directives/until.js";
 import { _converse, constants } from "@converse/headless";
 import { __ } from "i18n";
-import { getStandaloneButtons, getDropdownButtons } from "shared/chat/utils.js";
+import { getStandaloneButtons, getDropdownButtons, openDropdownAt } from "shared/chat/utils.js";
 
 const { HEADLINES_TYPE } = constants;
 
@@ -49,7 +49,10 @@ export default (el) => {
     ></span>`;
 
     return html`
-        <div class="chatbox-title ${status ? "" : "chatbox-title--no-desc"}">
+        <div
+            class="chatbox-title ${status ? "" : "chatbox-title--no-desc"}"
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, el)}
+        >
             <div class="chatbox-title--row">
                 ${!_converse.api.settings.get("singleton")
                     ? html`<converse-controlbox-navback jid="${jid}"></converse-controlbox-navback>`

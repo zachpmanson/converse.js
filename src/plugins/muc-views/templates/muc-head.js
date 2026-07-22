@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { __ } from 'i18n';
 import { _converse, api } from '@converse/headless';
-import { getStandaloneButtons, getDropdownButtons } from 'shared/chat/utils.js';
+import { getStandaloneButtons, getDropdownButtons, openDropdownAt } from 'shared/chat/utils.js';
 import 'shared/components/dropdown.js';
 import 'shared/texture/components/texture.js';
 
@@ -15,7 +15,10 @@ export default (el) => {
     const subject = o.subject ? o.subject.text : '';
     const show_subject = subject && !subject_hidden;
     return html`
-        <div class="chatbox-title ${show_subject ? '' : 'chatbox-title--no-desc'}">
+        <div
+            class="chatbox-title ${show_subject ? '' : 'chatbox-title--no-desc'}"
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, el)}
+        >
             <div class="chatbox-title--row">
                 ${!_converse.api.settings.get('singleton')
                     ? html`<converse-controlbox-navback jid="${o.jid}"></converse-controlbox-navback>`

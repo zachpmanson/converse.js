@@ -11,6 +11,7 @@ import {
     groupsComparator,
     contactsComparator,
 } from '../utils.js';
+import { openDropdownAt } from 'shared/chat/utils.js';
 
 const { CLOSED } = constants;
 
@@ -116,7 +117,10 @@ export default (el) => {
     }
 
     return html`
-        <div class="d-flex controlbox-padded">
+        <div
+            class="d-flex controlbox-padded"
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
+        >
             <span class="w-100 controlbox-heading controlbox-heading--contacts">
                 <a
                     class="list-toggle open-contacts-toggle"

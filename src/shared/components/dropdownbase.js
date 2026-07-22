@@ -32,6 +32,7 @@ export default class DropdownBase extends CustomElement {
         }
         if (this._onDocumentClick) {
             document.removeEventListener('click', this._onDocumentClick);
+            document.removeEventListener('contextmenu', this._onDocumentClick);
         }
         this._popper?.destroy();
         super.disconnectedCallback();
@@ -58,7 +59,7 @@ export default class DropdownBase extends CustomElement {
         return this.menu.classList.contains('show') ? this.hide() : this.show();
     }
 
-    /** Show the dropdown */
+    /** Show the dropdown, anchored to its toggle button */
     show() {
         const menu = this.menu;
         if (!menu) {
@@ -71,24 +72,101 @@ export default class DropdownBase extends CustomElement {
         this.button?.setAttribute('aria-expanded', 'true');
         menu.classList.add('show');
 
+        this._popper = this._createButtonPopper();
+        this._afterShow();
+    }
+
+    /**
+     * Show the dropdown anchored at a viewport coordinate (e.g. a right-click
+     * position) rather than at its toggle button. The toggle button is left
+     * untouched, so this coexists with the normal button-triggered {@link show}.
+     * @param {number} x - viewport clientX
+     * @param {number} y - viewport clientY
+     */
+    showAt(x, y) {
+        const menu = this.menu;
+        if (!menu) {
+            log.error('DropdownBase.showAt called but this.menu is not set');
+            return;
+        }
+
+        if (menu.classList.contains('show')) {
+            // Already open — re-anchor at the new cursor position.
+            this._popper?.destroy();
+            this._popper = this._createCursorPopper(x, y);
+            return;
+        }
+
+        this.button?.setAttribute('aria-expanded', 'true');
+        menu.classList.add('show');
+        this._popper = this._createCursorPopper(x, y);
+        this._afterShow();
+
+        // Focus the first item so Escape / arrow-key navigation (handled by the
+        // Dropdown subclass) work immediately, without first clicking the menu.
+        /** @type {HTMLElement|null} */ (menu.querySelector('.dropdown-item'))?.focus?.();
+    }
+
+    /** @returns {import('@popperjs/core').Instance} */
+    _createButtonPopper() {
         if (this.classList.contains('dropstart')) {
-            this._popper = createPopper(this.button, menu, {
+            return createPopper(this.button, this.menu, {
                 strategy: 'fixed',
                 placement: 'left-start',
             });
-        } else {
-            this._popper = createPopper(this.button, menu, {
-                placement: 'bottom-start',
-                modifiers: [{ name: 'flip' }, { name: 'offset', options: { offset: [0, 4] } }],
-            });
         }
+        return createPopper(this.button, this.menu, {
+            placement: 'bottom-start',
+            modifiers: [{ name: 'flip' }, { name: 'offset', options: { offset: [0, 4] } }],
+        });
+    }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {import('@popperjs/core').Instance}
+     */
+    _createCursorPopper(x, y) {
+        // Popper virtual element: a zero-size reference at the cursor. `fixed`
+        // strategy makes the menu `position: fixed` so it escapes the overflow
+        // clipping of ancestors like `.chat-msg__body` / the scroll container.
+        const ref = {
+            getBoundingClientRect: () =>
+                /** @type {DOMRect} */ ({
+                    width: 0,
+                    height: 0,
+                    top: y,
+                    bottom: y,
+                    left: x,
+                    right: x,
+                    x,
+                    y,
+                    toJSON() {
+                        return this;
+                    },
+                }),
+        };
+        return createPopper(/** @type {any} */ (ref), this.menu, {
+            strategy: 'fixed',
+            placement: 'bottom-start',
+            modifiers: [
+                { name: 'flip', options: { fallbackPlacements: ['top-start', 'bottom-end', 'top-end'] } },
+                { name: 'preventOverflow', options: { padding: 8 } },
+            ],
+        });
+    }
+
+    /** Shared tail for {@link show} / {@link showAt}: outside-close + event. */
+    _afterShow() {
         this._onDocumentClick = /** @param {MouseEvent} ev */ (ev) => {
             if (!this.contains(/** @type {Node} */ (ev.target))) {
                 this.hide();
             }
         };
+        // A right-click doesn't emit `click`, so close on an outside contextmenu
+        // too (otherwise a menu opened via right-click wouldn't close on another).
         document.addEventListener('click', this._onDocumentClick);
+        document.addEventListener('contextmenu', this._onDocumentClick);
 
         this.dispatchEvent(new CustomEvent('converse:dropdown:show', { bubbles: true }));
     }
@@ -111,6 +189,7 @@ export default class DropdownBase extends CustomElement {
 
         if (this._onDocumentClick) {
             document.removeEventListener('click', this._onDocumentClick);
+            document.removeEventListener('contextmenu', this._onDocumentClick);
             this._onDocumentClick = null;
         }
 

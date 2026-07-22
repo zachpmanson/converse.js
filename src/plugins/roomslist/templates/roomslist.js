@@ -7,7 +7,7 @@ import { api, u, constants } from '@converse/headless';
 import 'plugins/muc-views/modals/add-muc.js';
 import 'plugins/muc-views/modals/muc-list.js';
 import { __ } from 'i18n';
-import { getUnreadMsgsDisplay } from 'shared/chat/utils.js';
+import { getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
 
 import '../styles/roomsgroups.scss';
 
@@ -178,7 +178,10 @@ export default (el) => {
         </a>`,
     ];
 
-    return html` <div class="d-flex controlbox-padded">
+    return html` <div
+            class="d-flex controlbox-padded"
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
+        >
             <span class="w-100 controlbox-heading controlbox-heading--groupchats">
                 <a
                     class="list-toggle open-rooms-toggle"

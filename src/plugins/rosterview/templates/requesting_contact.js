@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { __ } from 'i18n';
-import { getUnreadMsgsDisplay } from 'shared/chat/utils.js';
+import { getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
 import {tplDetailsButton } from './roster_item.js';
 
 /**
@@ -43,6 +43,7 @@ export default (el) => {
             href="#"
             data-jid=${jid}
             @click=${el.openChat}
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, el)}
         >
             <span>
                 <converse-avatar
