@@ -197,6 +197,13 @@ converse-reaction-picker {
 
         > .dropdown-toggle {
             font-size: 1rem;
+
+            // No Bootstrap caret: the toggle is a .dropdown-toggle inside the
+            // .dropstart message menu, which would otherwise draw a left caret.
+            &::before,
+            &::after {
+                display: none !important;
+            }
         }
     }
 }
