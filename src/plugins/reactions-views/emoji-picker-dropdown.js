@@ -105,6 +105,19 @@ export default class EmojiPickerDropdown extends DropdownBase {
     }
 
     /**
+     * Open the full emoji picker anchored at a cursor position. Used by the
+     * message menu's inline "+" to jump straight to the picker (rather than
+     * routing through the popular-reactions panel), and works even though the
+     * toggle button is hidden, since it positions via a virtual cursor element.
+     * @param {number} x @param {number} y
+     */
+    async openAt(x, y) {
+        await this.#initPicker();
+        await this.updateComplete;
+        this.showAt(x, y);
+    }
+
+    /**
      * Lazily creates and fetches the emoji picker model for the chatbox
      * if one doesn't already exist.
      * @returns {Promise<void>}

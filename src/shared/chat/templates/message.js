@@ -55,6 +55,7 @@ export default (el) => {
             data-msgid="${msgid}"
             data-from="${el.model.get('from')}"
             data-encrypted="${el.model.get('is_encrypted')}"
+            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
         >
             <!-- Anchor to allow us to scroll the message into view -->
             <a id="${msgid}"></a>
@@ -101,7 +102,6 @@ export default (el) => {
                         ? 'chat-msg__body--received'
                         : ''} ${el.model.get('is_delayed') ? 'chat-msg__body--delayed' : ''}"
                     style="position: relative;"
-                    @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
                 >
                     <div class="chat-msg__message">
                         ${is_action

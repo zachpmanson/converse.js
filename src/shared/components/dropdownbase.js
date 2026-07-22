@@ -18,6 +18,13 @@ export default class DropdownBase extends CustomElement {
             this.toggle();
         };
         this.button.addEventListener('click', this._onButtonClick);
+
+        // Close the menu once an action item is chosen (e.g. Copy), like a
+        // normal dropdown. Runs after the item's own click handler (bubbling).
+        this._onMenuItemClick = /** @param {MouseEvent} ev */ (ev) => {
+            if (/** @type {Element} */ (ev.target)?.closest?.('.dropdown-item')) this.hide();
+        };
+        this.menu?.addEventListener('click', this._onMenuItemClick);
     }
 
     connectedCallback() {
@@ -29,6 +36,9 @@ export default class DropdownBase extends CustomElement {
         this.unregisterEvents();
         if (this._onButtonClick) {
             this.button?.removeEventListener('click', this._onButtonClick);
+        }
+        if (this._onMenuItemClick) {
+            this.menu?.removeEventListener('click', this._onMenuItemClick);
         }
         if (this._onDocumentClick) {
             document.removeEventListener('click', this._onDocumentClick);

@@ -159,6 +159,13 @@ converse-reaction-picker {
     }
 }
 
+/* The message's full-emoji-picker dropdown is opened programmatically from the
+   menu's "+" (openAt), so hide its own toggle button — otherwise a stray "+"
+   shows on every message. */
+converse-emoji-picker-dropdown.msg-reaction-picker > .dropdown-toggle {
+    display: none;
+}
+
 /* Inline quick-react emoji row inside the message action menu */
 .chat-msg__quick-reactions {
     display: flex;
@@ -248,9 +255,12 @@ converse-reaction-picker {
         font-weight: 500;
     }
 
-    /* Emoji within the bubble */
-    .emoji {
-        font-size: 0.875rem;
+    /* Emoji within the bubble — flex-centered so the glyph sits on the badge's
+       vertical centre instead of riding over the top, and sized down a touch. */
+    .reaction-emoji {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
         line-height: 1;
     }
 

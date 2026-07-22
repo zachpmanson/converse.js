@@ -91,7 +91,8 @@ export default class Reactions extends CustomElement {
                             title="${until(tooltip_promise, reactors.join('\n'))}"
                             @click=${() => this.onReactionClick(emoji)}
                         >
-                            ${emoji} <span class="count">${count}</span>
+                            <span class="reaction-emoji">${emoji}</span
+                            ><span class="count">${count}</span>
                         </button>
                     `;
                 })}
