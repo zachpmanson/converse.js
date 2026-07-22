@@ -18,7 +18,6 @@ export default (el) => {
     const show_toolbar = api.settings.get("show_toolbar");
 
     return html`
-        <converse-reply-preview .model=${el.model}></converse-reply-preview>
         <form
         class="chat-message-form"
         @submit="${/** @param {SubmitEvent} ev */ (ev) => el.onFormSubmitted(ev)}"

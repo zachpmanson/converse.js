@@ -94,6 +94,9 @@ class MessageActions extends CustomElement {
     }
 
     static getActionsDropdownItem(o) {
+        // A button may supply a custom Lit template (e.g. the inline reaction
+        // row) instead of the standard icon + text item.
+        if (o.template) return o.template;
         return html`
             <button type="button" class="dropdown-item chat-msg__action ${o.button_class}" @click=${o.handler}>
                 <converse-icon class="${o.icon_class}" color="var(--foreground-color)" size="1em"></converse-icon

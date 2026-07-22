@@ -159,6 +159,36 @@ converse-reaction-picker {
     }
 }
 
+/* Inline quick-react emoji row inside the message action menu */
+.chat-msg__quick-reactions {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.2rem 0.4rem;
+
+    .quick-reaction {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 1.2rem;
+        line-height: 1;
+        padding: 0.15rem 0.2rem;
+        border-radius: 6px;
+
+        &:hover,
+        &:focus {
+            background-color: var(--highlight-color-hover);
+        }
+
+        &--more {
+            font-size: 1rem;
+            color: var(--foreground-color);
+            display: inline-flex;
+            align-items: center;
+        }
+    }
+}
+
 /* Container for reaction bubbles on messages */
 .chat-msg__reactions {
     display: flex;
