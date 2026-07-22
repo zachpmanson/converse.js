@@ -98,7 +98,13 @@ class MessageActions extends CustomElement {
         // row) instead of the standard icon + text item.
         if (o.template) return o.template;
         return html`
-            <button type="button" class="dropdown-item chat-msg__action ${o.button_class}" @click=${o.handler}>
+            <button
+                type="button"
+                class="dropdown-item chat-msg__action ${o.button_class}"
+                ?disabled=${o.disabled}
+                title="${o.i18n_title ?? ''}"
+                @click=${o.handler}
+            >
                 <converse-icon class="${o.icon_class}" color="var(--foreground-color)" size="1em"></converse-icon
                 >&nbsp;${o.i18n_text}
             </button>
@@ -347,14 +353,11 @@ class MessageActions extends CustomElement {
      * @returns {boolean}
      */
     canReply() {
-        const message_type = this.model.get('type');
-        if (message_type === 'groupchat') {
-            // For groupchat, we need a stanza_id to reply
-            const from_jid = this.model.get('from_muc') || this.model.get('from');
-            const bare_jid = Strophe.getBareJidFromJid(from_jid);
-            return !!this.model.get(`stanza_id ${bare_jid}`);
-        }
-        return true;
+        // Repliable iff we have an id to attach the reply to: the MUC stanza_id
+        // for groupchat, otherwise the message's msgid. getReplyToId() picks the
+        // right one, so a missing id (e.g. a peer that sends no stanza id) means
+        // the Reply action should be shown disabled rather than doing nothing.
+        return !!this.getReplyToId();
     }
 
     /** @param {MouseEvent} [ev] */
@@ -422,16 +425,18 @@ class MessageActions extends CustomElement {
         });
 
         if (this.model.collection.chatbox.canPostMessages()) {
-            // Only show reply button if the message can be replied to (has stanza_id for groupchat)
-            if (this.canReply()) {
-                buttons.push({
-                    'i18n_text': __('Reply'),
-                    'handler': /** @param {MouseEvent} ev */ (ev) => this.onMessageReplyButtonClicked(ev),
-                    'button_class': 'chat-msg__action-reply',
-                    'icon_class': 'fas fa-reply',
-                    'name': 'reply',
-                });
-            }
+            // Always show Reply, but disable it when the message can't be replied
+            // to (no id to attach to), so it's clear the action isn't possible.
+            const can_reply = this.canReply();
+            buttons.push({
+                'i18n_text': __('Reply'),
+                'i18n_title': can_reply ? __('Reply') : __("This message can't be replied to"),
+                'handler': /** @param {MouseEvent} ev */ (ev) => this.onMessageReplyButtonClicked(ev),
+                'button_class': 'chat-msg__action-reply',
+                'icon_class': 'fas fa-reply',
+                'name': 'reply',
+                'disabled': !can_reply,
+            });
             buttons.push({
                 'i18n_text': __('Quote'),
                 'handler': /** @param {MouseEvent} ev */ (ev) => this.onMessageQuoteButtonClicked(ev),
