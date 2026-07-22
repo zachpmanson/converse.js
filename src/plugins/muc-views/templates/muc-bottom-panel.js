@@ -1,6 +1,7 @@
 import '../message-form.js';
 import '../nickname-form.js';
 import 'shared/chat/toolbar.js';
+import 'shared/chat/edit-preview.js';
 import { __ } from 'i18n';
 import { api, converse } from '@converse/headless';
 import { html } from 'lit';
@@ -23,6 +24,7 @@ export default (el) => {
                   </div>`
                 : ''}
 
+            <converse-edit-preview .model=${el.model}></converse-edit-preview>
             <converse-reply-preview .model=${el.model}></converse-reply-preview>
 
             ${el.model.canPostMessages()
