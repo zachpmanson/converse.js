@@ -36,6 +36,8 @@
         .dropdown-menu {
             background: var(--background-color);
             margin-top: -0.2em !important;
+            padding-top: 0;
+            padding-bottom: 0;
             box-shadow: var(--raised-el-shadow);
             .selected {
                 background: var(--highlight-color-hover);
