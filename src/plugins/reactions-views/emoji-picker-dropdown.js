@@ -18,6 +18,7 @@ export default class EmojiPickerDropdown extends DropdownBase {
     static get properties() {
         return {
             'message_model': { type: Object },
+            'opened': { state: true },
         };
     }
 
@@ -25,6 +26,11 @@ export default class EmojiPickerDropdown extends DropdownBase {
         super();
         /** @type {BaseMessage|null} */
         this.message_model = null;
+        // Whether THIS dropdown's picker is open. The heavy <converse-emoji-picker>
+        // is only rendered while open — chatbox.emoji_picker is shared across all
+        // of a chat's messages, so rendering the picker whenever it merely exists
+        // meant every message rendered a full picker (huge memory use).
+        this.opened = false;
     }
 
     /**
@@ -51,7 +57,7 @@ export default class EmojiPickerDropdown extends DropdownBase {
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    ${this.chatbox?.emoji_picker
+                    ${this.opened && this.chatbox?.emoji_picker
                         ? html`
                               <converse-emoji-picker
                                   .state=${this.chatbox.emoji_picker}
@@ -88,9 +94,14 @@ export default class EmojiPickerDropdown extends DropdownBase {
             async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
+                if (this.opened) {
+                    this.hide();
+                    return;
+                }
                 await this.#initPicker();
+                this.opened = true; // render the picker before showing it
                 await this.updateComplete;
-                this.toggle();
+                this.show();
             };
         this.button.addEventListener('click', this._onButtonClick);
     }
@@ -113,8 +124,15 @@ export default class EmojiPickerDropdown extends DropdownBase {
      */
     async openAt(x, y) {
         await this.#initPicker();
+        this.opened = true;
         await this.updateComplete;
         this.showAt(x, y);
+    }
+
+    /** @override — also unrender the picker when closed (see the `opened` note). */
+    hide() {
+        this.opened = false;
+        super.hide();
     }
 
     /**
