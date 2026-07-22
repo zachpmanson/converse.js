@@ -180,8 +180,11 @@ converse-reaction-picker {
     border: 1px solid var(--reaction-border, rgba(29, 155, 209, 0.2));
     border-radius: 12px !important; /* Rounded pill shape */
     min-width: auto;
-    height: 22px;
-    padding: 0.125rem 0.5rem;
+    /* No fixed height: emoji glyphs render taller than their font-size, so a
+       fixed 22px pill let them spill over the top padding. Let the pill size to
+       its content plus symmetric padding instead. */
+    min-height: 22px;
+    padding: 0.2rem 0.5rem;
     font-size: 0.75rem;
     line-height: 1;
     cursor: pointer;

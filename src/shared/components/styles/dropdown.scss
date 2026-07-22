@@ -1,4 +1,15 @@
 .conversejs {
+    // Keep a dropdown visible while its menu is open, even if the dropdown
+    // itself is normally only revealed on hover (e.g. the roster's
+    // `.list-item-action`, which is `opacity: 0` until the row is hovered).
+    // Without this, opening a menu (especially a right-click one) and then
+    // moving the mouse to another row fades the still-open menu out with the
+    // original row's hover state.
+    converse-dropdown:has(> .dropdown-menu.show) {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
     converse-emoji-dropdown,
     converse-dropdown {
         &.dropup {
