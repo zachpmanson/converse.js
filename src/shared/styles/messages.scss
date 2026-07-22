@@ -445,20 +445,19 @@
 // (0fr -> 1fr grid trick), but that grows the row *after* the scroll is set, so
 // the view reconciled with an awkward downward jump once the growth finished.
 //
-// A transform + opacity animation leaves layout untouched — the row already
+// A transform-only animation leaves layout untouched — the row already
 // occupies its final slot, so the message just slides up into place with the
 // scroll staying put. No reflow, nothing to clip, no post-animation skip.
+// Pure slide, no opacity fade (by request).
 //
 // `.is-fresh` itself is applied by the embedding page (not Converse), which
 // is what actually knows whether a message just arrived live versus was
 // part of a bulk history/scrollback load.
 @keyframes converse-message-slide-up {
     from {
-        opacity: 0;
         transform: translateY(1em);
     }
     to {
-        opacity: 1;
         transform: none;
     }
 }
