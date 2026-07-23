@@ -194,6 +194,54 @@ export default class MessageForm extends CustomElement {
     }
 
     /**
+     * Play a brief "slide up and out" animation of the just-sent text, so it
+     * appears to fly up out of the compose box — mirroring the slide-up used
+     * for newly-arrived messages (see `converse-message-slide-up`). A transient
+     * ghost of the text is animated while the textarea itself is cleared, so
+     * the input stays responsive.
+     * @param {HTMLTextAreaElement} textarea
+     * @param {string} text
+     */
+    animateSentText(textarea, text) {
+        if (!text || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+        const form = textarea.closest('form');
+        if (!form) return;
+
+        const cs = getComputedStyle(textarea);
+        const ghost = document.createElement('div');
+        ghost.className = 'chat-textarea-ghost';
+        ghost.style.left = `${textarea.offsetLeft}px`;
+        ghost.style.top = `${textarea.offsetTop}px`;
+        ghost.style.width = `${textarea.offsetWidth}px`;
+        ghost.style.height = `${textarea.offsetHeight}px`;
+
+        const inner = document.createElement('div');
+        inner.className = 'chat-textarea-ghost__text';
+        inner.textContent = text;
+        for (const prop of [
+            'fontFamily',
+            'fontSize',
+            'fontWeight',
+            'lineHeight',
+            'letterSpacing',
+            'color',
+            'paddingTop',
+            'paddingBottom',
+            'paddingLeft',
+            'paddingRight',
+        ]) {
+            inner.style[prop] = cs[prop];
+        }
+        ghost.appendChild(inner);
+        form.appendChild(ghost);
+
+        const cleanup = () => ghost.remove();
+        inner.addEventListener('animationend', cleanup, { once: true });
+        // Safety net in case animationend doesn't fire.
+        setTimeout(cleanup, 600);
+    }
+
+    /**
      * @param {SubmitEvent|KeyboardEvent} ev
      */
     async onFormSubmitted(ev) {
@@ -227,6 +275,7 @@ export default class MessageForm extends CustomElement {
         const message = is_command ? null : await this.model.sendMessage({ 'body': message_text, spoiler_hint });
         if (is_command || message) {
             hint_el.value = '';
+            this.animateSentText(textarea, message_text);
             textarea.value = '';
             textarea.style.height = 'auto';
             this.model.save({ 'draft': '' });
