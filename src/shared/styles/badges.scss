@@ -1,6 +1,40 @@
 .conversejs {
-    @import "bootstrap/scss/badge";
+    // Local reimplementation of Bootstrap's `.badge` (see issue #8). Faithful to
+    // the compiled Bootstrap output — same CSS custom properties and base rules —
+    // so no `bootstrap/scss/badge` import is needed. Requires a contextual
+    // modifier (`.badge-primary` etc.) for its background colour.
+    .badge {
+        --converse-badge-padding-x: 0.65em;
+        --converse-badge-padding-y: 0.35em;
+        --converse-badge-font-size: 0.75em;
+        --converse-badge-font-weight: 700;
+        --converse-badge-color: #fff;
+        --converse-badge-border-radius: var(--converse-border-radius);
 
+        display: inline-block;
+        padding: var(--converse-badge-padding-y) var(--converse-badge-padding-x);
+        font-size: var(--converse-badge-font-size);
+        font-weight: var(--converse-badge-font-weight);
+        line-height: 1;
+        color: var(--converse-badge-color);
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: var(--converse-badge-border-radius);
+
+        // Empty badges collapse automatically.
+        &:empty {
+            display: none;
+        }
+    }
+
+    // Quick fix for badges in buttons (Bootstrap parity).
+    .btn .badge {
+        position: relative;
+        top: -1px;
+    }
+
+    // Converse overrides.
     .badge {
         color: var(--background-color);
         font-size: 90%;
