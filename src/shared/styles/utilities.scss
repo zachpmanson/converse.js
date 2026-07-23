@@ -10,6 +10,13 @@
 .d-block { display: block !important; }
 .d-flex { display: flex !important; }
 .d-none { display: none !important; }
+// Responsive display variant (md = min-width: 768px). `d-md-flex` restores the
+// MUC chat area — which carries `d-none` so it collapses on narrow screens — at
+// desktop widths. Without it the chat area stays hidden and the occupants
+// sidebar fills the entire chat width.
+@media (min-width: 768px) {
+    .d-md-flex { display: flex !important; }
+}
 .w-100 { width: 100% !important; }
 .flex-row { flex-direction: row !important; }
 .flex-column { flex-direction: column !important; }
