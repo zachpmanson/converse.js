@@ -32,7 +32,7 @@ $prefix: 'converse-';
     @import "bootstrap/scss/button-group";
     @import "bootstrap/scss/nav";
     @import "bootstrap/scss/navbar";
-    @import "bootstrap/scss/card";
+    // Cards are reimplemented locally (see styles/card.scss, issue #11).
     // @import "bootstrap/scss/accordion";
     @import "bootstrap/scss/breadcrumb";
     // @import "bootstrap/scss/pagination";

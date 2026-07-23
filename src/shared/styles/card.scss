@@ -1,4 +1,84 @@
 .conversejs {
+    // Local reimplementation of Bootstrap's `.card` (see issue #11). The base
+    // rules and CSS custom properties mirror Bootstrap's compiled output; the
+    // sub-classes Converse never renders (card-header/-footer/-group/-link/
+    // -img-overlay/-header-tabs/-header-pills and the `> hr` / `> .list-group`
+    // integration) are omitted. Only .card/-body/-title/-subtitle/-text/-img*
+    // are used (unfurls, muc-details, roster_item, muc-occupant).
+    .card {
+        --converse-card-spacer-y: 1rem;
+        --converse-card-spacer-x: 1rem;
+        --converse-card-title-spacer-y: 0.5rem;
+        --converse-card-title-color: ;
+        --converse-card-subtitle-color: ;
+        --converse-card-border-width: var(--converse-border-width);
+        --converse-card-border-color: var(--converse-border-color-translucent);
+        --converse-card-border-radius: var(--converse-border-radius);
+        --converse-card-box-shadow: ;
+        --converse-card-inner-border-radius: calc(var(--converse-border-radius) - (var(--converse-border-width)));
+        --converse-card-cap-padding-y: 0.5rem;
+        --converse-card-cap-padding-x: 1rem;
+        --converse-card-cap-bg: rgba(var(--converse-body-color-rgb), 0.03);
+        --converse-card-cap-color: ;
+        --converse-card-height: ;
+        --converse-card-color: ;
+        --converse-card-bg: var(--converse-body-bg);
+        --converse-card-img-overlay-padding: 1rem;
+        --converse-card-group-margin: 0.75rem;
+
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        height: var(--converse-card-height);
+        color: var(--converse-body-color);
+        word-wrap: break-word;
+        background-color: var(--converse-card-bg);
+        background-clip: border-box;
+        border: var(--converse-card-border-width) solid var(--converse-card-border-color);
+        border-radius: var(--converse-card-border-radius);
+    }
+
+    .card-body {
+        flex: 1 1 auto;
+        padding: var(--converse-card-spacer-y) var(--converse-card-spacer-x);
+        color: var(--converse-card-color);
+    }
+
+    .card-title {
+        margin-bottom: var(--converse-card-title-spacer-y);
+        color: var(--converse-card-title-color);
+    }
+
+    .card-subtitle {
+        margin-top: calc(-0.5 * var(--converse-card-title-spacer-y));
+        margin-bottom: 0;
+        color: var(--converse-card-subtitle-color);
+    }
+
+    .card-text:last-child {
+        margin-bottom: 0;
+    }
+
+    .card-img,
+    .card-img-top,
+    .card-img-bottom {
+        width: 100%;
+    }
+
+    .card-img,
+    .card-img-top {
+        border-top-left-radius: var(--converse-card-inner-border-radius);
+        border-top-right-radius: var(--converse-card-inner-border-radius);
+    }
+
+    .card-img,
+    .card-img-bottom {
+        border-bottom-right-radius: var(--converse-card-inner-border-radius);
+        border-bottom-left-radius: var(--converse-card-inner-border-radius);
+    }
+
+    // Converse override: card border uses the theme's secondary colour.
     .card {
         --converse-card-border-color: var(--secondary-color);
     }
