@@ -1,4 +1,101 @@
 .conversejs {
+    // Local reimplementation of Bootstrap's `.alert` (see issue #9). Faithful to
+    // the compiled Bootstrap output (same --converse-alert-* custom properties,
+    // base rules and colour modifiers) so no `bootstrap/scss/alert` import is
+    // needed. The Converse-specific overrides for .alert-info / .alert-danger
+    // follow below.
+    .alert {
+        --converse-alert-bg: transparent;
+        --converse-alert-padding-x: 1rem;
+        --converse-alert-padding-y: 1rem;
+        --converse-alert-margin-bottom: 1rem;
+        --converse-alert-color: inherit;
+        --converse-alert-border-color: transparent;
+        --converse-alert-border: var(--converse-border-width) solid var(--converse-alert-border-color);
+        --converse-alert-border-radius: var(--converse-border-radius);
+        --converse-alert-link-color: inherit;
+
+        position: relative;
+        padding: var(--converse-alert-padding-y) var(--converse-alert-padding-x);
+        margin-bottom: var(--converse-alert-margin-bottom);
+        color: var(--converse-alert-color);
+        background-color: var(--converse-alert-bg);
+        border: var(--converse-alert-border);
+        border-radius: var(--converse-alert-border-radius);
+    }
+
+    .alert-heading {
+        color: inherit;
+    }
+
+    .alert-link {
+        font-weight: 700;
+        color: var(--converse-alert-link-color);
+    }
+
+    .alert-dismissible {
+        padding-right: 3rem;
+
+        .btn-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 2;
+            padding: 1.25rem 1rem;
+        }
+    }
+
+    // Contextual colour modifiers (Bootstrap parity, driven by the theme's
+    // --converse-*-bg-subtle / -text-emphasis / -border-subtle vars).
+    .alert-primary {
+        --converse-alert-color: var(--converse-primary-text-emphasis);
+        --converse-alert-bg: var(--converse-primary-bg-subtle);
+        --converse-alert-border-color: var(--converse-primary-border-subtle);
+        --converse-alert-link-color: var(--converse-primary-text-emphasis);
+    }
+    .alert-secondary {
+        --converse-alert-color: var(--converse-secondary-text-emphasis);
+        --converse-alert-bg: var(--converse-secondary-bg-subtle);
+        --converse-alert-border-color: var(--converse-secondary-border-subtle);
+        --converse-alert-link-color: var(--converse-secondary-text-emphasis);
+    }
+    .alert-success {
+        --converse-alert-color: var(--converse-success-text-emphasis);
+        --converse-alert-bg: var(--converse-success-bg-subtle);
+        --converse-alert-border-color: var(--converse-success-border-subtle);
+        --converse-alert-link-color: var(--converse-success-text-emphasis);
+    }
+    .alert-info {
+        --converse-alert-color: var(--converse-info-text-emphasis);
+        --converse-alert-bg: var(--converse-info-bg-subtle);
+        --converse-alert-border-color: var(--converse-info-border-subtle);
+        --converse-alert-link-color: var(--converse-info-text-emphasis);
+    }
+    .alert-warning {
+        --converse-alert-color: var(--converse-warning-text-emphasis);
+        --converse-alert-bg: var(--converse-warning-bg-subtle);
+        --converse-alert-border-color: var(--converse-warning-border-subtle);
+        --converse-alert-link-color: var(--converse-warning-text-emphasis);
+    }
+    .alert-danger {
+        --converse-alert-color: var(--converse-danger-text-emphasis);
+        --converse-alert-bg: var(--converse-danger-bg-subtle);
+        --converse-alert-border-color: var(--converse-danger-border-subtle);
+        --converse-alert-link-color: var(--converse-danger-text-emphasis);
+    }
+    .alert-light {
+        --converse-alert-color: var(--converse-light-text-emphasis);
+        --converse-alert-bg: var(--converse-light-bg-subtle);
+        --converse-alert-border-color: var(--converse-light-border-subtle);
+        --converse-alert-link-color: var(--converse-light-text-emphasis);
+    }
+    .alert-dark {
+        --converse-alert-color: var(--converse-dark-text-emphasis);
+        --converse-alert-bg: var(--converse-dark-bg-subtle);
+        --converse-alert-border-color: var(--converse-dark-border-subtle);
+        --converse-alert-link-color: var(--converse-dark-text-emphasis);
+    }
+
     .modal-alert {
         .alert {
             p {

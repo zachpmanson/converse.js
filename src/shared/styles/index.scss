@@ -37,7 +37,7 @@ $prefix: 'converse-';
     @import "bootstrap/scss/breadcrumb";
     // @import "bootstrap/scss/pagination";
     // Badges are reimplemented locally (see styles/badges.scss, issue #8).
-    @import "bootstrap/scss/alert";
+    // Alerts are reimplemented locally (see styles/alerts.scss, issue #9).
     @import "bootstrap/scss/progress";
     @import "bootstrap/scss/list-group";
     @import "bootstrap/scss/close";
