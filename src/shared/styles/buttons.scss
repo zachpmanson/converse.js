@@ -1,6 +1,138 @@
 .conversejs {
     --button-text-color: var(--background-color);
 
+    // Local reimplementation of Bootstrap's `.btn` (see issue #4). The base
+    // block and size classes below are Bootstrap's own `_buttons.scss` source,
+    // reproduced verbatim (they use the shared functions/variables/mixins that
+    // remain imported), so the compiled output is identical — only the
+    // `bootstrap/scss/buttons` component import is dropped. The colour variants
+    // are already mapped onto Converse's CSS custom properties further down; the
+    // only var the Bootstrap variant loop set that those blocks didn't is
+    // --converse-btn-focus-shadow-rgb (the keyboard-focus ring colour), which is
+    // now carried explicitly on each variant. The Bootstrap `.btn-{color}`
+    // variant loop, `.btn-link`, outline generation etc. are otherwise omitted.
+    .btn {
+        --#{$prefix}btn-padding-x: #{$btn-padding-x};
+        --#{$prefix}btn-padding-y: #{$btn-padding-y};
+        --#{$prefix}btn-font-family: #{$btn-font-family};
+        @include rfs($btn-font-size, --#{$prefix}btn-font-size);
+        --#{$prefix}btn-font-weight: #{$btn-font-weight};
+        --#{$prefix}btn-line-height: #{$btn-line-height};
+        --#{$prefix}btn-color: #{$btn-color};
+        --#{$prefix}btn-bg: transparent;
+        --#{$prefix}btn-border-width: #{$btn-border-width};
+        --#{$prefix}btn-border-color: transparent;
+        --#{$prefix}btn-border-radius: #{$btn-border-radius};
+        --#{$prefix}btn-hover-border-color: transparent;
+        --#{$prefix}btn-box-shadow: #{$btn-box-shadow};
+        --#{$prefix}btn-disabled-opacity: #{$btn-disabled-opacity};
+        --#{$prefix}btn-focus-box-shadow: 0 0 0 #{$btn-focus-width} rgba(var(--#{$prefix}btn-focus-shadow-rgb), .5);
+
+        display: inline-block;
+        padding: var(--#{$prefix}btn-padding-y) var(--#{$prefix}btn-padding-x);
+        font-family: var(--#{$prefix}btn-font-family);
+        @include font-size(var(--#{$prefix}btn-font-size));
+        font-weight: var(--#{$prefix}btn-font-weight);
+        line-height: var(--#{$prefix}btn-line-height);
+        color: var(--#{$prefix}btn-color);
+        text-align: center;
+        text-decoration: if($link-decoration == none, null, none);
+        white-space: $btn-white-space;
+        vertical-align: middle;
+        cursor: if($enable-button-pointers, pointer, null);
+        user-select: none;
+        border: var(--#{$prefix}btn-border-width) solid var(--#{$prefix}btn-border-color);
+        @include border-radius(var(--#{$prefix}btn-border-radius));
+        @include gradient-bg(var(--#{$prefix}btn-bg));
+        @include box-shadow(var(--#{$prefix}btn-box-shadow));
+        @include transition($btn-transition);
+
+        &:hover {
+            color: var(--#{$prefix}btn-hover-color);
+            text-decoration: if($link-hover-decoration == underline, none, null);
+            background-color: var(--#{$prefix}btn-hover-bg);
+            border-color: var(--#{$prefix}btn-hover-border-color);
+        }
+
+        .btn-check + &:hover {
+            color: var(--#{$prefix}btn-color);
+            background-color: var(--#{$prefix}btn-bg);
+            border-color: var(--#{$prefix}btn-border-color);
+        }
+
+        &:focus-visible {
+            color: var(--#{$prefix}btn-hover-color);
+            @include gradient-bg(var(--#{$prefix}btn-hover-bg));
+            border-color: var(--#{$prefix}btn-hover-border-color);
+            outline: 0;
+            @if $enable-shadows {
+                box-shadow: var(--#{$prefix}btn-box-shadow), var(--#{$prefix}btn-focus-box-shadow);
+            } @else {
+                box-shadow: var(--#{$prefix}btn-focus-box-shadow);
+            }
+        }
+
+        .btn-check:focus-visible + & {
+            border-color: var(--#{$prefix}btn-hover-border-color);
+            outline: 0;
+            @if $enable-shadows {
+                box-shadow: var(--#{$prefix}btn-box-shadow), var(--#{$prefix}btn-focus-box-shadow);
+            } @else {
+                box-shadow: var(--#{$prefix}btn-focus-box-shadow);
+            }
+        }
+
+        .btn-check:checked + &,
+        :not(.btn-check) + &:active,
+        &:first-child:active,
+        &.active,
+        &.show {
+            color: var(--#{$prefix}btn-active-color);
+            background-color: var(--#{$prefix}btn-active-bg);
+            background-image: if($enable-gradients, none, null);
+            border-color: var(--#{$prefix}btn-active-border-color);
+            @include box-shadow(var(--#{$prefix}btn-active-shadow));
+
+            &:focus-visible {
+                @if $enable-shadows {
+                    box-shadow: var(--#{$prefix}btn-active-shadow), var(--#{$prefix}btn-focus-box-shadow);
+                } @else {
+                    box-shadow: var(--#{$prefix}btn-focus-box-shadow);
+                }
+            }
+        }
+
+        .btn-check:checked:focus-visible + & {
+            @if $enable-shadows {
+                box-shadow: var(--#{$prefix}btn-active-shadow), var(--#{$prefix}btn-focus-box-shadow);
+            } @else {
+                box-shadow: var(--#{$prefix}btn-focus-box-shadow);
+            }
+        }
+
+        &:disabled,
+        &.disabled,
+        fieldset:disabled & {
+            color: var(--#{$prefix}btn-disabled-color);
+            pointer-events: none;
+            background-color: var(--#{$prefix}btn-disabled-bg);
+            background-image: if($enable-gradients, none, null);
+            border-color: var(--#{$prefix}btn-disabled-border-color);
+            opacity: var(--#{$prefix}btn-disabled-opacity);
+            @include box-shadow(none);
+        }
+    }
+
+    // Button sizes. `.btn-lg` is kept (even though only `.btn-sm` is used
+    // directly) because bootstrap/scss/button-group @extends it for
+    // `.btn-group-lg > .btn`.
+    .btn-lg {
+        @include button-size($btn-padding-y-lg, $btn-padding-x-lg, $btn-font-size-lg, $btn-border-radius-lg);
+    }
+    .btn-sm {
+        @include button-size($btn-padding-y-sm, $btn-padding-x-sm, $btn-font-size-sm, $btn-border-radius-sm);
+    }
+
     .btn {
         --converse-btn-active-color: var(--background-color) !important;
 
@@ -41,10 +173,12 @@
     .btn-primary {
         --converse-btn-color: var(--button-text-color);
         --converse-btn-bg: var(--primary-color);
+        --converse-btn-focus-shadow-rgb: 49, 132, 253;
     }
     .btn-outline-primary {
         --converse-btn-bg: var(--background);
         --converse-btn-color: var(--primary-color);
+        --converse-btn-focus-shadow-rgb: 13, 110, 253;
     }
 
     .btn-secondary,
@@ -62,10 +196,12 @@
     .btn-secondary {
         --converse-btn-color: var(--button-text-color);
         --converse-btn-bg: var(--secondary-color);
+        --converse-btn-focus-shadow-rgb: 130, 138, 145;
     }
     .btn-outline-secondary {
         --converse-btn-color: var(--secondary-color);
         --converse-btn-bg: var(--background);
+        --converse-btn-focus-shadow-rgb: 108, 117, 125;
     }
 
     .btn-success,
@@ -83,10 +219,12 @@
     .btn-success {
         --converse-btn-color: var(--button-text-color);
         --converse-btn-bg: var(--success-color);
+        --converse-btn-focus-shadow-rgb: 60, 153, 110;
     }
     .btn-outline-success {
         --converse-btn-color: var(--success-color);
         --converse-btn-bg: var(--background);
+        --converse-btn-focus-shadow-rgb: 25, 135, 84;
     }
 
     .btn-warning,
@@ -103,10 +241,12 @@
     .btn-warning {
         --converse-btn-color: var(--button-text-color);
         --converse-btn-bg: var(--warning-color);
+        --converse-btn-focus-shadow-rgb: 217, 164, 6;
     }
     .btn-outline-warning {
         --converse-btn-color: var(--warning-color);
         --converse-btn-bg: var(--background);
+        --converse-btn-focus-shadow-rgb: 255, 193, 7;
     }
 
     .btn-danger,
@@ -124,10 +264,12 @@
     .btn-danger {
         --converse-btn-color: var(--button-text-color);
         --converse-btn-bg: var(--danger-color);
+        --converse-btn-focus-shadow-rgb: 225, 83, 97;
     }
     .btn-outline-danger {
         --converse-btn-color: var(--danger-color);
         --converse-btn-bg: var(--background);
+        --converse-btn-focus-shadow-rgb: 220, 53, 69;
     }
 
     .btn-info,
@@ -145,10 +287,12 @@
     .btn-info {
         --converse-btn-color: var(--button-text-color);
         --converse-btn-bg: var(--info-color);
+        --converse-btn-focus-shadow-rgb: 11, 172, 204;
     }
     .btn-outline-info {
         --converse-btn-color: var(--info-color);
         --converse-btn-bg: var(--background);
+        --converse-btn-focus-shadow-rgb: 13, 202, 240;
     }
 
     .btn--transparent {
