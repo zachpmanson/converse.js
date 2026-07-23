@@ -34,6 +34,28 @@
                         padding-top: 0.25em;
                     }
                 }
+
+                // The overflow toggle inherits the generic .list-item-action
+                // metrics from lists.scss (a font-size-tiny `height: 2em` box
+                // plus `padding: 0.3em 0 0 0`). The button resets font-size to
+                // 1rem, so its icon is taller than that padded box and gets
+                // pushed below the row's centre. `align-items: center` on the row
+                // already centres the box itself; drop the fixed height/padding
+                // and centre the button + icon so the whole control lands on the
+                // row's vertical (and horizontal) centre.
+                .list-item-action {
+                    height: auto;
+                    padding: 0;
+                    align-items: center;
+                    justify-content: center;
+
+                    button {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 0;
+                    }
+                }
             }
         }
     }
