@@ -54,6 +54,9 @@
                 .chat-textarea {
                     width: 100%;
                     border: none;
+                    // Match what you type to how it will render as a message.
+                    font-size: var(--message-font-size);
+                    font-family: inherit;
                     // Black divider directly above the compose box — on the
                     // textarea rather than the form (see chat-bottom-panel.scss).
                     border-top: 0.1rem solid var(--muc-color);
