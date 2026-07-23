@@ -1,0 +1,92 @@
+// Local reimplementation of Bootstrap's grid + containers (issue #6).
+// Reproduced verbatim from bootstrap/scss/{_containers,_grid}.scss; the grid
+// mixins (make-container/make-row/make-col-ready/make-grid-columns) live in
+// bootstrap/scss/mixins, which stays imported, so compiled output is identical.
+// Imported in place of the two dropped component imports, keeping the same
+// position and .conversejs, converse-bg scope.
+// NOTE: a future per-view flex/grid conversion (issue #6's suggestion) could
+// eliminate these generated classes; this step just drops the BS imports.
+
+// ---- bootstrap/scss/containers ----
+// Container widths
+//
+// Set the container width, and override it for fixed navbars in media queries.
+
+@if $enable-container-classes {
+  // Single container class with breakpoint max-widths
+  .container,
+  // 100% wide container at all breakpoints
+  .container-fluid {
+    @include make-container();
+  }
+
+  // Responsive containers that are 100% wide until a breakpoint
+  @each $breakpoint, $container-max-width in $container-max-widths {
+    .container-#{$breakpoint} {
+      @extend .container-fluid;
+    }
+
+    @include media-breakpoint-up($breakpoint, $grid-breakpoints) {
+      %responsive-container-#{$breakpoint} {
+        max-width: $container-max-width;
+      }
+
+      // Extend each breakpoint which is smaller or equal to the current breakpoint
+      $extend-breakpoint: true;
+
+      @each $name, $width in $grid-breakpoints {
+        @if ($extend-breakpoint) {
+          .container#{breakpoint-infix($name, $grid-breakpoints)} {
+            @extend %responsive-container-#{$breakpoint};
+          }
+
+          // Once the current breakpoint is reached, stop extending
+          @if ($breakpoint == $name) {
+            $extend-breakpoint: false;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ---- bootstrap/scss/grid ----
+// Row
+//
+// Rows contain your columns.
+
+:root {
+  @each $name, $value in $grid-breakpoints {
+    --#{$prefix}breakpoint-#{$name}: #{$value};
+  }
+}
+
+@if $enable-grid-classes {
+  .row {
+    @include make-row();
+
+    > * {
+      @include make-col-ready();
+    }
+  }
+}
+
+@if $enable-cssgrid {
+  .grid {
+    display: grid;
+    grid-template-rows: repeat(var(--#{$prefix}rows, 1), 1fr);
+    grid-template-columns: repeat(var(--#{$prefix}columns, #{$grid-columns}), 1fr);
+    gap: var(--#{$prefix}gap, #{$grid-gutter-width});
+
+    @include make-cssgrid();
+  }
+}
+
+
+// Columns
+//
+// Common styles for small and large grid columns
+
+@if $enable-grid-classes {
+  @include make-grid-columns();
+}

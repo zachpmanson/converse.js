@@ -22,8 +22,9 @@ $prefix: 'converse-';
     @import "bootstrap/scss/reboot";
     @import "bootstrap/scss/type";
     @import "bootstrap/scss/images";
-    @import "bootstrap/scss/containers";
-    @import "bootstrap/scss/grid";
+    // Grid + containers are reimplemented locally (see styles/grid.scss, #6),
+    // imported here to keep the original position and .conversejs, converse-bg scope.
+    @import "grid";
     @import "bootstrap/scss/tables";
     // Forms are reimplemented locally (see styles/forms.scss, issue #5).
     // Buttons are reimplemented locally (see styles/buttons.scss, issue #4).
