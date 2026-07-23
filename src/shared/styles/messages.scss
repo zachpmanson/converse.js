@@ -315,8 +315,13 @@
             }
 
             .chat-msg__receipt {
+                // Sits as a direct flex child of .chat-msg__body, pushed to the
+                // far right by the width:100% .chat-msg__message, so it lands
+                // immediately left of the overflow menu (converse-message-actions).
+                align-self: flex-start;
+                flex: 0 0 auto;
                 margin-inline-start: 0.5em;
-                margin-inline-end: 0.5em;
+                margin-inline-end: 0;
                 color: var(--success-color);
             }
         }

@@ -9,6 +9,15 @@ import 'shared/chat/unfurl.js';
 import 'shared/chat/reply-context.js';
 
 const { dayjs } = converse.env;
+
+function tplCheckmark() {
+    return html`<converse-icon
+        size="0.75em"
+        color="var(--chat-color)"
+        class="fa fa-check chat-msg__receipt"
+    ></converse-icon>`;
+}
+
 /**
  * @param {import('../message').default} el
  */
@@ -116,6 +125,12 @@ export default (el) => {
                             : ''}
                         ${is_retracted ? el.renderRetraction() : el.renderMessageText()}
                     </div>
+                    ${el.model.get('received') &&
+                    !is_me_message &&
+                    !is_retracted &&
+                    el.model.get('type') !== 'groupchat'
+                        ? tplCheckmark()
+                        : ''}
                     <converse-message-actions
                         .model=${el.model}
                         ?is_retracted=${is_retracted}
