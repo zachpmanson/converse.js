@@ -294,6 +294,11 @@
         --converse-btn-focus-shadow-rgb: 13, 202, 240;
     }
 
+    // Hover/active feedback is instant — no colour-fade animation.
+    .btn {
+        transition: none;
+    }
+
     .btn--transparent {
         background: transparent;
         border: none;
