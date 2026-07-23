@@ -1,5 +1,36 @@
 converse-root#conversejs {
     converse-popover {
         margin-left: 0.5em;
+
+        .btn.p-0 {
+            color: var(--chat-color);
+        }
+    }
+
+    // The native popover box. Reset the UA centering (inset:0 + margin:auto) so
+    // @popperjs/core can place it against the trigger button.
+    .converse-popover__content[popover] {
+        margin: 0;
+        inset: auto;
+        max-width: 276px;
+        padding: 0;
+        border: 1px solid var(--chat-color);
+        border-radius: 0.375rem;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        box-shadow: var(--raised-el-shadow);
+        font-size: var(--font-size-small);
+
+        .popover-header {
+            padding: 0.5em 0.75em;
+            font-weight: bold;
+            border-bottom: 1px solid var(--chat-color);
+            background-color: var(--highlight-color);
+        }
+
+        .popover-body {
+            padding: 0.5em 0.75em;
+            line-height: 1.4;
+        }
     }
 }
