@@ -29,8 +29,9 @@ $prefix: 'converse-';
     // Forms are reimplemented locally (see styles/forms.scss, issue #5).
     // Buttons are reimplemented locally (see styles/buttons.scss, issue #4).
     @import "bootstrap/scss/transitions";
-    @import "bootstrap/scss/dropdown";
-    @import "bootstrap/scss/button-group";
+    // Dropdown + button-group are reimplemented locally (styles/dropdowns.scss,
+    // #3), imported here to keep the original position and scope.
+    @import "dropdowns";
     // Nav / tabs are reimplemented locally (see styles/nav.scss, issue #10).
     @import "bootstrap/scss/navbar";
     // Cards are reimplemented locally (see styles/card.scss, issue #11).
