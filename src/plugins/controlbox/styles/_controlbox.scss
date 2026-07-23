@@ -308,6 +308,10 @@
         &.converse-fullscreen,
         &.converse-embedded {
             &.converse-chatboxes {
+                // Never let a column push the row past the viewport.
+                max-width: 100vw;
+                overflow-x: hidden;
+
                 @include media-breakpoint-up(md) {
                     #controlbox {
                         flex: 0 0 var(--controlbox-width);
@@ -316,11 +320,16 @@
                         max-width: 90vw;
                         .box-flyout {
                             width: 100%;
+                            min-width: 0;
                         }
                     }
                     .chatbox:not(#controlbox) {
                         flex: 1 1 0;
                         width: auto;
+                        // min-width:0 must cascade down every nested flex item
+                        // (box-flyout -> chatroom-body -> chat-area); otherwise
+                        // the default min-width:auto keeps content from
+                        // shrinking and the panel spills past the screen edge.
                         min-width: 0;
                         max-width: none;
                         // The inner flyout is otherwise pinned to
@@ -328,6 +337,11 @@
                         // chat a fixed width while its column grows/shrinks.
                         .box-flyout {
                             width: 100%;
+                            min-width: 0;
+                        }
+                        .chatroom-body,
+                        .chat-area {
+                            min-width: 0;
                         }
                     }
                 }
