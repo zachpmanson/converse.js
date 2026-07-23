@@ -58,6 +58,30 @@ const tplRoomItem = (el, item) => {
 };
 
 /**
+ * A bookmarked (saved) groupchat, shown at the top of the list.
+ * @param {import('../add-muc.js').default} el
+ * @param {import('@converse/headless').Bookmark} b
+ */
+const tplBookmarkItem = (el, b) => {
+    const i18n_open_title = __('Click to open this groupchat');
+    return html`
+        <li class="room-item list-group-item">
+            <div class="available-chatroom d-flex flex-row">
+                <a
+                    class="open-room available-room w-100"
+                    @click=${(/** @type {MouseEvent} */ ev) => el.openRoom(ev)}
+                    data-room-jid="${b.get('jid')}"
+                    data-room-name="${b.get('name')}"
+                    title="${i18n_open_title}"
+                    href="#"
+                    >${b.get('name') || b.get('jid')}</a
+                >
+            </div>
+        </li>
+    `;
+};
+
+/**
  * @param {import('../add-muc.js').default} el
  */
 export default (el) => {
@@ -70,7 +94,8 @@ export default (el) => {
 
     const policy_hint = api.settings.get('muc_roomid_policy_hint');
     const muc_search_service = api.settings.get('muc_search_service');
-    const show_list = el.loading_items || el.feedback_text || el.items.length;
+    const bookmarks = _converse.state.bookmarks?.models ?? [];
+    const show_list = bookmarks.length || el.loading_items || el.feedback_text || el.items.length;
 
     return html` <form
         id="converse-add-muc-form"
@@ -97,6 +122,15 @@ export default (el) => {
             </div>
             ${show_list
                 ? html`<ul class="available-chatrooms list-group">
+                      ${bookmarks.length
+                          ? html`<li class="list-group-item list-group-item--feedback">${__('Bookmarked')}</li>
+                                ${repeat(
+                                    bookmarks,
+                                    /** @param {import('@converse/headless').Bookmark} b */ (b) => b.get('jid'),
+                                    /** @param {import('@converse/headless').Bookmark} b */ (b) =>
+                                        tplBookmarkItem(el, b)
+                                )}`
+                          : ''}
                       ${el.loading_items ? html`<li class="list-group-item">${tplSpinner()}</li>` : ''}
                       ${el.feedback_text
                           ? html`<li class="list-group-item list-group-item--feedback">${el.feedback_text}</li>`

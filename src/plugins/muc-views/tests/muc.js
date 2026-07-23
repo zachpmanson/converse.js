@@ -1394,7 +1394,7 @@ describe('Groupchats', function () {
                 expect(presencebroadcast.length).toBe(1);
                 presencebroadcast[0].value = ['moderator'];
 
-                modal.querySelector('.chatroom-form input[type="submit"]').click();
+                modal.querySelector('.modal-footer button[type="submit"]').click();
 
                 expect(sent_IQ).toEqualStanza(stx`
                 <iq id="${IQ_id}" to="${muc_jid}" type="set" xmlns="jabber:client">
@@ -1612,7 +1612,7 @@ describe('Groupchats', function () {
                 dataTransfer.items.add(image_file);
                 avatar_picker.files = dataTransfer.files;
 
-                modal.querySelector('.chatroom-form input[type="submit"]').click();
+                modal.querySelector('.modal-footer button[type="submit"]').click();
 
                 expect(sent_IQ).toEqualStanza(stx`
                 <iq id="${IQ_id}" to="${muc_jid}" type="set" xmlns="jabber:client">
@@ -2122,7 +2122,7 @@ describe('Groupchats', function () {
                 );
                 sizzle('[name="muc#roomconfig_membersonly"]', modal).pop().click();
                 sizzle('[name="muc#roomconfig_roomname"]', modal).pop().value = 'New room name';
-                modal.querySelector('.chatroom-form input[type="submit"]').click();
+                modal.querySelector('.modal-footer button[type="submit"]').click();
 
                 iq = await u.waitUntil(() => IQs.filter((iq) => iq.matches(`iq[to="${muc_jid}"][type="set"]`)).pop());
 

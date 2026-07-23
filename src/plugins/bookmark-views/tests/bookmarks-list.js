@@ -17,8 +17,7 @@ describe('The bookmarks list modal', function () {
             mock.openControlBox(_converse);
 
             const controlbox = await u.waitUntil(() => _converse.chatboxviews.get('controlbox'));
-            const button = await u.waitUntil(() => controlbox.querySelector('.show-bookmark-list-modal'));
-            button.click();
+            _converse.api.modal.show('converse-bookmark-list-modal', {});
 
             const IQ_stanzas = _converse.api.connection.get().IQ_stanzas;
             const sent_stanza = await u.waitUntil(() =>
@@ -97,7 +96,7 @@ describe('The bookmarks list modal', function () {
             mock.openControlBox(_converse);
 
             const controlbox = await _converse.chatboxviews.get('controlbox');
-            controlbox.querySelector('.show-bookmark-list-modal').click();
+            _converse.api.modal.show('converse-bookmark-list-modal', {});
 
             const IQ_stanzas = _converse.api.connection.get().IQ_stanzas;
             const sent_stanza = await u.waitUntil(() =>

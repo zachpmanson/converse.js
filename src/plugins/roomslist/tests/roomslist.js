@@ -233,7 +233,7 @@ describe('A groupchat shown in the groupchats list', function () {
                 const modal = _converse.api.modal.get('converse-muc-config-modal');
                 const name_el = await u.waitUntil(() => modal.querySelector('input[name="muc#roomconfig_roomname"]'));
                 name_el.value = 'New room name';
-                modal.querySelector('.chatroom-form input[type="submit"]').click();
+                modal.querySelector('.modal-footer button[type="submit"]').click();
 
                 iq = await u.waitUntil(() =>
                     IQ_stanzas.filter((iq) => iq.matches(`iq[to="${muc_jid}"][type="set"]`)).pop(),

@@ -89,6 +89,11 @@ export default class AddMUCModal extends BaseModal {
     initialize() {
         super.initialize();
         this.requestUpdate();
+        // Keep the "Bookmarked" section of the list in sync.
+        if (_converse.state.bookmarks) {
+            this.listenTo(_converse.state.bookmarks, 'add', () => this.requestUpdate());
+            this.listenTo(_converse.state.bookmarks, 'remove', () => this.requestUpdate());
+        }
         this.addEventListener(
             'converse-modal-shown',
             () => {
@@ -121,7 +126,13 @@ export default class AddMUCModal extends BaseModal {
     renderModalFooter() {
         const i18n_join = __('Join');
         return html`<div class="modal-footer">
-            <input type="submit" form="converse-add-muc-form" class="btn btn-primary" name="join" value="${i18n_join}" />
+            <input
+                type="submit"
+                form="converse-add-muc-form"
+                class="btn btn-primary"
+                name="join"
+                value="${i18n_join}"
+            />
             ${modal_close_button(() => this.close())}
         </div>`;
     }

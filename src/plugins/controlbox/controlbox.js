@@ -48,6 +48,9 @@ class ControlBoxView extends DragResizable(CustomElement) {
      */
     async restoreWidth() {
         if (api.settings.get('view_mode') === 'overlayed') return;
+        // User settings need a logged-in JID; skip while logged out (the
+        // controlbox also renders the login form). Re-run once connected.
+        if (!_converse.session?.get('bare_jid')) return;
         const width = await api.user.settings.get('controlbox_width');
         if (width) this.style.setProperty('--controlbox-width', `${width}px`);
     }
@@ -89,7 +92,10 @@ class ControlBoxView extends DragResizable(CustomElement) {
         this.model = _converse.state.chatboxes.get('controlbox');
         this.listenTo(_converse.state.connfeedback, 'change:connection_status', () => this.requestUpdate());
         this.listenTo(this.model, 'change:active-form', () => this.requestUpdate());
-        this.listenTo(this.model, 'change:connected', () => this.requestUpdate());
+        this.listenTo(this.model, 'change:connected', () => {
+            this.requestUpdate();
+            this.restoreWidth();
+        });
         this.requestUpdate();
     }
 

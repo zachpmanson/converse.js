@@ -28,7 +28,39 @@ export class RoomsList extends CustomElement {
         this.listenTo(chatboxes, 'vcard:change', () => this.requestUpdate());
         this.listenTo(this.model, 'change', () => this.requestUpdate());
 
+        // Re-render room bookmark toggles when the bookmark set changes.
+        api.waitUntil('bookmarksInitialized').then(() => {
+            this.listenTo(_converse.state.bookmarks, 'add', () => this.requestUpdate());
+            this.listenTo(_converse.state.bookmarks, 'remove', () => this.requestUpdate());
+            this.requestUpdate();
+        });
+
         this.requestUpdate();
+    }
+
+    /** @param {string} jid */
+    isBookmarked(jid) {
+        return !!_converse.state.bookmarks?.get(jid);
+    }
+
+    /**
+     * Toggle a groupchat's bookmark from its context menu: open the bookmark
+     * form for an un-bookmarked room, or remove the bookmark (with a confirm)
+     * for a bookmarked one.
+     * @param {Event} ev
+     */
+    async toggleRoomBookmark(ev) {
+        ev.preventDefault();
+        const target = /** @type {HTMLElement} */ (ev.currentTarget);
+        const jid = target.getAttribute('data-room-jid');
+        const name = target.getAttribute('data-room-name');
+        const { bookmarks } = _converse.state;
+        if (bookmarks?.get(jid)) {
+            const result = await api.confirm(__('Are you sure you want to remove the bookmark "%1$s"?', name));
+            if (result) bookmarks.where({ jid }).forEach((b) => b.destroy());
+        } else {
+            api.modal.show('converse-bookmark-form-modal', { jid }, ev);
+        }
     }
 
     render() {

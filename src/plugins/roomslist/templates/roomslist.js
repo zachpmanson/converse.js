@@ -3,7 +3,7 @@
  * @typedef {import('@converse/headless').MUC} MUC
  */
 import { html } from 'lit';
-import { api, u, constants } from '@converse/headless';
+import { _converse, api, u, constants } from '@converse/headless';
 import 'plugins/muc-views/modals/add-muc.js';
 import { __ } from 'i18n';
 import { getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
@@ -34,18 +34,34 @@ function tplActivityIndicator() {
 function tplRoomItem(el, room) {
     const i18n_leave_room = __('Leave this groupchat');
     const has_unread_msgs = room.get('num_unread_general') || room.get('has_activity');
-    const action_btns = [
-        html`<a
-            class="dropdown-item close-room"
+    const action_btns = [];
+
+    if (_converse.state.bookmarks) {
+        const is_bookmarked = el.isBookmarked(room.get('jid'));
+        action_btns.push(html`<a
+            class="dropdown-item toggle-bookmark"
             role="button"
             data-room-jid="${room.get('jid')}"
             data-room-name="${room.getDisplayName()}"
-            title="${i18n_leave_room}"
-            @click=${(/** @type {Event} */ ev) => el.closeRoom(ev)}
+            title="${is_bookmarked ? __('Remove this bookmark') : __('Bookmark this groupchat')}"
+            @click=${(/** @type {Event} */ ev) => el.toggleRoomBookmark(ev)}
         >
-            <converse-icon class="fa fa-sign-out-alt" size="1em"></converse-icon>&nbsp;${__('Leave')}
-        </a>`,
-    ];
+            <converse-icon class="fa fa-bookmark" size="1em"></converse-icon>&nbsp;${is_bookmarked
+                ? __('Unbookmark')
+                : __('Bookmark')}
+        </a>`);
+    }
+
+    action_btns.push(html`<a
+        class="dropdown-item close-room"
+        role="button"
+        data-room-jid="${room.get('jid')}"
+        data-room-name="${room.getDisplayName()}"
+        title="${i18n_leave_room}"
+        @click=${(/** @type {Event} */ ev) => el.closeRoom(ev)}
+    >
+        <converse-icon class="fa fa-sign-out-alt" size="1em"></converse-icon>&nbsp;${__('Leave')}
+    </a>`);
     return html` <li
         class="list-item controlbox-padded available-chatroom d-flex flex-row ${isCurrentlyOpen(room)
             ? 'open'
@@ -144,7 +160,6 @@ export default (el) => {
     const i18n_desc_rooms = __('Click to toggle the list of open groupchats');
     const i18n_heading_chatrooms = __('Groupchats');
     const i18n_title_new_room = __('Add a groupchat');
-    const i18n_show_bookmarks = __('Bookmarks');
     const is_closed = el.model.get('toggle_state') === CLOSED;
 
     return html` <div class="d-flex controlbox-padded">
@@ -174,15 +189,6 @@ export default (el) => {
                 @click="${(/** @type {MouseEvent} */ ev) => api.modal.show('converse-add-muc-modal', { 'model': el.model }, ev)}"
             >
                 <converse-icon class="fa fa-plus" size="1em"></converse-icon>
-            </a>
-            <a
-                class="btn btn--transparent btn--standalone show-bookmark-list-modal"
-                role="button"
-                title="${i18n_show_bookmarks}"
-                aria-label="${i18n_show_bookmarks}"
-                @click="${(/** @type {MouseEvent} */ ev) => api.modal.show('converse-bookmark-list-modal', { 'model': el.model }, ev)}"
-            >
-                <converse-icon class="fa fa-bookmark" size="1em"></converse-icon>
             </a>
         </div>
 
