@@ -214,6 +214,10 @@ export default class MessageForm extends CustomElement {
         ghost.style.top = `${textarea.offsetTop}px`;
         ghost.style.width = `${textarea.offsetWidth}px`;
         ghost.style.height = `${textarea.offsetHeight}px`;
+        // Carry over the textarea's top border (the black divider above the
+        // compose box). Without it, the ghost's opaque background would paint
+        // over the divider and make it vanish for the duration of the animation.
+        ghost.style.borderTop = `${cs.borderTopWidth} ${cs.borderTopStyle} ${cs.borderTopColor}`;
 
         const inner = document.createElement('div');
         inner.className = 'chat-textarea-ghost__text';
