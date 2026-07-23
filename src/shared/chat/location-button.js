@@ -1,6 +1,6 @@
-import { html } from 'lit';
 import { api } from '@converse/headless';
 import { CustomElement } from 'shared/components/element.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 import { __ } from 'i18n';
 
 export class LocationButton extends CustomElement {
@@ -23,15 +23,14 @@ export class LocationButton extends CustomElement {
         const color = this.is_groupchat ? '--muc-color' : '--chat-color';
         const title = this.fetching_location ? __('Getting location...') : __('Share current location');
 
-        return html` <button
-            type="button"
-            class="btn toggle-location"
-            title="${title}"
-            ?disabled=${this.fetching_location}
-            @click=${this.shareLocation}
-        >
-            <converse-icon color="var(${color})" class="fa fa-map-marker-alt" size="1em"></converse-icon>
-        </button>`;
+        return tplIconButton({
+            class: 'toggle-location',
+            icon: 'fa fa-map-marker-alt',
+            color: `var(${color})`,
+            title,
+            disabled: this.fetching_location,
+            handler: (ev) => this.shareLocation(ev),
+        });
     }
 
     /** @param {MouseEvent} ev */

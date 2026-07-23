@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { _converse, api, u, EmojiPicker, constants } from '@converse/headless';
 import { __ } from 'i18n';
 import DropdownBase from 'shared/components/dropdown.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 import { until } from 'lit/directives/until.js';
 
 const { CHATROOMS_TYPE } = constants;
@@ -51,21 +52,14 @@ export default class EmojiDropdown extends DropdownBase {
         const is_groupchat = this.model.get('type') === CHATROOMS_TYPE;
         const color = is_groupchat ? '--muc-color' : '--chat-color';
 
-        return html` <button
-                class="btn dropdown-toggle dropdown-toggle--no-caret toggle-emojis"
-                type="button"
-                id="${this.id}"
-                title="${__('Insert emojis')}"
-                aria-haspopup="true"
-                aria-expanded="false"
-            >
-                <converse-icon
-                    color="var(${color})"
-                    class="fa fa-smile "
-                    path-prefix="${api.settings.get('assets_path')}"
-                    size="1em"
-                ></converse-icon>
-            </button>
+        return html` ${tplIconButton({
+                id: this.id,
+                class: 'dropdown-toggle dropdown-toggle--no-caret toggle-emojis',
+                icon: 'fa fa-smile',
+                color: `var(${color})`,
+                title: __('Insert emojis'),
+                haspopup: true,
+            })}
             <ul class="dropdown-menu" aria-labelledby="${this.id}">
                 <li>
                     ${until(

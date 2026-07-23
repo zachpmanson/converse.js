@@ -8,6 +8,7 @@ import { api, converse } from '@converse/headless';
 import { html } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { MOBILE_CUTOFF } from 'shared/constants.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 import tplNewDay from './templates/new-day.js';
 
 const { dayjs, u } = converse.env;
@@ -100,11 +101,12 @@ export async function getHeadingDropdownItem(promise_or_data) {
  */
 export async function getHeadingStandaloneButton(promise_or_data) {
     const data = await promise_or_data;
-    return html`
-        <button type="button" class="btn chatbox-btn ${data.a_class}" @click=${data.handler} title="${data.i18n_title}">
-            <converse-icon size="1em" class="fa ${data.icon_class}"></converse-icon>
-        </button>
-    `;
+    return tplIconButton({
+        class: `chatbox-btn ${data.a_class}`,
+        icon: `fa ${data.icon_class}`,
+        title: data.i18n_title,
+        handler: data.handler,
+    });
 }
 
 /**

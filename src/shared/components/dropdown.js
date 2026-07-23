@@ -6,7 +6,7 @@ import { until } from 'lit/directives/until.js';
 import { api, constants, u } from '@converse/headless';
 import { DOMNavigator } from '../dom-navigator/index.js';
 import DropdownBase from 'shared/components/dropdownbase.js';
-import 'shared/components/icons.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 import { __ } from 'i18n';
 
 import './styles/dropdown.scss';
@@ -30,14 +30,13 @@ export default class Dropdown extends DropdownBase {
 
     render() {
         return html`
-            <button class="btn btn--transparent btn--standalone dropdown-toggle dropdown-toggle--no-caret"
-                    id="${this.id}"
-                    type="button"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    aria-label=${__('Menu')}>
-                <converse-icon aria-hidden="true" size="1em" class="${this.icon_classes}">
-            </button>
+            ${tplIconButton({
+                id: this.id,
+                class: 'btn--transparent btn--standalone dropdown-toggle dropdown-toggle--no-caret',
+                icon: this.icon_classes,
+                label: __('Menu'),
+                haspopup: true,
+            })}
             <ul class="dropdown-menu" aria-labelledby="${this.id}">
                 ${/** @type {any[]} */ (this.items).map((b) => html`<li>${until(b, '')}</li>`)}
             </ul>

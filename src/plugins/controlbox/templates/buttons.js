@@ -1,28 +1,31 @@
 import { html } from 'lit';
 import { api } from '@converse/headless';
 import { __ } from 'i18n';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 
 /**
  * @param {import('../buttons').default} el
  */
 function tplUserSettingsButton(el) {
     const i18n_details = __('Show details about this chat client');
-    return html`<a
-        class="controlbox-heading__btn show-client-info align-self-center"
-        title="${i18n_details}"
-        @click=${el.showUserSettingsModal}
-    >
-        <converse-icon class="fa fa-cog" size="1em"></converse-icon>
-    </a>`;
+    return tplIconButton({
+        class: 'controlbox-heading__btn show-client-info align-self-center',
+        icon: 'fa fa-cog',
+        title: i18n_details,
+        handler: (ev) => el.showUserSettingsModal(ev),
+    });
 }
 
 /**
  * @param {import('../buttons').default} el
  */
 function tplCloseButton(el) {
-    return html`<a class="controlbox-heading__btn close align-self-center" @click=${(ev) => el.closeControlBox(ev)}>
-        <converse-icon class="fa fa-times" size="1em"></converse-icon>
-    </a>`;
+    return tplIconButton({
+        class: 'controlbox-heading__btn close align-self-center',
+        icon: 'fa fa-times',
+        label: __('Close'),
+        handler: (ev) => el.closeControlBox(ev),
+    });
 }
 
 /**

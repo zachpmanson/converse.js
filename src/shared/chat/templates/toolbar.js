@@ -2,12 +2,17 @@ import { html } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { __ } from 'i18n';
 import { api } from '@converse/headless';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 
 function tplSendButton() {
     const i18n_send_message = __('Send the message');
-    return html`<button type="submit" class="btn send-button" data-action="sendMessage" title="${i18n_send_message}">
-        <converse-icon color="var(--background-color)" class="fa fa-paper-plane" size="1em"></converse-icon>
-    </button>`;
+    return tplIconButton({
+        type: 'submit',
+        class: 'send-button',
+        icon: 'fa fa-paper-plane',
+        color: 'var(--background-color)',
+        title: i18n_send_message,
+    });
 }
 
 /**

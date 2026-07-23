@@ -4,6 +4,7 @@ import { _converse, api, converse } from '@converse/headless';
 import './emoji-picker.js';
 import './location-button.js';
 import 'shared/chat/message-limit.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 import tplToolbar from './templates/toolbar.js';
 import { CustomElement } from 'shared/components/element.js';
 import { __ } from 'i18n';
@@ -69,14 +70,13 @@ export class ChatToolbar extends CustomElement {
             const color = this.is_groupchat ? '--muc-color' : '--chat-color';
             const i18n_start_call = __('Start a call');
             buttons.push(
-                html` <button
-                    type="button"
-                    class="btn toggle-call"
-                    @click=${this.toggleCall}
-                    title="${i18n_start_call}"
-                >
-                    <converse-icon color="var(${color})" class="fa fa-phone" size="1em"></converse-icon>
-                </button>`,
+                tplIconButton({
+                    class: 'toggle-call',
+                    icon: 'fa fa-phone',
+                    color: `var(${color})`,
+                    title: i18n_start_call,
+                    handler: (ev) => this.toggleCall(ev),
+                }),
             );
         }
 
@@ -122,9 +122,11 @@ export class ChatToolbar extends CustomElement {
     getHTTPUploadButton(is_supported) {
         if (is_supported) {
             const i18n_choose_file = __('Choose a file to send');
-            return html` <button type="button" class="btn" title="${i18n_choose_file}" @click=${this.toggleFileUpload}>
-                    <converse-icon class="fa fa-paperclip" size="1em"></converse-icon>
-                </button>
+            return html`${tplIconButton({
+                    icon: 'fa fa-paperclip',
+                    title: i18n_choose_file,
+                    handler: (ev) => this.toggleFileUpload(ev),
+                })}
                 <input
                     type="file"
                     @change=${this.onFileSelection}
@@ -150,18 +152,13 @@ export class ChatToolbar extends CustomElement {
             i18n_toggle_spoiler = __('Click to write your message as a spoiler');
         }
         const color = this.is_groupchat ? '--muc-color' : '--chat-color';
-        const markup = html` <button
-            type="button"
-            class="btn toggle-compose-spoiler"
-            title="${i18n_toggle_spoiler}"
-            @click=${this.toggleComposeSpoilerMessage}
-        >
-            <converse-icon
-                color="var(${color})"
-                class="fa ${model.get('composing_spoiler') ? 'fa-eye-slash' : 'fa-eye'}"
-                size="1em"
-            ></converse-icon>
-        </button>`;
+        const markup = tplIconButton({
+            class: 'toggle-compose-spoiler',
+            icon: `fa ${model.get('composing_spoiler') ? 'fa-eye-slash' : 'fa-eye'}`,
+            color: `var(${color})`,
+            title: i18n_toggle_spoiler,
+            handler: (ev) => this.toggleComposeSpoilerMessage(ev),
+        });
 
         if (this.is_groupchat) {
             return markup;
