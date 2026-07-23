@@ -15,7 +15,8 @@ $prefix: 'converse-';
 @import "bootstrap/scss/variables-dark";
 @import "bootstrap/scss/maps";
 @import "bootstrap/scss/mixins";
-@import "bootstrap/scss/utilities";
+// Utility classes are reimplemented locally (see styles/utilities.scss, #12);
+// the Bootstrap $utilities map + utilities/api generator are both dropped.
 @import "bootstrap/scss/root";
 
 .conversejs, converse-bg {
@@ -52,7 +53,9 @@ $prefix: 'converse-';
     // @import "bootstrap/scss/offcanvas";
     @import "bootstrap/scss/placeholders";
     @import "bootstrap/scss/helpers";
-    @import "bootstrap/scss/utilities/api";
+    // Local minimal utilities (issue #12), at the utilities/api position so the
+    // !important utilities keep overriding component styles as before.
+    @import "utilities";
 
 }
 
