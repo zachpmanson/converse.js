@@ -388,12 +388,14 @@ describe('The Contacts Roster', function () {
                 visible_contacts = sizzle('li', roster).filter(u.isVisible);
                 expect(visible_contacts.length).toBe(2);
 
-                let visible_groups = sizzle('.roster-group', roster)
-                    .filter(u.isVisible)
-                    .map((el) => el.querySelector('a.group-toggle'));
+                let visible_groups = sizzle('.roster-group', roster).filter(u.isVisible);
                 expect(visible_groups.length).toBe(2);
-                expect(visible_groups[0].textContent.trim()).toBe('friends & acquaintances');
-                expect(visible_groups[1].textContent.trim()).toBe('Ungrouped');
+                expect(visible_groups[0].querySelector('a.group-toggle').textContent.trim()).toBe(
+                    'friends & acquaintances',
+                );
+                // The "Ungrouped" group renders without a label/toggle.
+                expect(visible_groups[1].getAttribute('data-group')).toBe('Ungrouped');
+                expect(visible_groups[1].querySelector('a.group-toggle')).toBe(null);
 
                 filter = rosterview.querySelector('.items-filter');
                 filter.value = 'xxx';
@@ -520,7 +522,8 @@ describe('The Contacts Roster', function () {
                 expect(contacts.pop().querySelector('.contact-name').textContent.trim()).toBe('Lord Montague');
 
                 const groups = sizzle('ul.roster-group-contacts', roster).filter(u.isVisible);
-                expect(groups.pop().parentElement.firstElementChild.textContent.trim()).toBe('Ungrouped');
+                // The "Ungrouped" group has no toggle label; identify it by data-group.
+                expect(groups.pop().getAttribute('data-group')).toBe('Ungrouped');
                 expect(groups.pop().parentElement.firstElementChild.textContent.trim()).toBe('Family');
 
                 filter.value = 'dnd';
@@ -553,7 +556,9 @@ describe('The Contacts Roster', function () {
                 // Check that the groups appear alphabetically and that
                 // requesting and pending contacts are last.
                 const rosterview = document.querySelector('converse-roster');
-                await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 7);
+                // "Ungrouped" renders without a toggle/label, so it is absent
+                // from the list of group-toggle titles.
+                await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 6);
                 let group_titles = sizzle('.roster-group a.group-toggle', rosterview).map((o) => o.textContent.trim());
                 expect(group_titles).toEqual([
                     'Contact requests',
@@ -561,7 +566,6 @@ describe('The Contacts Roster', function () {
                     'Family',
                     'friends & acquaintances',
                     'ænemies',
-                    'Ungrouped',
                     'Pending contacts',
                 ]);
 
@@ -569,7 +573,7 @@ describe('The Contacts Roster', function () {
                 const contact = await _converse.api.contacts.get(contact_jid);
                 contact.save({ 'num_unread': 5 });
 
-                await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 8);
+                await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 7);
                 group_titles = sizzle('.roster-group a.group-toggle', rosterview).map((o) => o.textContent.trim());
 
                 expect(group_titles).toEqual([
@@ -579,7 +583,6 @@ describe('The Contacts Roster', function () {
                     'Family',
                     'friends & acquaintances',
                     'ænemies',
-                    'Ungrouped',
                     'Pending contacts',
                 ]);
                 const contacts = sizzle(
@@ -591,7 +594,7 @@ describe('The Contacts Roster', function () {
                 expect(contacts[0].querySelector('.msgs-indicator').textContent).toBe('5');
 
                 contact.save({ 'num_unread': 0 });
-                await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 7);
+                await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 6);
                 group_titles = sizzle('.roster-group a.group-toggle', rosterview).map((o) => o.textContent.trim());
                 expect(group_titles).toEqual([
                     'Contact requests',
@@ -599,7 +602,6 @@ describe('The Contacts Roster', function () {
                     'Family',
                     'friends & acquaintances',
                     'ænemies',
-                    'Ungrouped',
                     'Pending contacts',
                 ]);
             }),
@@ -616,17 +618,17 @@ describe('The Contacts Roster', function () {
                     await mock.waitForRoster(_converse, 'all');
                     await mock.createContacts(_converse, 'requesting');
                     const rosterview = document.querySelector('converse-roster');
-                    await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 7);
+                    await u.waitUntil(() => sizzle('.roster-group a.group-toggle', rosterview).length === 6);
                     const group_titles = sizzle('.roster-group a.group-toggle', rosterview).map((o) =>
                         o.textContent.trim(),
                     );
+                    // "Ungrouped" renders without a toggle/label, so it is absent here.
                     expect(group_titles).toEqual([
                         'Contact requests',
                         'Colleagues',
                         'Family',
                         'friends & acquaintances',
                         'ænemies',
-                        'Ungrouped',
                         'Pending contacts',
                     ]);
                     // Check that usernames appear alphabetically per group
@@ -790,11 +792,12 @@ describe('The Contacts Roster', function () {
                     const rosterview = document.querySelector('converse-roster');
                     await u.waitUntil(() => sizzle('li', rosterview).filter(u.isVisible).length === 2);
 
-                    // Both contacts should appear under "Ungrouped", not under an empty-named group
-                    const group_titles = sizzle('.roster-group a.group-toggle', rosterview).map((o) =>
-                        o.textContent.trim(),
-                    );
-                    expect(group_titles).toEqual(['Ungrouped']);
+                    // Both contacts should appear under "Ungrouped", not under an empty-named group.
+                    // The "Ungrouped" group renders without a toggle/label, so there are no
+                    // group-toggle titles; identify the group by its data-group attribute instead.
+                    const group_names = sizzle('.roster-group', rosterview).map((o) => o.getAttribute('data-group'));
+                    expect(group_names).toEqual(['Ungrouped']);
+                    expect(sizzle('.roster-group a.group-toggle', rosterview).length).toBe(0);
 
                     // The empty string group should not exist
                     expect(sizzle('.roster-group[data-group=""]', rosterview).length).toBe(0);

@@ -53,25 +53,36 @@ function renderContact(contact) {
 export default (o) => {
     const i18n_title = __('Click to hide these contacts');
     const collapsed = _converse.state.roster.state.get('collapsed_groups');
-    return html`<div class="roster-group" data-group="${o.name}">
-        <a
-            href="#"
-            class="list-toggle group-toggle controlbox-padded"
-            title="${i18n_title}"
-            @click=${(/** @type {Event} */ ev) => toggleGroup(ev, o.name)}
-        >
-            <converse-icon
-                color="var(--chat-color)"
-                size="1em"
-                class="fa ${collapsed.includes(o.name) ? 'fa-caret-right' : 'fa-caret-down'}"
-            ></converse-icon>
-            ${o.name}&nbsp;
-            ${o.contacts[0].get('requesting')
-                ? html` <converse-icon color="var(--chat-color)" size="1.2em" class="fa fa-bell-alt"></converse-icon>`
-                : ``}
-        </a>
+    // The "Ungrouped" pseudo-group has no meaningful label — its contacts just
+    // sit at the roster's top level, beneath the labelled groups. Render it
+    // without a group-toggle header (and therefore without collapse behaviour).
+    const is_ungrouped = o.name === _converse.labels.HEADER_UNGROUPED;
+    const is_collapsed = !is_ungrouped && collapsed.includes(o.name);
+    return html`<div class="roster-group ${is_ungrouped ? 'roster-group--ungrouped' : ''}" data-group="${o.name}">
+        ${is_ungrouped
+            ? ''
+            : html`<a
+                  href="#"
+                  class="list-toggle group-toggle controlbox-padded"
+                  title="${i18n_title}"
+                  @click=${(/** @type {Event} */ ev) => toggleGroup(ev, o.name)}
+              >
+                  <converse-icon
+                      color="var(--chat-color)"
+                      size="1em"
+                      class="fa ${is_collapsed ? 'fa-caret-right' : 'fa-caret-down'}"
+                  ></converse-icon>
+                  ${o.name}&nbsp;
+                  ${o.contacts[0].get('requesting')
+                      ? html`<converse-icon
+                            color="var(--chat-color)"
+                            size="1.2em"
+                            class="fa fa-bell-alt"
+                        ></converse-icon>`
+                      : ``}
+              </a>`}
         <ul
-            class="items-list roster-group-contacts ${collapsed.includes(o.name) ? 'roster-group-contacts--collapsed' : ''}"
+            class="items-list roster-group-contacts ${is_collapsed ? 'roster-group-contacts--collapsed' : ''}"
             data-group="${o.name}"
         >
             ${repeat(o.contacts, (c) => c.get('jid'), renderContact)}

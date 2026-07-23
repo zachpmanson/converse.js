@@ -110,6 +110,12 @@
                 margin: 0.75em 0 0.25em 0;
             }
 
+            // Ungrouped contacts have no group-toggle header, so add the
+            // separating top margin the header would otherwise provide.
+            .roster-group--ungrouped {
+                margin-top: 0.75em;
+            }
+
             .group-toggle, .group-toggle .fa {
                 color: var(--chat-color) !important;
                 &:hover {
