@@ -498,17 +498,15 @@ converse-chat-message:last-child {
 
 // Slide-up "exit" for just-sent text, the send-side mirror of
 // converse-message-slide-up. A transient ghost of the text (built in
-// MessageForm.animateSentText) flies up and fades out of the compose box while
-// the textarea itself is cleared, so the sent text appears to travel up into
-// the conversation. Same 0.3s ease-out timing as the arrival animation.
+// MessageForm.animateSentText) flies up out of the compose box while the
+// textarea itself is cleared, so the sent text appears to travel up into the
+// conversation. Same 0.3s ease-out timing as the arrival animation.
 @keyframes converse-textarea-slide-out {
     from {
         transform: none;
-        opacity: 1;
     }
     to {
         transform: translateY(-1.5em);
-        opacity: 0;
     }
 }
 .chat-message-form {
