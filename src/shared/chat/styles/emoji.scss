@@ -131,12 +131,12 @@
                 width: 100%;
                 display: flex;
                 flex-direction: column;
-                margin: 0.4em 0;
+                margin: 0 0 0.4em 0;
                 background-color: var(--background-color);
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 .emoji-search {
                     width: auto;
-                    margin: 1em 0.25em 0.5em;
+                    margin: 0.5em 0.25em;
                     height: 2em;
                     font-size: var(--font-size-small);
                 }

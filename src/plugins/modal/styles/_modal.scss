@@ -70,22 +70,34 @@ $prefix: 'converse-';
         margin-bottom: 2em;
     }
 
+    // Flat, sectioned chrome: the modal is a single ink-framed sheet divided
+    // into header / body / footer by hairline rules, with squared corners
+    // throughout. Colours resolve from the active theme's tokens (in the mono
+    // theme that's ink-on-white, no fills, no shadow).
     .modal-header {
-        background-color: var(--primary-color);
-        border-bottom: none;
+        background-color: var(--background-color);
+        color: var(--foreground-color);
+        border-bottom: 1px solid var(--foreground-color);
+        border-radius: 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         &.alert-danger {
-            background-color: var(--error-color);
+            background-color: var(--background-color);
+            color: var(--error-color);
+            border-bottom-color: var(--error-color);
+            .modal-title {
+                color: var(--error-color);
+            }
         }
         .modal-title {
             line-break: anywhere;
-            color: var(--background-color);
+            color: var(--foreground-color);
             margin: 0;
+            font-size: var(--font-size-large);
             a {
-                color: var(--background-color);
+                color: var(--foreground-color);
             }
         }
         .btn {
@@ -94,17 +106,18 @@ $prefix: 'converse-';
             padding: 0;
             font-size: 1em;
             svg {
-                fill: var(--background-color);
+                fill: var(--foreground-color);
             }
         }
         .close {
-            color: var(--background-color);
+            color: var(--foreground-color);
         }
     }
 
     .modal-content {
         background-color: var(--background-color);
-        border-radius: 0.3rem;
+        border: 1px solid var(--foreground-color);
+        border-radius: 0;
         overflow: hidden;
     }
 
@@ -120,6 +133,39 @@ $prefix: 'converse-';
         padding: 0.75rem 1rem;
         display: flex;
         gap: 0.5em;
+        border-top: 1px solid var(--foreground-color);
+        border-radius: 0;
+    }
+
+    // Square every rounded control inside a modal so nothing reads as a
+    // leftover Bootstrap pill.
+    .modal {
+        .btn,
+        .card,
+        .form-control,
+        .form-select,
+        .form-check-input,
+        .input-group,
+        .input-group > *,
+        .list-group,
+        .list-group-item,
+        .nav-link,
+        .dropdown-menu,
+        converse-autocomplete .suggestion-box__results {
+            border-radius: 0;
+        }
+
+        // The list of browsed groupchats / bookmarks reads as flat rows split
+        // by hairlines rather than a floating card.
+        .list-group {
+            border: 1px solid var(--foreground-color);
+        }
+        .list-group-item {
+            border-width: 0 0 1px 0;
+            &:last-child {
+                border-bottom: 0;
+            }
+        }
     }
 
     .occupant-details {
