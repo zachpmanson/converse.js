@@ -112,9 +112,14 @@ export default class DropdownBase extends CustomElement {
         this._popper = this._createCursorPopper(x, y);
         this._afterShow();
 
-        // Focus the first item so Escape / arrow-key navigation (handled by the
-        // Dropdown subclass) work immediately, without first clicking the menu.
-        /** @type {HTMLElement|null} */ (menu.querySelector('.dropdown-item'))?.focus?.();
+        // Focus the menu itself (not the first item) so Escape / arrow-key
+        // navigation (handled by the Dropdown subclass) work immediately,
+        // without first clicking the menu. Focusing the menu rather than an
+        // item avoids visually pre-highlighting the first `.dropdown-item` via
+        // its `:focus` style; the Dropdown subclass moves focus onto the first
+        // item on the first arrow-key press.
+        menu.setAttribute('tabindex', '-1');
+        menu.focus?.();
     }
 
     /** @returns {import('@popperjs/core').Instance} */
