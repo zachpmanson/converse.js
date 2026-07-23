@@ -38,6 +38,45 @@ class ControlBoxView extends DragResizable(CustomElement) {
     connectedCallback() {
         super.connectedCallback();
         this.viewportMediaQuery.addEventListener('change', this.renderOnViewportChange);
+        this.restoreWidth();
+    }
+
+    /**
+     * In fullscreen/embedded mode the controlbox is a fixed-width left sidebar
+     * whose width the user can drag (see {@link #onStartResize}). Restore the
+     * saved width on load.
+     */
+    async restoreWidth() {
+        if (api.settings.get('view_mode') === 'overlayed') return;
+        const width = await api.user.settings.get('controlbox_width');
+        if (width) this.style.setProperty('--controlbox-width', `${width}px`);
+    }
+
+    /**
+     * Drag-handler for the controlbox's right edge (fullscreen/embedded mode).
+     * Live-updates the `--controlbox-width` custom property while dragging and
+     * persists the final width to the user settings.
+     * @param {MouseEvent} ev
+     */
+    onStartResize(ev) {
+        ev.preventDefault();
+        const start_x = ev.clientX;
+        const start_width = this.offsetWidth;
+        const min = 180;
+        const max = Math.min(window.innerWidth * 0.6, 600);
+        const onMove = (/** @type {MouseEvent} */ e) => {
+            const width = Math.min(Math.max(start_width + (e.clientX - start_x), min), max);
+            this.style.setProperty('--controlbox-width', `${width}px`);
+        };
+        const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            document.body.style.userSelect = '';
+            api.user.settings.set('controlbox_width', this.offsetWidth);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.body.style.userSelect = 'none';
     }
 
     disconnectedCallback() {

@@ -1,5 +1,6 @@
 import { html, nothing } from 'lit';
 import { _converse, api, converse, constants } from '@converse/headless';
+import { __ } from 'i18n';
 import { getChatStyle } from 'shared/chat/utils.js';
 
 const { Strophe } = converse.env;
@@ -41,8 +42,16 @@ function whenNotConnected(el) {
  */
 export default (el) => {
     const style = getChatStyle(el.model);
+    const is_overlayed = api.settings.get('view_mode') === 'overlayed';
     return html`<div class="flyout box-flyout" style="${style || nothing}">
-        ${api.settings.get('view_mode') === 'overlayed' ? html`<converse-dragresize></converse-dragresize>` : ''}
+        ${is_overlayed ? html`<converse-dragresize></converse-dragresize>` : ''}
+        ${!is_overlayed
+            ? html`<div
+                  class="controlbox-resize-handle"
+                  title="${__('Drag to resize')}"
+                  @mousedown=${(/** @type {MouseEvent} */ ev) => el.onStartResize(ev)}
+              ></div>`
+            : ''}
         ${el.model.get('connected')
             ? html`<converse-user-profile></converse-user-profile>
                   <div class="controlbox-pane">

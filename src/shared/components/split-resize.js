@@ -18,6 +18,14 @@ const NOOP = () => false;
 const global = typeof window !== 'undefined' ? window : null;
 
 export default class SplitResize extends CustomElement {
+    static get properties() {
+        return {
+            // When set, the split ratio is saved under this key in the user
+            // settings and restored on load, so the panel keeps its size.
+            persist_key: { type: String, attribute: 'persist-key' },
+        };
+    }
+
     initialize() {
         super.initialize();
     }
@@ -25,6 +33,7 @@ export default class SplitResize extends CustomElement {
     constructor() {
         super();
         this.pair = null;
+        this.persist_key = '';
     }
 
     render() {
@@ -33,8 +42,8 @@ export default class SplitResize extends CustomElement {
 
     disconnectedCallback() {
         super.disconnectedCallback();
-        this.pair.gutter.removeEventListener('mousedown', this.pair[gutterStartDragging]);
-        this.pair.gutter.removeEventListener('touchstart', this.pair[gutterStartDragging]);
+        this.pair?.gutter.removeEventListener('mousedown', this.pair[gutterStartDragging]);
+        this.pair?.gutter.removeEventListener('touchstart', this.pair[gutterStartDragging]);
     }
 
     /**
@@ -42,12 +51,38 @@ export default class SplitResize extends CustomElement {
      */
     updated(changed) {
         super.updated(changed);
-        if (!this.pair) {
-            this.setupSplit([
-                /** @type {HTMLElement} */ (this.previousElementSibling),
-                /** @type {HTMLElement} */ (this.nextElementSibling),
-            ]);
+        if (this.pair || this._initializing) return;
+
+        const siblings = [
+            /** @type {HTMLElement} */ (this.previousElementSibling),
+            /** @type {HTMLElement} */ (this.nextElementSibling),
+        ];
+        if (!siblings[0] || !siblings[1]) return;
+
+        if (!this.persist_key) {
+            this.setupSplit(siblings);
+            return;
         }
+        this._initializing = true;
+        this.initPersistedSplit(siblings);
+    }
+
+    /**
+     * Set up the split, restoring a previously-saved ratio and persisting any
+     * new one the user drags to.
+     * @param {HTMLElement[]} siblings
+     */
+    async initPersistedSplit(siblings) {
+        const stored = await api.user.settings.get(this.persist_key, null);
+        const options = {
+            /** @param {number[]} sizes */
+            onDragEnd: (sizes) => api.user.settings.set(this.persist_key, sizes),
+        };
+        if (Array.isArray(stored) && stored.length === siblings.length) {
+            options.sizes = stored;
+        }
+        this.setupSplit(siblings, options);
+        if (options.sizes) this.setSizes(options.sizes);
     }
 
     /**
