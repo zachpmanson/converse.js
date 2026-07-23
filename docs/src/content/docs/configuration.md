@@ -269,13 +269,13 @@ For applications where chat is not the main feature, automatic focus of the chat
 
 - Default: `false`
 
-If true, and the XMPP server on which the current user is logged in supports multi-user chat, then a list of rooms on that server will be fetched in the "Query for Groupchats" modal.
+If true, and the XMPP server on which the current user is logged in supports multi-user chat, then a list of rooms on that server will be fetched in the "Add a Groupchat" modal.
 
 Not recommended for servers with lots of chatrooms.
 
 For each room on the server a query is made to fetch further details (e.g. features, number of occupants etc.), so on servers with many rooms this option will create lots of extra connection traffic.
 
-If the [muc_domain](#muc_domain) is locked with the [locked_muc_domain](#locked_muc_domain) setting, then rooms will automatically be fetched in the "Query for Groupchats" modal, regardless of the value of this setting.
+In the "Add a Groupchat" modal, entering a bare server domain (e.g. `conference.example.org`) into the address field will list that server's public groupchats inline. If the [muc_domain](#muc_domain) is locked with the [locked_muc_domain](#locked_muc_domain) setting, then rooms will automatically be fetched when the modal opens, regardless of the value of this setting.
 
 ### auto_login
 

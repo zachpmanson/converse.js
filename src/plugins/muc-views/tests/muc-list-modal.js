@@ -3,34 +3,38 @@ import converse from '../../../../dist/converse.js';
 
 const { Strophe, sizzle, u, stx } = converse.env;
 
-describe('The "Groupchats" List modal', function () {
+/**
+ * Simulate typing an address/domain into the unified "Add a Groupchat" modal.
+ * @param {Element} modal
+ * @param {string} value
+ */
+function typeAddress(modal, value) {
+    const input = /** @type {HTMLInputElement} */ (modal.querySelector('input[name="chatroom"]'));
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    return input;
+}
+
+describe('The "Add a Groupchat" modal', function () {
     it(
-        'can be opened from a link in the "Groupchats" section of the controlbox',
+        'browses a server\'s groupchats when a domain is entered',
         mock.initConverse(converse, ['chatBoxesFetched'], {}, async function (_converse) {
-            await mock.openControlBox(_converse);
-            const cbview = _converse.chatboxviews.get('controlbox');
-            const button = await u.waitUntil(() => cbview.querySelector('converse-rooms-list .show-list-muc-modal'));
-            button.click();
-            mock.closeControlBox(_converse);
-            const modal = _converse.api.modal.get('converse-muc-list-modal');
-            await u.waitUntil(() => u.isVisible(modal), 1000);
+            const modal = await mock.openAddMUCModal(_converse);
             spyOn(_converse.ChatRoom.prototype, 'getDiscoInfo').and.callFake(() => Promise.resolve());
 
-            // See: https://xmpp.org/extensions/xep-0045.html#disco-rooms
+            // Nothing is listed until a server domain is typed in.
             expect(modal.querySelectorAll('.available-chatrooms li').length).toBe(0);
 
-            const server_input = modal.querySelector('input[name="server"]');
-            expect(server_input.placeholder).toBe('conference.example.org');
-            server_input.value = 'chat.shakespeare.lit';
-            modal.querySelector('input[type="submit"]').click();
-            await u.waitUntil(() => _converse.chatboxes.length);
+            typeAddress(modal, 'chat.shakespeare.lit');
 
             const IQ_stanzas = _converse.api.connection.get().IQ_stanzas;
             const sent_stanza = await u.waitUntil(() =>
                 IQ_stanzas.filter((s) => sizzle(`query[xmlns="${Strophe.NS.DISCO_ITEMS}"]`, s).length).pop(),
             );
             const id = sent_stanza.getAttribute('id');
-            expect(sent_stanza).toEqualStanza(stx`<iq from="romeo@montague.lit/orchard" id="${id}" to="chat.shakespeare.lit" type="get" xmlns="jabber:client">
+            expect(sent_stanza).toEqualStanza(stx`
+                <iq from="romeo@montague.lit/orchard" id="${id}" to="chat.shakespeare.lit"
+                    type="get" xmlns="jabber:client">
                 <query xmlns="http://jabber.org/protocol/disco#items"/>
             </iq>`);
 
@@ -82,40 +86,36 @@ describe('The "Groupchats" List modal', function () {
     );
 
     it(
-        'is pre-filled with the muc_domain',
-        mock.initConverse(converse, ['chatBoxesFetched'], { 'muc_domain': 'muc.example.org' }, async function (_converse) {
-            await mock.openControlBox(_converse);
-            const cbview = _converse.chatboxviews.get('controlbox');
-            const button = await u.waitUntil(() => cbview.querySelector('converse-rooms-list .show-list-muc-modal'));
-            button.click();
-            mock.closeControlBox(_converse);
-            const modal = _converse.api.modal.get('converse-muc-list-modal');
-            await u.waitUntil(() => u.isVisible(modal), 1000);
-            const server_input = modal.querySelector('input[name="server"]');
-            expect(server_input.value).toBe('muc.example.org');
+        "doesn't browse when a specific room address is entered",
+        mock.initConverse(converse, ['chatBoxesFetched'], {}, async function (_converse) {
+            const modal = await mock.openAddMUCModal(_converse);
+            spyOn(_converse.ChatRoom.prototype, 'getDiscoInfo').and.callFake(() => Promise.resolve());
+
+            typeAddress(modal, 'lounge@muc.montague.lit');
+
+            // Give the debounced browse a chance to (not) fire.
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            const IQ_stanzas = _converse.api.connection.get().IQ_stanzas;
+            const disco_items = IQ_stanzas.filter((s) => sizzle(`query[xmlns="${Strophe.NS.DISCO_ITEMS}"]`, s).length);
+            expect(disco_items.length).toBe(0);
+            expect(modal.querySelectorAll('.available-chatrooms li').length).toBe(0);
         }),
     );
 
     it(
-        "doesn't let you set the MUC domain if it's locked",
-        mock.initConverse(converse, 
+        "lists a locked MUC domain's groupchats automatically",
+        mock.initConverse(
+            converse,
             ['chatBoxesFetched'],
             { 'muc_domain': 'chat.shakespeare.lit', 'locked_muc_domain': true },
             async function (_converse) {
-                await mock.openControlBox(_converse);
-                const cbview = _converse.chatboxviews.get('controlbox');
-                const button = await u.waitUntil(() =>
-                    cbview.querySelector('converse-rooms-list .show-list-muc-modal'),
-                );
-                button.click();
-                mock.closeControlBox(_converse);
-                const modal = _converse.api.modal.get('converse-muc-list-modal');
-                await u.waitUntil(() => u.isVisible(modal), 1000);
+                const modal = await mock.openAddMUCModal(_converse);
                 spyOn(_converse.ChatRoom.prototype, 'getDiscoInfo').and.callFake(() => Promise.resolve());
 
+                // The domain is locked, so there's no server field to fill in.
                 expect(modal.querySelector('input[name="server"]')).toBe(null);
-                expect(modal.querySelector('input[type="submit"]')).toBe(null);
-                await u.waitUntil(() => _converse.chatboxes.length);
+
                 const sent_stanza = await u.waitUntil(() =>
                     _converse.api.connection
                         .get()

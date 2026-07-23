@@ -12,7 +12,7 @@ describe('The "Groupchats" Add modal', function () {
             let muc_jid = 'xmpp:lounge@muc.montague.lit?join';
 
             const label_name = modal.querySelector('label[for="chatroom"]');
-            expect(modal.querySelector('.modal-title').textContent.trim()).toBe('Enter a new Groupchat');
+            expect(modal.querySelector('.modal-title').textContent.trim()).toBe('Add a Groupchat');
             expect(label_name.textContent.trim()).toBe('Groupchat name or address:');
             const label_nick = modal.querySelector('label[for="nickname"]');
             expect(label_nick.textContent.trim()).toBe('Nickname:');
@@ -39,7 +39,7 @@ describe('The "Groupchats" Add modal', function () {
             { muc_domain: 'muc.example.org' },
             async function (_converse) {
                 let modal = await mock.openAddMUCModal(_converse);
-                expect(modal.querySelector('.modal-title').textContent.trim()).toBe('Enter a new Groupchat');
+                expect(modal.querySelector('.modal-title').textContent.trim()).toBe('Add a Groupchat');
                 spyOn(_converse.ChatRoom.prototype, 'getDiscoInfo').and.callFake(() => Promise.resolve());
                 const label_name = modal.querySelector('label[for="chatroom"]');
                 expect(label_name.textContent.trim()).toBe('Groupchat name or address:');
@@ -86,7 +86,7 @@ describe('The "Groupchats" Add modal', function () {
             { muc_domain: 'muc.example.org', locked_muc_domain: true },
             async function (_converse) {
                 let modal = await mock.openAddMUCModal(_converse);
-                expect(modal.querySelector('.modal-title').textContent.trim()).toBe('Enter a new Groupchat');
+                expect(modal.querySelector('.modal-title').textContent.trim()).toBe('Add a Groupchat');
                 spyOn(_converse.ChatRoom.prototype, 'getDiscoInfo').and.callFake(() => Promise.resolve());
                 const label_name = modal.querySelector('label[for="chatroom"]');
                 expect(label_name.textContent.trim()).toBe('Groupchat name:');

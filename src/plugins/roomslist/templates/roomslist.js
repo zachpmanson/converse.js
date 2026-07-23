@@ -5,7 +5,6 @@
 import { html } from 'lit';
 import { api, u, constants } from '@converse/headless';
 import 'plugins/muc-views/modals/add-muc.js';
-import 'plugins/muc-views/modals/muc-list.js';
 import { __ } from 'i18n';
 import { getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
 
@@ -144,47 +143,11 @@ export default (el) => {
     const rooms = el.getRoomsToShow();
     const i18n_desc_rooms = __('Click to toggle the list of open groupchats');
     const i18n_heading_chatrooms = __('Groupchats');
-    const i18n_title_list_rooms = __('Query server');
-    const i18n_title_new_room = __('Add groupchat');
+    const i18n_title_new_room = __('Add a groupchat');
     const i18n_show_bookmarks = __('Bookmarks');
     const is_closed = el.model.get('toggle_state') === CLOSED;
 
-    const btns = [
-        html`<a
-            class="dropdown-item show-add-muc-modal"
-            role="button"
-            @click="${(ev) => api.modal.show('converse-add-muc-modal', { 'model': el.model }, ev)}"
-            data-toggle="modal"
-            data-target="#add-chatrooms-modal"
-        >
-            <converse-icon class="fa fa-plus" size="1em"></converse-icon>
-            ${i18n_title_new_room}
-        </a>`,
-        html`<a
-            class="dropdown-item show-list-muc-modal"
-            role="button"
-            @click="${(ev) => api.modal.show('converse-muc-list-modal', { 'model': el.model }, ev)}"
-            data-toggle="modal"
-            data-target="#muc-list-modal"
-        >
-            <converse-icon class="fa fa-list-ul" size="1em"></converse-icon>
-            ${i18n_title_list_rooms}
-        </a>`,
-        html`<a
-            class="dropdown-item show-bookmark-list-modal"
-            role="button"
-            @click="${(ev) => api.modal.show('converse-bookmark-list-modal', { 'model': el.model }, ev)}"
-            data-toggle="modal"
-        >
-            <converse-icon class="fa fa-bookmark" size="1em"></converse-icon>
-            ${i18n_show_bookmarks}
-        </a>`,
-    ];
-
-    return html` <div
-            class="d-flex controlbox-padded"
-            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
-        >
+    return html` <div class="d-flex controlbox-padded">
             <span class="w-100 controlbox-heading controlbox-heading--groupchats">
                 <a
                     class="list-toggle open-rooms-toggle"
@@ -203,7 +166,24 @@ export default (el) => {
                         : ''}
                 </a>
             </span>
-            <converse-dropdown class="btn-group dropstart" .items=${btns}></converse-dropdown>
+            <a
+                class="btn btn--transparent btn--standalone show-add-muc-modal"
+                role="button"
+                title="${i18n_title_new_room}"
+                aria-label="${i18n_title_new_room}"
+                @click="${(/** @type {MouseEvent} */ ev) => api.modal.show('converse-add-muc-modal', { 'model': el.model }, ev)}"
+            >
+                <converse-icon class="fa fa-plus" size="1em"></converse-icon>
+            </a>
+            <a
+                class="btn btn--transparent btn--standalone show-bookmark-list-modal"
+                role="button"
+                title="${i18n_show_bookmarks}"
+                aria-label="${i18n_show_bookmarks}"
+                @click="${(/** @type {MouseEvent} */ ev) => api.modal.show('converse-bookmark-list-modal', { 'model': el.model }, ev)}"
+            >
+                <converse-icon class="fa fa-bookmark" size="1em"></converse-icon>
+            </a>
         </div>
 
         <div class="list-container list-container--openrooms ${rooms.length ? '' : 'hidden'}">
