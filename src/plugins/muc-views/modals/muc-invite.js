@@ -1,5 +1,7 @@
+import { html } from 'lit';
 import { _converse, api, converse } from '@converse/headless';
 import BaseModal from 'plugins/modal/modal.js';
+import { modal_close_button } from 'plugins/modal/templates/buttons.js';
 import 'shared/autocomplete/index.js';
 import tplMUCInviteModal from './templates/muc-invite.js';
 import { __ } from 'i18n';
@@ -15,6 +17,14 @@ export default class MUCInviteModal extends BaseModal {
 
     renderModal() {
         return tplMUCInviteModal(this);
+    }
+
+    renderModalFooter() {
+        const i18n_invite = __('Invite');
+        return html`<div class="modal-footer">
+            <input type="submit" form="converse-muc-invite-form" class="btn btn-primary" value="${i18n_invite}" />
+            ${modal_close_button(() => this.close())}
+        </div>`;
     }
 
     getModalTitle() {

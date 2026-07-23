@@ -12,7 +12,6 @@ import 'shared/autocomplete/index.js';
  * @param {import('../add-contact.js').default} el
  */
 export default (el) => {
-    const i18n_add = __('Add');
     const i18n_contact_placeholder = __('name@example.org');
     const i18n_groups = __('Groups');
     const i18n_groups_help = __('Use commas to separate multiple values');
@@ -22,7 +21,11 @@ export default (el) => {
     const i18n_search_or_address = using_xhr ? __('Search name or XMPP address') : i18n_xmpp_address;
 
     return html`<div class="modal-body">
-        <form class="converse-form add-xmpp-contact" @submit=${(/** @type {Event} */ ev) => el.addContactFromForm(ev)}>
+        <form
+            id="converse-add-contact-form"
+            class="converse-form add-xmpp-contact"
+            @submit=${(/** @type {Event} */ ev) => el.addContactFromForm(ev)}
+        >
             ${el.contact
                 ? html`<input type="hidden" name="jid" value="${el.contact.get('jid')}" />`
                 : html`<div class="mb-3">
@@ -79,7 +82,6 @@ export default (el) => {
                   </div>`
                 : ''}
 
-            <button type="submit" class="btn btn-primary">${i18n_add}</button>
         </form>
     </div>`;
 };

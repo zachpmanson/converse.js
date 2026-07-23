@@ -61,7 +61,6 @@ const tplRoomItem = (el, item) => {
  * @param {import('../add-muc.js').default} el
  */
 export default (el) => {
-    const i18n_join = __('Join');
     let label_name;
     if (api.settings.get('locked_muc_domain')) {
         label_name = __('Groupchat name');
@@ -74,6 +73,7 @@ export default (el) => {
     const show_list = el.loading_items || el.feedback_text || el.items.length;
 
     return html` <form
+        id="converse-add-muc-form"
         class="converse-form add-chatroom needs-validation"
         @submit=${(/** @type {Event} */ ev) => el.openChatRoom(ev)}
         novalidate
@@ -115,6 +115,5 @@ export default (el) => {
                 : ''}
         </div>
         ${!api.settings.get('locked_muc_nickname') ? nickname_input() : ''}
-        <input type="submit" class="btn btn-primary mt-3" name="join" value="${i18n_join || ''}" />
     </form>`;
 };

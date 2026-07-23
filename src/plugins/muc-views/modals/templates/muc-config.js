@@ -33,9 +33,9 @@ export default (el) => {
         title = stanza.querySelector('title')?.textContent;
     }
 
-    const i18n_save = __('Save');
     return html`
         <form
+            id="converse-muc-config-form"
             class="converse-form chatroom-form ${fieldTemplates.length ? '' : 'converse-form--spinner'}"
             autocomplete="off"
             @submit=${ev => el.submitConfigForm(ev)}
@@ -50,12 +50,6 @@ export default (el) => {
 
                 ${fieldTemplates.length ? fieldTemplates : tplSpinner({ 'class': 'hor_centered' })}
             </fieldset>
-
-            ${fieldTemplates.length
-                ? html` <fieldset>
-                      <input type="submit" class="btn btn-primary" value="${i18n_save}" />
-                  </fieldset>`
-                : ''}
         </form>
     `;
 };

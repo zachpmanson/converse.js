@@ -565,7 +565,7 @@ describe('A MUC', function () {
                     name_input.value = muc_jid;
                     expect(modal.querySelector('label[for="nickname"]')).toBe(null);
                     expect(modal.querySelector('input[name="nickname"]')).toBe(null);
-                    modal.querySelector('form input[type="submit"]').click();
+                    modal.querySelector('input[type="submit"]').click();
 
                     await mock.waitForMUCDiscoInfo(_converse, muc_jid);
                     await u.waitUntil(() => _converse.chatboxes.length > 1);

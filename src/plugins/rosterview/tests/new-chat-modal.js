@@ -22,8 +22,7 @@ describe('New Chat Modal', function () {
             const input = modal.querySelector('input[name="jid"]');
             input.value = jid;
 
-            const form = modal.querySelector('form');
-            form.querySelector('button[type="submit"]').click();
+            modal.querySelector('button[type="submit"]').click();
 
             await u.waitUntil(() => api.chats.get(jid));
             expect(modal.model.get('error')).toBe(null);
@@ -48,8 +47,7 @@ describe('New Chat Modal', function () {
             const input = modal.querySelector('input[name="jid"]');
             input.value = invalidJid;
 
-            const form = modal.querySelector('form');
-            form.querySelector('button[type="submit"]').click();
+            modal.querySelector('button[type="submit"]').click();
 
             await u.waitUntil(() => api.chats.get(invalidJid));
 

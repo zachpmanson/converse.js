@@ -1,5 +1,7 @@
+import { html } from 'lit';
 import { _converse, api, converse, log, u } from '@converse/headless';
 import BaseModal from 'plugins/modal/modal.js';
+import { modal_close_button } from 'plugins/modal/templates/buttons.js';
 import tplAddMuc from './templates/add-muc.js';
 import tplMUCDescription from '../templates/muc-description.js';
 import tplSpinner from 'templates/spinner.js';
@@ -114,6 +116,14 @@ export default class AddMUCModal extends BaseModal {
 
     renderModal() {
         return tplAddMuc(this);
+    }
+
+    renderModalFooter() {
+        const i18n_join = __('Join');
+        return html`<div class="modal-footer">
+            <input type="submit" form="converse-add-muc-form" class="btn btn-primary" name="join" value="${i18n_join}" />
+            ${modal_close_button(() => this.close())}
+        </div>`;
     }
 
     getModalTitle() {

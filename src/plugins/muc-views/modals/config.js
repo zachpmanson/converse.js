@@ -1,6 +1,8 @@
+import { html } from 'lit';
 import { api, converse, log } from '@converse/headless';
 import tplMUCConfigForm from './templates/muc-config.js';
 import BaseModal from 'plugins/modal/modal.js';
+import { modal_close_button } from 'plugins/modal/templates/buttons.js';
 import { __ } from 'i18n';
 import { compressImage, isImageWithAlphaChannel } from 'utils/file.js';
 
@@ -29,6 +31,19 @@ export default class MUCConfigModal extends BaseModal {
 
     renderModal () {
         return tplMUCConfigForm(this);
+    }
+
+    renderModalFooter () {
+        const i18n_save = __('Save');
+        const config_loaded = !!this.model.session.get('config_stanza');
+        return html`<div class="modal-footer">
+            ${config_loaded
+                ? html`<button type="submit" form="converse-muc-config-form" class="btn btn-primary">
+                      ${i18n_save}
+                  </button>`
+                : ''}
+            ${modal_close_button(() => this.close())}
+        </div>`;
     }
 
     /**

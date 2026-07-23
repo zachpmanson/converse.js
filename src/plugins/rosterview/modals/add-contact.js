@@ -1,5 +1,7 @@
+import { html } from 'lit';
 import { _converse, converse, api, log, u } from '@converse/headless';
 import BaseModal from 'plugins/modal/modal.js';
+import { modal_close_button } from 'plugins/modal/templates/buttons.js';
 import tplAddContactModal from './templates/add-contact.js';
 import { __ } from 'i18n';
 
@@ -26,6 +28,14 @@ export default class AddContactModal extends BaseModal {
 
     renderModal() {
         return tplAddContactModal(this);
+    }
+
+    renderModalFooter() {
+        const i18n_add = __('Add');
+        return html`<div class="modal-footer">
+            <button type="submit" form="converse-add-contact-form" class="btn btn-primary">${i18n_add}</button>
+            ${modal_close_button(() => this.close())}
+        </div>`;
     }
 
     getModalTitle() {

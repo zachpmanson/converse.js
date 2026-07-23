@@ -1,6 +1,8 @@
+import { html } from 'lit';
 import { _converse, api, log } from '@converse/headless';
 import 'shared/autocomplete/index.js';
 import BaseModal from 'plugins/modal/modal.js';
+import { modal_close_button } from 'plugins/modal/templates/buttons.js';
 import tplAcceptContactRequest from './templates/accept-contact-request.js';
 import { __ } from 'i18n';
 
@@ -26,6 +28,14 @@ export default class AcceptContactRequestModal extends BaseModal {
 
     renderModal() {
         return tplAcceptContactRequest(this);
+    }
+
+    renderModalFooter() {
+        const i18n_accept = __('Accept');
+        return html`<div class="modal-footer">
+            <button type="submit" form="converse-accept-contact-form" class="btn btn-primary">${i18n_accept}</button>
+            ${modal_close_button(() => this.close())}
+        </div>`;
     }
 
     getModalTitle() {

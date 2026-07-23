@@ -21,7 +21,7 @@ describe('The "Groupchats" Add modal', function () {
             nick_input.value = 'romeo';
 
             modal.querySelector('input[name="chatroom"]').value = muc_jid;
-            modal.querySelector('form input[type="submit"]').click();
+            modal.querySelector('input[type="submit"]').click();
 
             muc_jid = 'lounge@muc.montague.lit';
             await mock.waitForMUCDiscoInfo(_converse, muc_jid);
@@ -48,7 +48,7 @@ describe('The "Groupchats" Add modal', function () {
                 let nick_input = modal.querySelector('input[name="nickname"]');
                 nick_input.value = 'max';
 
-                modal.querySelector('form input[type="submit"]').click();
+                modal.querySelector('input[type="submit"]').click();
                 await mock.waitForMUCDiscoInfo(_converse, 'lounge@muc.example.org');
                 await u.waitUntil(() => _converse.chatboxes.length);
                 await u.waitUntil(() => sizzle('.chatroom', _converse.el).filter(u.isVisible).length === 1);
@@ -65,7 +65,7 @@ describe('The "Groupchats" Add modal', function () {
                 name_input.value = 'lounge@conference.example.org';
                 nick_input = modal.querySelector('input[name="nickname"]');
                 nick_input.value = 'max';
-                modal.querySelector('form input[type="submit"]').click();
+                modal.querySelector('input[type="submit"]').click();
                 await mock.waitForMUCDiscoInfo(_converse, 'lounge@conference.example.org');
                 await u.waitUntil(
                     () => _converse.chatboxes.models.filter((c) => c.get('type') === 'chatroom').length === 2,
@@ -95,7 +95,7 @@ describe('The "Groupchats" Add modal', function () {
                 name_input.value = 'lounge';
                 let nick_input = modal.querySelector('input[name="nickname"]');
                 nick_input.value = 'max';
-                modal.querySelector('form input[type="submit"]').click();
+                modal.querySelector('input[type="submit"]').click();
                 await mock.waitForMUCDiscoInfo(_converse, 'lounge@muc.example.org');
                 await u.waitUntil(() => _converse.chatboxes.length);
                 await u.waitUntil(() => sizzle('.chatroom', _converse.el).filter(u.isVisible).length === 1);
@@ -111,7 +111,7 @@ describe('The "Groupchats" Add modal', function () {
                 name_input.value = 'lounge@conference';
                 nick_input = modal.querySelector('input[name="nickname"]');
                 nick_input.value = 'max';
-                modal.querySelector('form input[type="submit"]').click();
+                modal.querySelector('input[type="submit"]').click();
                 await mock.waitForMUCDiscoInfo(_converse, 'lounge-conference@muc.example.org');
                 await u.waitUntil(
                     () => _converse.chatboxes.models.filter((c) => c.get('type') === 'chatroom').length === 2,
@@ -137,7 +137,7 @@ describe('The "Groupchats" Add modal', function () {
                 name_input.value = 'lounge@muc.example.org';
                 const nick_input = modal.querySelector('input[name="nickname"]');
                 nick_input.value = 'max';
-                modal.querySelector('form input[type="submit"]').click();
+                modal.querySelector('input[type="submit"]').click();
                 await mock.waitForMUCDiscoInfo(_converse, 'lounge@muc.example.org');
                 await u.waitUntil(() => _converse.chatboxes.length);
                 await u.waitUntil(() => sizzle('.chatroom', _converse.el).filter(u.isVisible).length === 1);
@@ -172,7 +172,7 @@ describe('The "Groupchats" Add modal', function () {
             const nick_input = modal.querySelector('input[name="nickname"]');
             nick_input.value = nick;
 
-            modal.querySelector('form input[type="submit"]').click();
+            modal.querySelector('input[type="submit"]').click();
 
             await mock.waitUntilDiscoConfirmed(_converse, domain, [], [], ['muc.example.org'], 'items');
             await mock.waitUntilDiscoConfirmed(_converse, 'muc.example.org', [], [Strophe.NS.MUC]);
@@ -282,7 +282,7 @@ describe('The "Groupchats" Add modal', function () {
             const nick_input = modal.querySelector('input[name="nickname"]');
             nick_input.value = nick;
 
-            modal.querySelector('form input[type="submit"]').click();
+            modal.querySelector('input[type="submit"]').click();
 
             await u.waitUntil(() => name_input.classList.contains('error'));
             expect(name_input.classList.contains('is-invalid')).toBe(true);
@@ -305,7 +305,7 @@ describe('The "Groupchats" Add modal', function () {
             const nick_input = modal.querySelector('input[name="nickname"]');
             nick_input.value = 'max';
 
-            modal.querySelector('form input[type="submit"]').click();
+            modal.querySelector('input[type="submit"]').click();
 
             await mock.waitForMUCDiscoInfo(_converse, 'into-the-ather-a-journey@montague.lit');
             await u.waitUntil(() => sizzle('.chatroom', _converse.el).filter(u.isVisible).length === 1);
@@ -339,7 +339,7 @@ describe('The "Groupchats" Add modal', function () {
                 const nick_input = modal.querySelector('input[name="nickname"]');
                 nick_input.value = 'max';
 
-                modal.querySelector('form input[type="submit"]').click();
+                modal.querySelector('input[type="submit"]').click();
                 await u.waitUntil(() => name_input.classList.contains('error'));
                 expect(name_input.classList.contains('is-invalid')).toBe(true);
                 expect(modal.querySelector('.invalid-feedback')?.textContent).toBe('Groupchat id is invalid.');

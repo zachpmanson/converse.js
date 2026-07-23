@@ -1,5 +1,7 @@
+import { html } from 'lit';
 import { _converse, api, converse, log, u } from '@converse/headless';
 import BaseModal from 'plugins/modal/modal.js';
+import { modal_close_button } from 'plugins/modal/templates/buttons.js';
 import tplNewChat from './templates/new-chat.js';
 import { __ } from 'i18n';
 
@@ -19,6 +21,14 @@ export default class NewChatModal extends BaseModal {
 
     renderModal() {
         return tplNewChat(this);
+    }
+
+    renderModalFooter() {
+        const i18n_start_chat = __('Start Chat');
+        return html`<div class="modal-footer">
+            <button type="submit" form="converse-new-chat-form" class="btn btn-primary">${i18n_start_chat}</button>
+            ${modal_close_button(() => this.close())}
+        </div>`;
     }
 
     getModalTitle() {
