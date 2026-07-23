@@ -30,7 +30,7 @@ $prefix: 'converse-';
     @import "bootstrap/scss/transitions";
     @import "bootstrap/scss/dropdown";
     @import "bootstrap/scss/button-group";
-    @import "bootstrap/scss/nav";
+    // Nav / tabs are reimplemented locally (see styles/nav.scss, issue #10).
     @import "bootstrap/scss/navbar";
     // Cards are reimplemented locally (see styles/card.scss, issue #11).
     // @import "bootstrap/scss/accordion";
@@ -65,6 +65,7 @@ $prefix: 'converse-';
     @import "themes/mono";
 }
 
+@import "nav";
 @import "core";
 @import "alerts";
 @import "buttons";

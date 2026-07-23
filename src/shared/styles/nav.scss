@@ -1,0 +1,86 @@
+// Local reimplementation of Bootstrap's `.nav` / tabs (see issue #10). The
+// `.nav`, `.nav-link`, `.nav-pills` and `.tab-content`/`.tab-pane` blocks below
+// are Bootstrap's own `_nav.scss` source, reproduced verbatim (they use the
+// shared functions/variables/mixins that remain imported), so compiled output
+// is identical — only the `bootstrap/scss/nav` component import is dropped. The
+// unused variants (.nav-tabs, .nav-underline, .nav-fill, .nav-justified) are
+// omitted. Imported before styles/_core.scss so Converse's `.nav` /
+// `.nav-pills .nav-link.active` overrides there still win, as before.
+.conversejs {
+    .nav {
+        --#{$prefix}nav-link-padding-x: #{$nav-link-padding-x};
+        --#{$prefix}nav-link-padding-y: #{$nav-link-padding-y};
+        @include rfs($nav-link-font-size, --#{$prefix}nav-link-font-size);
+        --#{$prefix}nav-link-font-weight: #{$nav-link-font-weight};
+        --#{$prefix}nav-link-color: #{$nav-link-color};
+        --#{$prefix}nav-link-hover-color: #{$nav-link-hover-color};
+        --#{$prefix}nav-link-disabled-color: #{$nav-link-disabled-color};
+
+        display: flex;
+        flex-wrap: wrap;
+        padding-left: 0;
+        margin-bottom: 0;
+        list-style: none;
+    }
+
+    .nav-link {
+        display: block;
+        padding: var(--#{$prefix}nav-link-padding-y) var(--#{$prefix}nav-link-padding-x);
+        @include font-size(var(--#{$prefix}nav-link-font-size));
+        font-weight: var(--#{$prefix}nav-link-font-weight);
+        color: var(--#{$prefix}nav-link-color);
+        text-decoration: if($link-decoration == none, null, none);
+        background: none;
+        border: 0;
+        @include transition($nav-link-transition);
+
+        &:hover,
+        &:focus {
+            color: var(--#{$prefix}nav-link-hover-color);
+            text-decoration: if($link-hover-decoration == underline, none, null);
+        }
+
+        &:focus-visible {
+            outline: 0;
+            box-shadow: $nav-link-focus-box-shadow;
+        }
+
+        &.disabled,
+        &:disabled {
+            color: var(--#{$prefix}nav-link-disabled-color);
+            pointer-events: none;
+            cursor: default;
+        }
+    }
+
+    //
+    // Pills
+    //
+    .nav-pills {
+        --#{$prefix}nav-pills-border-radius: #{$nav-pills-border-radius};
+        --#{$prefix}nav-pills-link-active-color: #{$nav-pills-link-active-color};
+        --#{$prefix}nav-pills-link-active-bg: #{$nav-pills-link-active-bg};
+
+        .nav-link {
+            @include border-radius(var(--#{$prefix}nav-pills-border-radius));
+        }
+
+        .nav-link.active,
+        .show > .nav-link {
+            color: var(--#{$prefix}nav-pills-link-active-color);
+            @include gradient-bg(var(--#{$prefix}nav-pills-link-active-bg));
+        }
+    }
+
+    //
+    // Tabbable tabs: hide panes to start, show them when `.active`
+    //
+    .tab-content {
+        > .tab-pane {
+            display: none;
+        }
+        > .active {
+            display: block;
+        }
+    }
+}
