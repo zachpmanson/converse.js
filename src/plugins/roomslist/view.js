@@ -85,12 +85,8 @@ export class RoomsList extends CustomElement {
     /** @param {Event} [ev] */
     toggleRoomsList(ev) {
         ev?.preventDefault?.();
-        const list_el = this.querySelector('.open-rooms-list');
-        if (this.model.get('toggle_state') === CLOSED) {
-            u.slideOut(list_el).then(() => this.model.save({ 'toggle_state': OPENED }));
-        } else {
-            u.slideIn(list_el).then(() => this.model.save({ 'toggle_state': CLOSED }));
-        }
+        const toggle_state = this.model.get('toggle_state') === CLOSED ? OPENED : CLOSED;
+        this.model.save({ toggle_state });
     }
 
     /**

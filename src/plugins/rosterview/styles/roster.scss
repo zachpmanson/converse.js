@@ -36,25 +36,16 @@
             padding: 0;
             margin: 0 0 0.2em 0;
             color: var(--text-color);
-            // `display: contents` generates no box, which silently breaks
-            // toggleRoster's slideIn/slideOut animation (it animates this
-            // element's height/overflow, a no-op with no box to size). `.hidden`
-            // still hides it correctly (display:none !important beats this).
+            // Toggling the contacts list is instant: `.hidden`
+            // (display:none !important) hides it, otherwise it's shown.
             display: block;
 
             .roster-group-contacts {
-                // Groupchats collapse via slideIn/slideOut helpers that animate
-                // `height`; this list instead just toggles a class, so animate
-                // it with max-height instead — height can't transition to/from
-                // `auto`, but a generous cap (always far more than any real
-                // contact group's height) approximates it.
                 overflow: hidden;
-                max-height: 1000px;
-                transition: max-height 0.2s ease, padding 0.2s ease;
 
+                // Collapsing a group is instant (no animation).
                 &--collapsed {
-                    height: auto;
-                    max-height: 0;
+                    height: 0;
                     padding: 0;
                 }
 

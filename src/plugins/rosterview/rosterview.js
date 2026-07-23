@@ -1,6 +1,5 @@
 import { _converse, api, u, constants, Model } from '@converse/headless';
 import { CustomElement } from 'shared/components/element.js';
-import { slideIn, slideOut } from 'utils/html.js';
 import tplRoster from './templates/roster.js';
 
 const { initStorage } = u;
@@ -77,12 +76,8 @@ export default class RosterView extends CustomElement {
     /** @param {MouseEvent} [ev] */
     toggleRoster(ev) {
         ev?.preventDefault?.();
-        const list_el = /** @type {HTMLElement} */ (this.querySelector('.list-container.roster-contacts'));
-        if (this.model.get('toggle_state') === CLOSED) {
-            slideOut(list_el).then(() => this.model.save({ 'toggle_state': OPENED }));
-        } else {
-            slideIn(list_el).then(() => this.model.save({ 'toggle_state': CLOSED }));
-        }
+        const toggle_state = this.model.get('toggle_state') === CLOSED ? OPENED : CLOSED;
+        this.model.save({ toggle_state });
     }
 
     /** @param {MouseEvent} [ev] */
