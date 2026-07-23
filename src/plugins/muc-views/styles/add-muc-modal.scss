@@ -11,5 +11,29 @@ converse-add-muc-modal {
                 display: block;
             }
         }
+
+        // The address field and the list of matching groupchats read as one
+        // control: the list hangs directly off the input with a shared border,
+        // no gap, so browsing feels like an extension of what you typed.
+        .add-muc-search {
+            .available-chatrooms {
+                margin: 0;
+                border-top: 0;
+                max-height: 12em;
+                overflow-y: auto;
+            }
+
+            // A quiet section label ("Groupchats found") rather than a filled
+            // Bootstrap "active" row.
+            .list-group-item--feedback {
+                color: var(--subdued-color);
+                background-color: var(--background-color);
+                font-size: var(--font-size-small);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                padding-top: 0.4em;
+                padding-bottom: 0.4em;
+            }
+        }
     }
 }

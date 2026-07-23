@@ -74,45 +74,47 @@ export default (el) => {
     const show_list = el.loading_items || el.feedback_text || el.items.length;
 
     return html` <form
-            class="converse-form add-chatroom needs-validation"
-            @submit=${(/** @type {Event} */ ev) => el.openChatRoom(ev)}
-            novalidate
-        >
-            <div class="mb-3">
-                <label for="chatroom" class="form-label">${label_name}:</label>
-                <div class="input-group">
-                    ${muc_search_service
-                        ? html` <converse-autocomplete
-                              .getAutoCompleteList="${getAutoCompleteList}"
-                              .validate="${/** @param {string} v */ (v) => el.validateMUCJID(v)}"
-                              @input=${(/** @type {InputEvent} */ ev) => el.onAddressInput(ev)}
-                              ?autofocus="${true}"
-                              class="add-muc-autocomplete"
-                              min_chars="3"
-                              name="chatroom"
-                              position="below"
-                              required
-                          ></converse-autocomplete>`
-                        : ''}
-                </div>
-                ${policy_hint
-                    ? html`<div class="mb-3">
-                          ${unsafeHTML(DOMPurify.sanitize(policy_hint, { 'ALLOWED_TAGS': ['b', 'br', 'em'] }))}
-                      </div>`
+        class="converse-form add-chatroom needs-validation"
+        @submit=${(/** @type {Event} */ ev) => el.openChatRoom(ev)}
+        novalidate
+    >
+        <div class="mb-3 add-muc-search ${show_list ? 'add-muc-search--listing' : ''}">
+            <label for="chatroom" class="form-label">${label_name}:</label>
+            <div class="input-group">
+                ${muc_search_service
+                    ? html` <converse-autocomplete
+                          .getAutoCompleteList="${getAutoCompleteList}"
+                          .validate="${/** @param {string} v */ (v) => el.validateMUCJID(v)}"
+                          @input=${(/** @type {InputEvent} */ ev) => el.onAddressInput(ev)}
+                          ?autofocus="${true}"
+                          class="add-muc-autocomplete"
+                          min_chars="3"
+                          name="chatroom"
+                          position="below"
+                          required
+                      ></converse-autocomplete>`
                     : ''}
             </div>
-            ${!api.settings.get('locked_muc_nickname') ? nickname_input() : ''}
-            <input type="submit" class="btn btn-primary mt-3" name="join" value="${i18n_join || ''}" />
-        </form>
-        ${show_list
-            ? html`<ul class="available-chatrooms list-group mt-3">
-                  ${el.loading_items ? html`<li class="list-group-item">${tplSpinner()}</li>` : ''}
-                  ${el.feedback_text ? html`<li class="list-group-item active">${el.feedback_text}</li>` : ''}
-                  ${repeat(
-                      el.items,
-                      /** @param {{ jid: string }} item */ (item) => item.jid,
-                      /** @param {object} item */ (item) => tplRoomItem(el, item)
-                  )}
-              </ul>`
-            : ''}`;
+            ${show_list
+                ? html`<ul class="available-chatrooms list-group">
+                      ${el.loading_items ? html`<li class="list-group-item">${tplSpinner()}</li>` : ''}
+                      ${el.feedback_text
+                          ? html`<li class="list-group-item list-group-item--feedback">${el.feedback_text}</li>`
+                          : ''}
+                      ${repeat(
+                          el.items,
+                          /** @param {{ jid: string }} item */ (item) => item.jid,
+                          /** @param {object} item */ (item) => tplRoomItem(el, item)
+                      )}
+                  </ul>`
+                : ''}
+            ${policy_hint
+                ? html`<div class="mt-2">
+                      ${unsafeHTML(DOMPurify.sanitize(policy_hint, { 'ALLOWED_TAGS': ['b', 'br', 'em'] }))}
+                  </div>`
+                : ''}
+        </div>
+        ${!api.settings.get('locked_muc_nickname') ? nickname_input() : ''}
+        <input type="submit" class="btn btn-primary mt-3" name="join" value="${i18n_join || ''}" />
+    </form>`;
 };
