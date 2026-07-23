@@ -91,11 +91,25 @@ export default class AddMUCModal extends BaseModal {
             'converse-modal-shown',
             () => {
                 /** @type {HTMLInputElement} */ (this.querySelector('input[name="chatroom"]'))?.focus();
-                // When the domain is locked, there's nothing to type — list its rooms right away.
-                if (api.settings.get('locked_muc_domain')) this.browseServer(this.model.get('muc_domain'));
+                this.listDefaultRooms();
             },
             false,
         );
+    }
+
+    /**
+     * When the modal opens, list the public groupchats on the default MUC
+     * service (the configured `muc_domain`, or the one discovered on the
+     * user's server) so the user can browse without having to know or type in
+     * a server address.
+     */
+    async listDefaultRooms() {
+        if (this.items.length || this.loading_items) return;
+        const service = await u.muc.getDefaultMUCService();
+        // Bail if a browse was kicked off (e.g. the user started typing) while
+        // we were resolving the default service.
+        if (!service || this.items.length || this.loading_items) return;
+        this.browseServer(service);
     }
 
     renderModal() {
