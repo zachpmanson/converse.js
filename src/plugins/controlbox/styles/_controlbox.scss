@@ -332,10 +332,14 @@
                         // shrinking and the panel spills past the screen edge.
                         min-width: 0;
                         max-width: none;
-                        // The inner flyout is otherwise pinned to
-                        // --chatroom-width (e.g. muc.scss), which would keep the
-                        // chat a fixed width while its column grows/shrinks.
+                        // `.chatbox .flyout` is `position: absolute` with no
+                        // positioned column ancestor, so its `width: 100%` would
+                        // resolve against the fixed, viewport-wide row and spill
+                        // off-screen. Pull it back in-flow (relative) so 100%
+                        // means "100% of this column", and drop the
+                        // --chatroom-width pin that would otherwise fix its size.
                         .box-flyout {
+                            position: relative;
                             width: 100%;
                             min-width: 0;
                         }
