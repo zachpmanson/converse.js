@@ -97,6 +97,10 @@ export function tplEmojiPicker(el, o) {
     const i18n_search = __('Search');
     /** @type {Record<string, string>} */
     const skintones = {
+        // The default/neutral yellow tone. Its skintone value is the empty
+        // string, which is what `current_skintone` resets to, so picking it
+        // clears any Fitzpatrick modifier (see chooseSkinTone).
+        '': ':raised_hand:',
         'tone1': ':raised_hand_tone1:',
         'tone2': ':raised_hand_tone2:',
         'tone3': ':raised_hand_tone3:',
