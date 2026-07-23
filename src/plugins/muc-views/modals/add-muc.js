@@ -13,7 +13,7 @@ export default class AddMUCModal extends BaseModal {
         super.initialize();
         this.requestUpdate();
         this.addEventListener(
-            'shown.bs.modal',
+            'converse-modal-shown',
             () => {
                 /** @type {HTMLInputElement} */ (this.querySelector('input[name="chatroom"]'))?.focus();
             },
@@ -110,7 +110,7 @@ export default class AddMUCModal extends BaseModal {
 
         api.rooms.open(jid, { ...settings, jid }, true);
         form.reset();
-        this.modal.hide();
+        this.close();
     }
 
     /**

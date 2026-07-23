@@ -11,7 +11,7 @@ export default class NewChatModal extends BaseModal {
         this.listenTo(this.model, 'change', () => this.requestUpdate());
         this.requestUpdate();
         this.addEventListener(
-            'shown.bs.modal',
+            'converse-modal-shown',
             () => /** @type {HTMLInputElement} */ (this.querySelector('input[name="jid"]'))?.focus(),
             false,
         );
@@ -50,7 +50,7 @@ export default class NewChatModal extends BaseModal {
             return;
         }
         this.model.clear();
-        this.modal.hide();
+        this.close();
     }
 
     /**

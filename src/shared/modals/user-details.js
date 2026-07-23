@@ -86,7 +86,7 @@ export default class UserDetailsModal extends BaseModal {
      */
     async addContact(ev) {
         ev?.preventDefault?.();
-        this.modal.hide();
+        this.close();
         api.modal.show('converse-add-contact-modal', { contact: this.model }, ev);
     }
 
@@ -103,7 +103,7 @@ export default class UserDetailsModal extends BaseModal {
             nickname: name,
             groups,
         });
-        this.modal.hide();
+        this.close();
     }
 
     /**
@@ -112,7 +112,7 @@ export default class UserDetailsModal extends BaseModal {
     async removeContact(ev) {
         ev?.preventDefault?.();
         setTimeout(() => removeContact(this.getContact()), 1);
-        this.modal.hide();
+        this.close();
     }
 
     /**
@@ -121,7 +121,7 @@ export default class UserDetailsModal extends BaseModal {
     async blockContact(ev) {
         ev?.preventDefault?.();
         setTimeout(() => blockContact(this.getContact()), 1);
-        this.modal.hide();
+        this.close();
     }
 
     /**
@@ -130,7 +130,7 @@ export default class UserDetailsModal extends BaseModal {
     async unblockContact(ev) {
         ev?.preventDefault?.();
         setTimeout(() => unblockContact(this.getContact()), 1);
-        this.modal.hide();
+        this.close();
     }
 
     /**
@@ -145,7 +145,7 @@ export default class UserDetailsModal extends BaseModal {
                 ev
             );
         });
-        this.modal.hide();
+        this.close();
     }
 
     /**
@@ -154,7 +154,7 @@ export default class UserDetailsModal extends BaseModal {
     async declineContactRequest(ev) {
         ev?.preventDefault?.();
         setTimeout(() => declineContactRequest(this.getContact()));
-        this.modal.hide();
+        this.close();
     }
 }
 

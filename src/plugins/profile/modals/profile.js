@@ -46,7 +46,7 @@ export default class ProfileModal extends BaseModal {
         this.requestServerVersion();
         this.listenTo(this.model, 'change', this.render);
         this.addEventListener(
-            'shown.bs.modal',
+            'converse-modal-shown',
             () => {
                 /** @type {HTMLInputElement} */ (this.querySelector('input[name="status_message"]'))?.focus();
             },
@@ -96,7 +96,7 @@ export default class ProfileModal extends BaseModal {
     renderModalFooter() {
         return api.settings.get('allow_logout')
             ? html`<div class="modal-footer d-flex justify-content-between">
-                  ${modal_close_button} ${tplLogoutButton(this)}
+                  ${modal_close_button(() => this.close())} ${tplLogoutButton(this)}
               </div>`
             : '';
     }
@@ -149,7 +149,7 @@ export default class ProfileModal extends BaseModal {
                 });
                 if (await this.setVCard(data)) {
                     this._submitting = false;
-                    this.modal.hide();
+                    this.close();
                 }
             };
             reader.readAsBinaryString(image_data);
@@ -159,7 +159,7 @@ export default class ProfileModal extends BaseModal {
                 image_type: this.model.vcard.get('image_type'),
             });
             if (await this.setVCard(data)) {
-                this.modal.hide();
+                this.close();
                 api.toast.show('vcard-updated', { type: 'success', body: __('Profile updated successfully') });
             }
             this._submitting = false;

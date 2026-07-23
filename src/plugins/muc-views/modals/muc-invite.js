@@ -37,7 +37,7 @@ export default class MUCInviteModal extends BaseModal {
         if (u.isValidJID(jid)) {
             // TODO: Create and use API here
             this.muc.directInvite(jid, reason);
-            this.modal.hide();
+            this.close();
         } else {
             this.state.set({ invalid_invite_jid: true });
         }

@@ -26,7 +26,15 @@ const modal_api = {
          * @param {Object} [properties] - Optional properties that will be set on a newly created modal instance.
          */
         show(name, properties) {
-            const modal = this.get(name) ?? this.create(name, properties);
+            let modal = this.get(name);
+            // A cached instance whose element is no longer in the document (e.g.
+            // torn down elsewhere) can't be re-shown reliably with a native
+            // <dialog> — discard it and create a fresh one.
+            if (modal && !modal.isConnected) {
+                this.remove(name);
+                modal = null;
+            }
+            modal = modal ?? this.create(name, properties);
             Object.assign(modal, properties);
             modal.show();
             return modal;
@@ -58,16 +66,23 @@ const modal_api = {
          * Remove a particular modal
          * @param {String} name
          */
-        remove(name) {
+        remove(nameOrModal) {
             let modal;
-            if (typeof name === 'string') {
+            let name;
+            if (typeof nameOrModal === 'string') {
+                name = nameOrModal;
                 modal = modals_map[name];
-                delete modals_map[name];
             } else {
-                // Legacy...
-                modal = name;
-                modals = modals.filter((m) => m !== modal);
+                modal = nameOrModal;
+                name = modal?.nodeName?.toLowerCase();
             }
+            // Only clear the registry slot if it still points at THIS modal.
+            // A stale modal's async close event must not evict a newer instance
+            // that has since been registered under the same name.
+            if (name && modals_map[name] === modal) {
+                delete modals_map[name];
+            }
+            modals = modals.filter((m) => m !== modal);
             modal?.remove();
         },
 
@@ -100,7 +115,7 @@ const modal_api = {
         let result;
         try {
             result = await confirm.confirmation;
-        } catch (e) {
+        } catch {
             result = false;
         }
         confirm.remove();
@@ -136,7 +151,7 @@ const modal_api = {
         let result;
         try {
             result = (await prompt.confirmation).pop()?.value;
-        } catch (e) {
+        } catch {
             result = false;
         }
         prompt.remove();

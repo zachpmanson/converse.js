@@ -60,12 +60,9 @@ class MUCBookmarkForm extends CustomElement {
      */
     closeBookmarkForm(ev) {
         ev.preventDefault();
-        this.dispatchEvent(
-            new Event('hide.bs.modal', {
-                bubbles: true,
-                cancelable: true,
-            }),
-        );
+        // Close the containing modal (this component is rendered inside a
+        // converse-bookmark-form-modal, which extends BaseModal).
+        /** @type {import('plugins/modal/modal.js').default} */ (this.closest('.converse-modal'))?.close();
     }
 }
 

@@ -75,7 +75,7 @@ export default class MUCListModal extends BaseModal {
         this.listenTo(this.model, 'change:muc_domain', this.onDomainChange);
         this.listenTo(this.model, 'change:feedback_text', () => this.requestUpdate());
 
-        this.addEventListener('shown.bs.modal', () => api.settings.get('locked_muc_domain') && this.updateRoomsList());
+        this.addEventListener('converse-modal-shown', () => api.settings.get('locked_muc_domain') && this.updateRoomsList());
 
         this.model.save('feedback_text', '');
     }
@@ -107,7 +107,7 @@ export default class MUCListModal extends BaseModal {
         const el = /** @type {Element} */ (ev.target);
         const jid = el.getAttribute('data-room-jid');
         const name = el.getAttribute('data-room-name');
-        this.modal.hide();
+        this.close();
         api.rooms.open(jid, { name }, true);
     }
 

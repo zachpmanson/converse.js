@@ -42,7 +42,12 @@ export default (el) => {
         ${el.state.get('fields')?.map(/** @param {import('../types').Field} f */ (f) => tplField(f))}
         <div class="d-flex justify-content-end">
             <button type="submit" class="btn btn-primary me-2">${__('Confirm')}</button>
-            <input type="button" class="btn btn-secondary" data-bs-dismiss="modal" value="${__('Cancel')}" />
+            <input
+                type="button"
+                class="btn btn-secondary"
+                @click=${() => el.close()}
+                value="${__('Cancel')}"
+            />
         </div>
     </form>`;
 };

@@ -7,7 +7,7 @@ export default class Alert extends BaseModal {
 
     initialize () {
         super.initialize();
-        this.addEventListener('hide.bs.modal', () => this.remove(), false);
+        this.addEventListener('converse-modal-closed', () => this.remove(), false);
     }
 
     renderModal () {

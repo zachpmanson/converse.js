@@ -4,8 +4,45 @@ $prefix: 'converse-';
 @import "bootstrap/scss/mixins";
 
 .conversejs {
+    // The modal host element — every BaseModal subclass carries `.converse-modal`.
+    // It only occupies space while its native <dialog> is open, so that
+    // `u.isVisible(modal)` reflects the open/closed state (see modal.js).
+    .converse-modal {
+        display: none;
+        &:has(dialog[open]) {
+            display: block;
+        }
+    }
+
+    // Native <dialog>. `showModal()` renders it in the top layer with a
+    // `::backdrop`; we make it fill the viewport and centre `.modal-dialog`
+    // so a click on the surrounding area (the dialog itself) dismisses it.
+    dialog.modal {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        max-width: 100vw;
+        max-height: 100vh;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: var(--text-color);
+        overflow: hidden;
+
+        &[open] {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        &::backdrop {
+            background: rgba(0, 0, 0, 0.4);
+        }
+    }
+
     &.fullscreen {
-        .modal {
+        dialog.modal {
             @include media-breakpoint-up(sm) {
                 --converse-modal-width: 75vw;
             }
@@ -26,17 +63,27 @@ $prefix: 'converse-';
         }
     }
 
+    .modal-dialog {
+        width: var(--converse-modal-width, 90vw);
+        max-width: 600px;
+        margin-top: 5vh;
+        margin-bottom: 2em;
+    }
+
     .modal-header {
         background-color: var(--primary-color);
         border-bottom: none;
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
         &.alert-danger {
             background-color: var(--error-color);
         }
         .modal-title {
             line-break: anywhere;
             color: var(--background-color);
+            margin: 0;
             a {
                 color: var(--background-color);
             }
@@ -57,13 +104,22 @@ $prefix: 'converse-';
 
     .modal-content {
         background-color: var(--background-color);
+        border-radius: 0.3rem;
+        overflow: hidden;
     }
 
     .modal-body {
+        padding: 1rem;
         .row {
             margin-inline-start: 0;
             margin-inline-end: 0;
         }
+    }
+
+    .modal-footer {
+        padding: 0.75rem 1rem;
+        display: flex;
+        gap: 0.5em;
     }
 
     .occupant-details {

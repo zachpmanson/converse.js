@@ -18,7 +18,7 @@ export default class AddContactModal extends BaseModal {
         this.listenTo(this.contact, 'change', () => this.requestUpdate());
         this.requestUpdate();
         this.addEventListener(
-            'shown.bs.modal',
+            'converse-modal-shown',
             () => /** @type {HTMLInputElement} */ (this.querySelector('input[name="jid"]'))?.focus(),
             false,
         );
@@ -64,7 +64,7 @@ export default class AddContactModal extends BaseModal {
         api.chats.open(jid, {}, true);
         this.alert(null); // clear alert
         api.toast.show('contact-added', { type: 'success', body: __('Contact added successfully') });
-        this.modal.hide();
+        this.close();
     }
 
     /**

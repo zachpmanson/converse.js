@@ -42,7 +42,7 @@ $prefix: 'converse-';
     @import "bootstrap/scss/list-group";
     @import "bootstrap/scss/close";
     @import "bootstrap/scss/toasts";
-    @import "bootstrap/scss/modal";
+    // Modals use the native <dialog> element (see plugins/modal), not Bootstrap.
     @import "bootstrap/scss/tooltip";
     @import "bootstrap/scss/popover";
     // @import "bootstrap/scss/carousel";

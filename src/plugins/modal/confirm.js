@@ -13,7 +13,7 @@ export default class Confirm extends BaseModal {
         super.initialize();
         this.listenTo(this.state, 'change', () => this.requestUpdate());
         this.addEventListener(
-            'hide.bs.modal',
+            'converse-modal-closed',
             () => {
                 if (!this.confirmation.isResolved) {
                     this.confirmation.reject();
@@ -79,7 +79,7 @@ export default class Confirm extends BaseModal {
             return;
         }
         this.confirmation.resolve(fields);
-        this.modal.hide();
+        this.close();
     }
 }
 

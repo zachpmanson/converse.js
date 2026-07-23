@@ -18,7 +18,7 @@ export default class AcceptContactRequestModal extends BaseModal {
         this.listenTo(this.contact, 'change', () => this.requestUpdate());
         this.requestUpdate();
         this.addEventListener(
-            'shown.bs.modal',
+            'converse-modal-shown',
             () => /** @type {HTMLInputElement} */ (this.querySelector('input[name="name"]'))?.focus(),
             false
         );
@@ -68,7 +68,7 @@ export default class AcceptContactRequestModal extends BaseModal {
             type: 'success',
             body: __('Successfully accepted the contact request'),
         });
-        this.modal.hide();
+        this.close();
     }
 }
 

@@ -24,7 +24,7 @@ export default class BlockListModal extends BaseModal {
         this.listenTo(this.blocklist, 'remove', () => this.requestUpdate());
         this.listenTo(this.blocklist, 'change', () => this.requestUpdate());
         this.addEventListener(
-            'shown.bs.modal',
+            'converse-modal-shown',
             () => {
                 /** @type {HTMLInputElement} */ (this.querySelector('input[name="blocklist_filter"]'))?.focus();
             },

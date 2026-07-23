@@ -109,7 +109,7 @@ export default class MUCConfigModal extends BaseModal {
         }
 
         await this.model.refreshDiscoInfo();
-        this.modal.hide();
+        this.close();
     }
 }
 

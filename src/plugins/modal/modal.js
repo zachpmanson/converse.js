@@ -1,13 +1,22 @@
 import { html } from 'lit';
-import Modal from 'bootstrap/js/src/modal.js';
 import { getOpenPromise } from '@converse/openpromise';
 import { CustomElement } from 'shared/components/element.js';
-import { api, u, Model, log } from '@converse/headless';
+import { api, Model, log } from '@converse/headless';
 import { modal_close_button } from './templates/buttons.js';
 import tplModal from './templates/modal.js';
 
 import './styles/_modal.scss';
 
+/**
+ * Base class for all modals, backed by a native `<dialog>` element (rendered
+ * by {@link tplModal}) instead of Bootstrap's Modal JS. `<dialog>.showModal()`
+ * natively provides the top-layer rendering, `::backdrop`, focus-trap and
+ * Escape-to-close behaviour we previously got from Bootstrap.
+ *
+ * Lifecycle events dispatched on the host element:
+ * - `converse-modal-shown`  — after the dialog has been opened
+ * - `converse-modal-closed` — after the dialog has closed (any reason)
+ */
 class BaseModal extends CustomElement {
     /**
      * @typedef {import('lit').TemplateResult} TemplateResult
@@ -19,9 +28,6 @@ class BaseModal extends CustomElement {
         };
     }
 
-    /** @type {Modal} */
-    #modal;
-
     /**
      * @param {Object} options
      */
@@ -31,49 +37,24 @@ class BaseModal extends CustomElement {
         this.state = new Model();
         this.listenTo(this.state, 'change', () => this.requestUpdate());
 
-        this.className = u.isTestEnv() ? 'modal' : 'modal fade';
-        this.tabIndex = -1;
+        // `converse-modal` is what the stylesheet keys off (the host is only
+        // shown while its <dialog> is open — see _modal.scss `:has(dialog[open])`).
+        // `modal` is kept for backwards compatibility: callers/tests select the
+        // host as e.g. `converse-confirm-modal.modal`.
+        this.className = 'converse-modal modal';
+        // Reflects the open state on the host (flipped to 'false' in show()).
         this.ariaHidden = 'true';
-
-        this.onKeyDown = /** @param {KeyboardEvent} ev */ (ev) => {
-            if (ev.key === 'Escape' && this.ariaHidden === 'false') {
-                this.close();
-            }
-        };
 
         this.initialized = getOpenPromise();
 
         // Allow properties to be set via passed in options
         Object.assign(this, options);
         setTimeout(() => this.insertIntoDOM());
-
-        this.addEventListener('shown.bs.modal', () => {
-            this.ariaHidden = 'false';
-        });
-        this.addEventListener('hidden.bs.modal', () => {
-            this.ariaHidden = 'true';
-            api.modal.remove(this.nodeName.toLowerCase());
-        });
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        window.addEventListener('keydown', this.onKeyDown);
-    }
-
-    disconnectedCallback() {
-        window.removeEventListener('resize', this.onKeyDown);
-        super.disconnectedCallback();
-    }
-
-    get modal() {
-        if (!this.#modal) {
-            this.#modal = new Modal(this, {
-                backdrop: u.isTestEnv() ? false : true,
-                keyboard: true,
-            });
-        }
-        return this.#modal;
+    /** @returns {HTMLDialogElement} */
+    get dialog() {
+        return /** @type {HTMLDialogElement} */ (this.querySelector('dialog'));
     }
 
     initialize() {
@@ -92,7 +73,7 @@ class BaseModal extends CustomElement {
      * @returns {TemplateResult|string}
      */
     renderModalFooter() {
-        return html`<div class="modal-footer">${modal_close_button}</div>`;
+        return html`<div class="modal-footer">${modal_close_button(() => this.close())}</div>`;
     }
 
     render() {
@@ -117,17 +98,36 @@ class BaseModal extends CustomElement {
         this.requestUpdate();
     }
 
+    /**
+     * Close on a click that lands on the `<dialog>` itself (i.e. the backdrop
+     * area outside `.modal-dialog`), matching Bootstrap's click-outside dismiss.
+     * @param {MouseEvent} ev
+     */
+    onDialogClick(ev) {
+        if (ev.target === this.dialog) {
+            this.close();
+        }
+    }
+
+    /**
+     * Handler for the native `<dialog>` `close` event.
+     */
+    onDialogClose() {
+        this.ariaHidden = 'true';
+        this.dispatchEvent(new CustomEvent('converse-modal-closed'));
+        // Remove THIS instance (not "whatever is registered under this name" —
+        // a newer instance may already own that slot).
+        api.modal.remove(this);
+    }
+
     close() {
-        this.modal.hide();
+        this.dialog?.close();
     }
 
     insertIntoDOM() {
+        if (this.isConnected) return;
         const container_el = document.querySelector('#converse-modals');
         if (!container_el) {
-            // The #converse-modals container is part of the root view, so it's
-            // absent only when Converse hasn't rendered yet or has been torn down
-            // (e.g. between tests). insertIntoDOM is deferred via setTimeout, so it
-            // can fire after teardown; bail out instead of throwing.
             log.debug('BaseModal.insertIntoDOM: #converse-modals not found, skipping insertion');
             return;
         }
@@ -153,8 +153,14 @@ class BaseModal extends CustomElement {
 
     async show() {
         await this.initialized;
-        this.modal.show();
         this.requestUpdate();
+        await this.updateComplete;
+        const dialog = this.dialog;
+        if (dialog && !dialog.open) {
+            dialog.showModal();
+            this.ariaHidden = 'false';
+            this.dispatchEvent(new CustomEvent('converse-modal-shown'));
+        }
     }
 }
 
