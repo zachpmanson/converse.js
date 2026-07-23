@@ -39,7 +39,7 @@ $prefix: 'converse-';
     // Badges are reimplemented locally (see styles/badges.scss, issue #8).
     // Alerts are reimplemented locally (see styles/alerts.scss, issue #9).
     @import "bootstrap/scss/progress";
-    @import "bootstrap/scss/list-group";
+    // Lists are reimplemented locally (see styles/lists.scss, issue #7).
     @import "bootstrap/scss/close";
     @import "bootstrap/scss/toasts";
     // Modals use the native <dialog> element (see plugins/modal), not Bootstrap.
