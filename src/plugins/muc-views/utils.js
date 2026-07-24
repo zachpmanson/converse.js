@@ -305,6 +305,85 @@ export function showOccupantModal(ev, model) {
     api.modal.show('converse-muc-occupant-modal', { model }, ev);
 }
 
+/**
+ * The MUC management actions shared by the chat heading and the rooms-list
+ * overflow menu: Details, Configure, Nickname, Moderate and Destroy. Every
+ * handler is model-based, so the buttons work whether or not the MUC is
+ * currently open in a chat view.
+ * @param {MUC} model
+ * @returns {import('shared/chat/types').HeadingButtonAttributes[]}
+ */
+export function getMUCActionButtons(model) {
+    const buttons = [
+        {
+            'i18n_text': __('Details'),
+            'i18n_title': __('Show more information about this groupchat'),
+            'handler': /** @param {Event} ev */ (ev) => {
+                ev?.preventDefault?.();
+                api.modal.show('converse-muc-details-modal', { model }, ev);
+            },
+            'a_class': 'show-muc-details-modal',
+            'icon_class': 'fa-info-circle',
+            'name': 'details',
+        },
+    ];
+
+    if (model.getOwnAffiliation() === 'owner') {
+        buttons.push({
+            'i18n_text': __('Configure'),
+            'i18n_title': __('Configure this groupchat'),
+            'handler': /** @param {Event} ev */ (ev) => {
+                ev?.preventDefault?.();
+                api.modal.show('converse-muc-config-modal', { model }, ev);
+            },
+            'a_class': 'configure-chatroom-button',
+            'icon_class': 'fa-wrench',
+            'name': 'configure',
+        });
+    }
+
+    buttons.push({
+        'i18n_text': __('Nickname'),
+        'i18n_title': __("Change the nickname you're using in this groupchat"),
+        'handler': /** @param {Event} ev */ (ev) => {
+            ev?.preventDefault?.();
+            api.modal.show('converse-muc-nickname-modal', { model }, ev);
+        },
+        'a_class': 'open-nickname-modal',
+        'icon_class': 'fa-smile',
+        'name': 'nickname',
+    });
+
+    if (model.session.get('connection_status') === converse.ROOMSTATUS.ENTERED) {
+        const allowed_commands = model.getAllowedCommands();
+        if (allowed_commands.includes('modtools')) {
+            buttons.push({
+                'i18n_text': __('Moderate'),
+                'i18n_title': __('Moderate this groupchat'),
+                'handler': () => showModeratorToolsModal(model),
+                'a_class': 'moderate-chatroom-button',
+                'icon_class': 'fa-user-cog',
+                'name': 'moderate',
+            });
+        }
+        if (allowed_commands.includes('destroy')) {
+            buttons.push({
+                'i18n_text': __('Destroy'),
+                'i18n_title': __('Remove this groupchat'),
+                'handler': /** @param {Event} ev */ (ev) => {
+                    ev?.preventDefault?.();
+                    destroyMUC(model);
+                },
+                'a_class': 'destroy-chatroom-button',
+                'icon_class': 'fa-trash',
+                'name': 'destroy',
+            });
+        }
+    }
+
+    return buttons;
+}
+
 export async function parseMessageForMUCCommands(data, handled) {
     const model = data.model;
     if (

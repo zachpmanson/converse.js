@@ -1,10 +1,10 @@
-import { _converse, api, converse } from "@converse/headless";
+import { _converse, api } from "@converse/headless";
 import './modals/config.js';
 import './modals/muc-details.js';
 import './modals/nickname.js';
 import { CustomElement } from 'shared/components/element.js';
 import { __ } from 'i18n';
-import { destroyMUC, showModeratorToolsModal } from './utils.js';
+import { destroyMUC, getMUCActionButtons } from './utils.js';
 import tplMUCHead from './templates/muc-head.js';
 
 import './styles/muc-head.scss';
@@ -114,39 +114,17 @@ export default class MUCHeading extends CustomElement {
      * @param {boolean} subject_hidden
      */
     getHeadingButtons (subject_hidden) {
-        const buttons = [];
-        buttons.push({
-            'i18n_text': __('Details'),
-            'i18n_title': __('Show more information about this groupchat'),
-            'handler': /** @param {Event} ev */(ev) => this.showRoomDetailsModal(ev),
-            'a_class': 'show-muc-details-modal',
-            'icon_class': 'fa-info-circle',
-            'name': 'details'
-        });
+        // The substantive management actions (Details/Configure/Nickname/
+        // Moderate/Destroy) are shared with the rooms-list overflow menu.
+        const buttons = getMUCActionButtons(this.model);
 
-        if (this.model.getOwnAffiliation() === 'owner') {
-            buttons.push({
-                'i18n_text': __('Configure'),
-                'i18n_title': __('Configure this groupchat'),
-                'handler': /** @param {Event} ev */(ev) => this.showConfigModal(ev),
-                'a_class': 'configure-chatroom-button',
-                'icon_class': 'fa-wrench',
-                'name': 'configure'
-            });
-        }
-
-        buttons.push({
-            'i18n_text': __('Nickname'),
-            'i18n_title': __("Change the nickname you're using in this groupchat"),
-            'handler': /** @param {Event} ev */(ev) => this.showNicknameModal(ev),
-            'a_class': 'open-nickname-modal',
-            'icon_class': 'fa-smile',
-            'name': 'nickname'
-        });
-
+        // The topic/participants view-toggles act on this heading's own view,
+        // so they stay here. Insert them right after "Nickname" to preserve the
+        // heading's original button order.
+        const toggles = [];
         const subject = this.model.get('subject');
         if (subject && subject.text) {
-            buttons.push({
+            toggles.push({
                 'i18n_text': subject_hidden ? __('Show topic') : __('Hide topic'),
                 'i18n_title': subject_hidden
                     ? __('Show the topic message in the heading')
@@ -157,8 +135,7 @@ export default class MUCHeading extends CustomElement {
                 'name': 'toggle-topic'
             });
         }
-
-        buttons.push({
+        toggles.push({
             'i18n_text': this.model.get('hidden_occupants') ? __('Show participants') : __('Hide participants'),
             'i18n_title': this.model.get('hidden_occupants')
                 ? __('Show the groupchat participants')
@@ -166,31 +143,8 @@ export default class MUCHeading extends CustomElement {
             'handler': /** @param {Event} ev */(ev) => this.toggleOccupants(ev),
             'icon_class': 'fa-users',
         });
-
-        const conn_status = this.model.session.get('connection_status');
-        if (conn_status === converse.ROOMSTATUS.ENTERED) {
-            const allowed_commands = this.model.getAllowedCommands();
-            if (allowed_commands.includes('modtools')) {
-                buttons.push({
-                    'i18n_text': __('Moderate'),
-                    'i18n_title': __('Moderate this groupchat'),
-                    'handler': () => showModeratorToolsModal(this.model),
-                    'a_class': 'moderate-chatroom-button',
-                    'icon_class': 'fa-user-cog',
-                    'name': 'moderate'
-                });
-            }
-            if (allowed_commands.includes('destroy')) {
-                buttons.push({
-                    'i18n_text': __('Destroy'),
-                    'i18n_title': __('Remove this groupchat'),
-                    'handler': (ev) => this.destroy(ev),
-                    'a_class': 'destroy-chatroom-button',
-                    'icon_class': 'fa-trash',
-                    'name': 'destroy'
-                });
-            }
-        }
+        const nick_idx = buttons.findIndex((b) => b.name === 'nickname');
+        buttons.splice(nick_idx + 1, 0, ...toggles);
 
         if (!api.settings.get('singleton')) {
             buttons.push({
@@ -200,7 +154,7 @@ export default class MUCHeading extends CustomElement {
                     ev.stopPropagation();
                     const messages = [__('Are you sure you want to leave this groupchat?')];
                     const result = await api.confirm(__('Confirm'), messages);
-                    result && this.close(ev);
+                    if (result) this.close(ev);
                 },
                 'a_class': 'close-chatbox-button',
                 'standalone': api.settings.get('view_mode') === 'overlayed',

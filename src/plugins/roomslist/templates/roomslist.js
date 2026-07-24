@@ -6,7 +6,8 @@ import { html } from 'lit';
 import { _converse, api, u, constants } from '@converse/headless';
 import 'plugins/muc-views/modals/add-muc.js';
 import { __ } from 'i18n';
-import { getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
+import { getMUCActionButtons } from 'plugins/muc-views/utils.js';
+import { getHeadingDropdownItem, getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
 import tplIconButton from 'shared/components/templates/icon-button.js';
 import tplListHeading from 'shared/components/templates/list-heading.js';
 
@@ -36,7 +37,10 @@ function tplActivityIndicator() {
 function tplRoomItem(el, room) {
     const i18n_leave_room = __('Leave this groupchat');
     const has_unread_msgs = room.get('num_unread_general') || room.get('has_activity');
-    const action_btns = [];
+
+    // The same management actions (Details/Configure/Moderate/…) the MUC's own
+    // heading offers, so they're reachable without opening the room.
+    const action_btns = getMUCActionButtons(room).map((b) => getHeadingDropdownItem(b));
 
     if (_converse.state.bookmarks) {
         const is_bookmarked = el.isBookmarked(room.get('jid'));

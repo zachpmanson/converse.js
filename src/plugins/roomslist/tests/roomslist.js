@@ -110,6 +110,30 @@ describe('A list of open groupchats', function () {
             await u.waitUntil(() => roomspanel.querySelectorAll('.msgs-indicator').length === 0);
         }),
     );
+
+    it(
+        'has an overflow menu with the same management actions as the MUC heading',
+        mock.initConverse(converse, [], {}, async function (_converse) {
+            await mock.openControlBox(_converse);
+            const roomspanel = _converse.chatboxviews.get('controlbox').querySelector('converse-rooms-list');
+
+            const muc_jid = 'lounge@montague.lit';
+            await mock.openAndEnterMUC(_converse, muc_jid, 'romeo');
+
+            // The management actions the heading offers (Details, Nickname, …)
+            // are present here too, alongside the rooms-list's own leave action.
+            // Re-query fresh each poll since the list re-renders during join.
+            const q = (sel) => roomspanel.querySelector(`.available-chatroom .room-actions ${sel}`);
+            await u.waitUntil(
+                () =>
+                    q('.show-muc-details-modal') &&
+                    q('.open-nickname-modal') &&
+                    q('.close-room'),
+            );
+            expect(q('.show-muc-details-modal').textContent.trim()).toBe('Details');
+            expect(q('.open-nickname-modal').textContent.trim()).toBe('Nickname');
+        }),
+    );
 });
 
 describe('A groupchat shown in the groupchats list', function () {

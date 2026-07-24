@@ -1,6 +1,8 @@
 import { _converse, api, converse, u, constants } from '@converse/headless';
 import { __ } from 'i18n';
 import 'plugins/muc-views/modals/muc-details.js';
+import 'plugins/muc-views/modals/config.js';
+import 'plugins/muc-views/modals/nickname.js';
 import { CustomElement } from 'shared/components/element.js';
 import RoomsListModel from './model.js';
 import tplRoomslist from './templates/roomslist.js';
