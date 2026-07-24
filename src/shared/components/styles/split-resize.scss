@@ -1,9 +1,10 @@
 .conversejs {
     converse-split-resize {
-        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
-        background-position: 50%;
-        background-repeat: no-repeat;
+        // A thin divider matching the 1:1 contact-list/chat border (0.1rem),
+        // rather than the old 0.15em dotted grip which read as a thicker, busier
+        // line. Still draggable — the col-resize cursor marks the hit area.
+        background-color: var(--muc-color);
         cursor: col-resize;
-        width: 0.15em !important;
+        width: 0.1rem !important;
     }
 }
