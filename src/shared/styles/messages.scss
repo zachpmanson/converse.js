@@ -42,9 +42,20 @@
         h5.chat-msg__md-heading,
         h6.chat-msg__md-heading { font-size: 1em; }
 
-        .chat-msg__md-list {
+        // A global reset elsewhere strips list markers, so restore them here.
+        ul.chat-msg__md-list,
+        ol.chat-msg__md-list {
             margin: 0.25em 0;
             padding-inline-start: 1.5em;
+            li {
+                display: list-item;
+            }
+        }
+        ul.chat-msg__md-list {
+            list-style: disc outside;
+        }
+        ol.chat-msg__md-list {
+            list-style: decimal outside;
         }
 
         .chat-msg__md-table-wrap {

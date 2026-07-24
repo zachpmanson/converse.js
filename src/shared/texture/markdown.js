@@ -197,6 +197,72 @@ export function parseTable(text, i) {
 }
 
 /**
+ * @param {string} ch
+ * @returns {boolean}
+ */
+function isWordChar(ch) {
+    return (/[\p{L}\p{N}]/u).test(ch);
+}
+
+/**
+ * @typedef {Object} EmphasisMatch
+ * @property {'emphasis'|'strong'|'strike'} kind
+ * @property {number} contentStart - Index (within `text`) where the inner content starts.
+ * @property {number} contentEnd - Index (within `text`) where the inner content ends.
+ * @property {number} end - Index (within `text`) at which the run has been fully consumed.
+ */
+
+/**
+ * Try to parse a Markdown inline-emphasis run at index `i`. Unlike XEP-0393
+ * (which uses a single `*` for bold), this follows Markdown/GFM: `**`/`__` →
+ * strong, single `*`/`_` → emphasis, `~~`/`~` → strikethrough.
+ *
+ * Basic CommonMark flanking rules are applied so word-internal and
+ * whitespace-adjacent markers don't spuriously emphasise: the opening marker
+ * can't be followed by whitespace, the closing marker can't be preceded by
+ * whitespace, `_` only works at word boundaries (so `snake_case` is left
+ * alone), and a run never crosses a line break.
+ * @param {string} text
+ * @param {number} i
+ * @returns {EmphasisMatch|null}
+ */
+export function parseEmphasis(text, i) {
+    const c = text[i];
+    if (c !== '*' && c !== '_' && c !== '~') return null;
+
+    let n = 0;
+    while (text[i + n] === c) n++;
+    // GFM strikethrough requires a double `~~`; a lone `~` is literal.
+    if (c === '~' && n < 2) return null;
+    const markers = n >= 2 ? 2 : 1;
+    const kind = c === '~' ? 'strike' : markers === 2 ? 'strong' : 'emphasis';
+
+    const contentStart = i + markers;
+    if (contentStart >= text.length || (/\s/).test(text[contentStart])) return null;
+    // Underscores only open at a left word boundary.
+    if (c === '_' && i > 0 && isWordChar(text[i - 1])) return null;
+
+    let j = contentStart;
+    while (j < text.length) {
+        const ch = text[j];
+        if (ch === '\n') return null; // Emphasis runs don't cross lines.
+        if (ch === c && !(/\s/).test(text[j - 1])) {
+            let m = 0;
+            while (text[j + m] === c) m++;
+            if (m >= markers) {
+                const after = text[j + markers];
+                // Underscores only close at a right word boundary.
+                if (!(c === '_' && after !== undefined && isWordChar(after))) {
+                    return { kind, contentStart, contentEnd: j, end: j + markers };
+                }
+            }
+        }
+        j++;
+    }
+    return null;
+}
+
+/**
  * Whether the given message text contains any Markdown/XEP-0393 styling that
  * would render differently in the formatted vs. raw view. Used to decide
  * whether to offer the per-message Raw/Formatted toggle.

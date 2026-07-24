@@ -1,4 +1,3 @@
-/*global mock */
 import mock from '../../../shared/tests/mock.js';
 import converse from '../../../../dist/converse.js';
 
@@ -31,13 +30,24 @@ describe('The Markdown ("formatted") message view', function () {
             await mock.openChatBoxFor(_converse, contact_jid);
             const view = _converse.chatboxviews.get(contact_jid);
 
-            let el = await sendAndGet(_converse, view, contact_jid, 'This is *bold* and _italic_ text', 1);
-            await u.waitUntil(() => strip(el) === 'This is <strong>bold</strong> and <em>italic</em> text');
+            // Markdown emphasis: **/__ is strong, single */_ is emphasis.
+            let el = await sendAndGet(_converse, view, contact_jid, 'This is **bold** and *italic* and _also_', 1);
+            await u.waitUntil(
+                () => strip(el) === 'This is <strong>bold</strong> and <em>italic</em> and <em>also</em>',
+            );
             // No directive characters visible in the formatted view
             expect(el.querySelector('.styling-directive')).toBe(null);
+            // No stray asterisks left behind by **bold**
+            expect(el.textContent).toBe('This is bold and italic and also');
 
-            el = await sendAndGet(_converse, view, contact_jid, "A ~strike~ and `code` bit", 2);
+            el = await sendAndGet(_converse, view, contact_jid, "A ~~strike~~ and `code` bit", 2);
             await u.waitUntil(() => strip(el) === 'A <del>strike</del> and <code>code</code> bit');
+
+            // snake_case is left alone (underscores only emphasise at word boundaries)
+            el = await sendAndGet(_converse, view, contact_jid, 'call some_func_here now', 3);
+            await u.waitUntil(() => view.querySelectorAll('.chat-msg__text').length === 3);
+            expect(el.querySelector('em')).toBe(null);
+            expect(el.textContent).toBe('call some_func_here now');
         }),
     );
 
@@ -78,7 +88,7 @@ describe('The Markdown ("formatted") message view', function () {
             expect(items[1].textContent).toBe('second');
 
             // Inline styling still works inside list items
-            el = await sendAndGet(_converse, view, contact_jid, '- a *bold* item', 3);
+            el = await sendAndGet(_converse, view, contact_jid, '- a **bold** item', 3);
             await u.waitUntil(() => el.querySelector('ul.chat-msg__md-list li strong'));
             expect(el.querySelector('ul.chat-msg__md-list li strong').textContent).toBe('bold');
         }),
@@ -117,21 +127,21 @@ describe('The Markdown ("formatted") message view', function () {
             await mock.openChatBoxFor(_converse, contact_jid);
             const view = _converse.chatboxviews.get(contact_jid);
 
-            const el = await sendAndGet(_converse, view, contact_jid, 'Some *bold* text', 1);
-            await u.waitUntil(() => strip(el) === 'Some <strong>bold</strong> text');
+            const el = await sendAndGet(_converse, view, contact_jid, 'Some *italic* text', 1);
+            await u.waitUntil(() => strip(el) === 'Some <em>italic</em> text');
 
             // The overflow menu offers a "Show raw message" toggle.
             let toggle = await u.waitUntil(() => view.querySelector('.chat-msg__action-markdown'));
             expect(toggle.textContent.trim()).toBe('Show raw message');
 
             // Clicking it switches to the XEP-0393 rendering, where the
-            // directive characters are visible again.
+            // directive characters are visible again (and a single `*` is bold).
             toggle.click();
             await u.waitUntil(() => el.querySelector('.styling-directive'));
             await u.waitUntil(
                 () =>
                     strip(el) ===
-                    'Some <span class="styling-directive">*</span><b>bold</b><span class="styling-directive">*</span> text',
+                    'Some <span class="styling-directive">*</span><b>italic</b><span class="styling-directive">*</span> text',
             );
 
             // The toggle now offers switching back to the formatted view.
@@ -140,7 +150,7 @@ describe('The Markdown ("formatted") message view', function () {
                 return t?.textContent.trim() === 'Show formatted message' ? t : null;
             });
             toggle.click();
-            await u.waitUntil(() => strip(el) === 'Some <strong>bold</strong> text');
+            await u.waitUntil(() => strip(el) === 'Some <em>italic</em> text');
         }),
     );
 

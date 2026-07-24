@@ -22,7 +22,7 @@ import {
     tplMention,
     tplMentionWithNick,
 } from './utils.js';
-import { parseHeading, parseList, parseTable } from './markdown.js';
+import { parseEmphasis, parseHeading, parseList, parseTable } from './markdown.js';
 import { styling_map } from './constants.js';
 
 const { addMediaURLsOffset, getMediaURLsMetadata } = u;
@@ -369,6 +369,28 @@ export class Texture extends String {
                 }
             }
 
+            // Inline emphasis follows Markdown semantics (`**`/`__` strong,
+            // single `*`/`_` emphasis, `~~`/`~` strike) rather than XEP-0393's
+            // single-`*`-is-bold rule.
+            const ch = this[i];
+            if (ch === '*' || ch === '_' || ch === '~') {
+                const emph = parseEmphasis(text_str, i);
+                if (emph) {
+                    const inner = this.slice(emph.contentStart, emph.contentEnd);
+                    references.push({
+                        begin: i,
+                        end: emph.end,
+                        template: markdown_templates[emph.kind](inner, emph.contentStart, this.options),
+                    });
+                    i = emph.end;
+                    continue;
+                }
+                i++;
+                continue;
+            }
+
+            // Everything else still comes from the XEP-0393 directive scanner:
+            // code spans/blocks (`` ` ``, ``` ``` ```) and quotes (`>`).
             const { d, length } = getDirectiveAndLength(this, i);
             if (d && length) {
                 const is_quote = isQuoteDirective(d);
