@@ -172,6 +172,21 @@ describe('Chatboxes', function () {
         );
 
         it(
+            'has its compose box focused when freshly opened',
+            mock.initConverse(converse, ['chatBoxesFetched'], { 'auto_focus': true }, async function (_converse) {
+                await mock.waitForRoster(_converse, 'current');
+                await mock.openControlBox(_converse);
+                const contact_jid = mock.cur_names[0].replace(/ /g, '.').toLowerCase() + '@montague.lit';
+                const view = await mock.openChatBoxFor(_converse, contact_jid);
+                const textarea = await u.waitUntil(() => view.querySelector('.chat-textarea'));
+                // The textarea lives in async-rendered children, so focus is
+                // retried until it appears — it should end up focused.
+                await u.waitUntil(() => document.activeElement === textarea, 1000);
+                expect(document.activeElement).toBe(textarea);
+            }),
+        );
+
+        it(
             'can be saved to, and retrieved from, browserStorage',
             mock.initConverse(converse, [], {}, async function (_converse) {
                 await mock.waitForRoster(_converse, 'current');

@@ -79,6 +79,18 @@ describe('Groupchats', function () {
 
     describe('A Groupchat', function () {
         it(
+            'has its compose box focused once it has been entered',
+            mock.initConverse(converse, [], { 'auto_focus': true }, async function (_converse) {
+                const muc_jid = 'lounge@montague.lit';
+                await mock.openAndEnterMUC(_converse, muc_jid, 'romeo');
+                const view = _converse.chatboxviews.get(muc_jid);
+                const textarea = await u.waitUntil(() => view.querySelector('.chat-textarea'));
+                await u.waitUntil(() => document.activeElement === textarea, 1000);
+                expect(document.activeElement).toBe(textarea);
+            }),
+        );
+
+        it(
             'will be visible when opened as the first chat in fullscreen-view',
             mock.initConverse(
                 converse,

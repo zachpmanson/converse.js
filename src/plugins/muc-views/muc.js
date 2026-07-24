@@ -15,6 +15,10 @@ export default class MUCView extends DragResizable(BaseChatView) {
 
         this.listenTo(this.model.session, 'change:connection_status', this.onConnectionStatusChanged);
         this.listenTo(this.model.session, 'change:view', () => this.requestUpdate());
+        // Focus the compose box when the room is (re-)shown, so the user can
+        // start typing immediately. See also onConnectionStatusChanged for the
+        // just-entered case.
+        this.listenTo(this.model, 'change:hidden', () => !this.model.get('hidden') && this.afterShown());
 
         document.addEventListener('visibilitychange', () => this.onWindowStateChanged());
 
@@ -33,8 +37,21 @@ export default class MUCView extends DragResizable(BaseChatView) {
         return tplMuc(this);
     }
 
+    /**
+     * Focus the compose box once the room is shown and joined (its textarea
+     * only exists once we've entered).
+     */
+    afterShown() {
+        if (this.model.get('hidden')) return;
+        if (this.model.session.get('connection_status') !== converse.ROOMSTATUS.ENTERED) return;
+        this.maybeFocus();
+    }
+
     onConnectionStatusChanged() {
         const conn_status = this.model.session.get('connection_status');
+        if (conn_status === converse.ROOMSTATUS.ENTERED) {
+            this.afterShown();
+        }
         if (conn_status === converse.ROOMSTATUS.CONNECTING) {
             this.model.session.save({
                 'disconnection_actor': undefined,

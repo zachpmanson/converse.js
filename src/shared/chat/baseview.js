@@ -54,13 +54,22 @@ export default class BaseChatView extends CustomElement {
     }
 
     maybeFocus() {
-        api.settings.get('auto_focus') && this.focus();
+        this._focus_retries = 0;
+        if (api.settings.get('auto_focus')) this.focus();
     }
 
     focus() {
         const textarea_el = this.getElementsByClassName('chat-textarea')[0];
-        if (textarea_el && document.activeElement !== textarea_el) {
-            /** @type {HTMLTextAreaElement} */ (textarea_el).focus();
+        if (textarea_el) {
+            if (document.activeElement !== textarea_el) {
+                /** @type {HTMLTextAreaElement} */ (textarea_el).focus();
+            }
+        } else if ((this._focus_retries ?? 0) < 5) {
+            // When a chat is first opened the textarea lives in child elements
+            // (bottom-panel → message-form) that render asynchronously and
+            // aren't in the DOM yet. Retry on the next frame until it appears.
+            this._focus_retries = (this._focus_retries ?? 0) + 1;
+            requestAnimationFrame(() => this.focus());
         }
         return this;
     }
