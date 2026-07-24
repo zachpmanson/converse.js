@@ -65,10 +65,7 @@
                     // Animate the auto-resize (field-sizing) as newlines are
                     // added/removed — see chat-bottom-panel.scss.
                     transition: height 0.12s ease-out;
-                    // Vertically centre the text so the caret and placeholder
-                    // coincide — see chat-bottom-panel.scss.
-                    align-content: center;
-                    padding: 0.5em 0.5em 0.5em 0.5rem;
+                    padding: 1em 0.5em 0.5em 0.5rem;
                 }
             }
         }

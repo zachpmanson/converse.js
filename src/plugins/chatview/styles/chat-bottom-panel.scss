@@ -66,14 +66,7 @@
                     // added/removed, so the compose box grows and shrinks
                     // smoothly instead of snapping to the new height.
                     transition: height 0.12s ease-out;
-                    // Vertically centre the text within the min-height box.
-                    // Without this the line top-aligns while `min-height` leaves
-                    // an empty gap below, and an empty field's caret and
-                    // placeholder end up computed against different boxes (so the
-                    // caret sat above the placeholder). Symmetric padding keeps
-                    // the centring true.
-                    align-content: center;
-                    padding: 0.5em 0.5em 0.5em 0.5rem;
+                    padding: 1em 0.5em 0.5em 0.5rem;
                     width: 100%;
                     border: none;
                     // Black divider directly above the compose box. Lives on the
