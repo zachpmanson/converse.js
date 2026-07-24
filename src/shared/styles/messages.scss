@@ -381,6 +381,18 @@
                 margin-inline-end: 0;
                 color: var(--secondary-color);
             }
+
+            // Read receipt: two overlapping ticks (double tick), like the
+            // delivered tick but doubled and in the "info" colour.
+            .chat-msg__receipt--read {
+                align-self: flex-start;
+                flex: 0 0 auto;
+                margin-inline-start: 0.5em;
+                display: inline-flex;
+                converse-icon:last-child {
+                    margin-inline-start: -0.45em;
+                }
+            }
         }
 
         .chat-msg__content {

@@ -68,6 +68,7 @@ describe('A Chat Message', function () {
                     <body>But soft, what light through yonder window breaks?</body>
                     <active xmlns="http://jabber.org/protocol/chatstates"/>
                     <request xmlns="urn:xmpp:receipts"/>
+                    <markable xmlns="urn:xmpp:chat-markers:0"/>
                     <replace id="${first_msg.get('msgid')}" xmlns="urn:xmpp:message-correct:0"/>
                     <origin-id id="${msg.querySelector('origin-id').getAttribute('id')}" xmlns="urn:xmpp:sid:0"/>
             </message>`,
@@ -244,6 +245,7 @@ describe('A Chat Message', function () {
                     <body>But soft, what light through yonder window breaks?</body>
                     <active xmlns="http://jabber.org/protocol/chatstates"/>
                     <request xmlns="urn:xmpp:receipts"/>
+                    <markable xmlns="urn:xmpp:chat-markers:0"/>
                     <replace id="${first_msg.get('msgid')}" xmlns="urn:xmpp:message-correct:0"/>
                     <origin-id id="${msg.querySelector('origin-id').getAttribute('id')}" xmlns="urn:xmpp:sid:0"/>
             </message>`);

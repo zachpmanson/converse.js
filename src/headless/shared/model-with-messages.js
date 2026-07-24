@@ -1048,6 +1048,7 @@ export default function ModelWithMessages(BaseModel) {
                     ${body ? stx`<body>${body}</body>` : ''}
                     ${!is_encrypted ? stx`<active xmlns="${Strophe.NS.CHATSTATES}"/>` : ''}
                     ${type === 'chat' ? stx`<request xmlns="${Strophe.NS.RECEIPTS}"></request>` : ''}
+                    ${!is_encrypted && type === 'chat' ? stx`<markable xmlns="${Strophe.NS.MARKERS}"/>` : ''}
                     ${!is_encrypted && oob_url ? stx`<x xmlns="${Strophe.NS.OUTOFBAND}"><url>${oob_url}</url></x>` : ''}
                     ${!is_encrypted && is_spoiler ? stx`<spoiler xmlns="${Strophe.NS.SPOILER}">${spoiler_hint ?? ''}</spoiler>` : ''}
                     ${

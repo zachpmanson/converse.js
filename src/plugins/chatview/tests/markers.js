@@ -120,4 +120,44 @@ describe('A XEP-0333 Chat Marker', function () {
             expect(view.model.messages.length).toBe(1);
         }),
     );
+
+    it(
+        "shows a double tick on a sent message once it's marked displayed (read)",
+        mock.initConverse(converse, ['chatBoxesFetched'], {}, async function (_converse) {
+            const { api } = _converse;
+            await mock.waitForRoster(_converse, 'current', 1);
+            const contact_jid = mock.cur_names[0].replace(/ /g, '.').toLowerCase() + '@montague.lit';
+            await mock.openChatBoxFor(_converse, contact_jid);
+            const view = _converse.chatboxviews.get(contact_jid);
+
+            const textarea = view.querySelector('textarea.chat-textarea');
+            textarea.value = 'Have you read this?';
+            const message_form = view.querySelector('converse-message-form');
+            message_form.onKeyDown({ target: textarea, preventDefault() {}, key: 'Enter' });
+            const chatbox = _converse.chatboxes.get(contact_jid);
+            await new Promise((resolve) => view.model.messages.once('rendered', resolve));
+            const msg = chatbox.messages.models[0];
+            const msg_id = msg.get('msgid');
+
+            // No read indicator before the marker arrives.
+            expect(view.querySelector('.chat-msg__receipt--read')).toBe(null);
+
+            // The contact's client reads the message and sends a XEP-0333
+            // "displayed" chat marker back.
+            const marker = stx`<message from="${contact_jid}"
+                                        to="${api.connection.get().jid}"
+                                        type="chat"
+                                        id="${u.getUniqueId()}"
+                                        xmlns="jabber:client">
+                <displayed id="${msg_id}" xmlns="urn:xmpp:chat-markers:0"/>
+            </message>`;
+            api.connection.get()._dataRecv(mock.createRequest(_converse, marker));
+
+            // The marker timestamp is stored (regression guard for the previous
+            // literal-`field_name` bug) and the double tick appears.
+            await u.waitUntil(() => msg.get('marker_displayed'));
+            const dbl = await u.waitUntil(() => view.querySelector('.chat-msg__receipt--read'));
+            expect(dbl.querySelectorAll('converse-icon').length).toBe(2);
+        }),
+    );
 });

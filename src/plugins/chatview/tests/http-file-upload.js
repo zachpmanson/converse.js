@@ -268,6 +268,7 @@ describe('XEP-0363: HTTP File Upload', function () {
                             <body>${message}</body>
                             <active xmlns="http://jabber.org/protocol/chatstates"/>
                             <request xmlns="urn:xmpp:receipts"/>
+                            <markable xmlns="urn:xmpp:chat-markers:0"/>
                             <x xmlns="jabber:x:oob">
                                 <url>${message}</url>
                             </x>

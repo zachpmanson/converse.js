@@ -10,11 +10,24 @@ import 'shared/chat/reply-context.js';
 
 const { dayjs } = converse.env;
 
-function tplCheckmark() {
+/**
+ * The delivery/read receipt shown on outgoing 1:1 messages: a single tick once
+ * the message is delivered (XEP-0184), a double tick once it's been read
+ * (XEP-0333 "displayed" marker).
+ * @param {boolean} read
+ */
+function tplCheckmark(read) {
+    if (read) {
+        return html`<span class="chat-msg__receipt chat-msg__receipt--read" title="${__('Read')}">
+            <converse-icon size="0.75em" color="var(--info-color)" class="fa fa-check"></converse-icon>
+            <converse-icon size="0.75em" color="var(--info-color)" class="fa fa-check"></converse-icon>
+        </span>`;
+    }
     return html`<converse-icon
         size="0.75em"
         color="var(--chat-color)"
         class="fa fa-check chat-msg__receipt"
+        title="${__('Delivered')}"
     ></converse-icon>`;
 }
 
@@ -135,11 +148,11 @@ export default (el) => {
                         ${is_retracted ? el.renderRetraction() : el.renderMessageText()}
                     </div>
                     ${el.model.get('show_raw') && !is_retracted ? tplRawIndicator() : ''}
-                    ${el.model.get('received') &&
+                    ${(el.model.get('received') || el.model.get('marker_displayed')) &&
                     !is_me_message &&
                     !is_retracted &&
                     el.model.get('type') !== 'groupchat'
-                        ? tplCheckmark()
+                        ? tplCheckmark(!!el.model.get('marker_displayed'))
                         : ''}
                     <converse-message-actions
                         .model=${el.model}

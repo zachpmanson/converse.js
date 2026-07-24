@@ -175,6 +175,7 @@ describe('A spoiler message', function () {
                 <body>This is the spoiler</body>
                 <active xmlns="http://jabber.org/protocol/chatstates"/>
                 <request xmlns="urn:xmpp:receipts"/>
+                <markable xmlns="urn:xmpp:chat-markers:0"/>
                 <spoiler xmlns="urn:xmpp:spoiler:0">This is the hint</spoiler>
                 <origin-id id="${stanza.querySelector('origin-id').getAttribute('id')}" xmlns="urn:xmpp:sid:0"/>
             </message>`,
