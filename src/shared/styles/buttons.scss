@@ -309,6 +309,23 @@
         }
     }
 
+    // Consistent hover/focus feedback for every icon button (see the shared
+    // `tplIconButton` helper). Transparent icon buttons take the same subtle
+    // highlight fill the dropdown toggles already use; the send button carries
+    // a solid accent background, so it darkens on hover instead of having its
+    // colour replaced by the highlight.
+    .btn.icon-button {
+        &:not(.send-button):hover,
+        &:not(.send-button):focus-visible {
+            background-color: var(--highlight-color);
+        }
+
+        &.send-button:hover,
+        &.send-button:focus-visible {
+            filter: brightness(0.92);
+        }
+    }
+
     .btn-circle {
         width: 30px;
         height: 30px;

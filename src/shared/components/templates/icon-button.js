@@ -48,7 +48,7 @@ export default ({
 } = {}) => html`<button
     id="${id || nothing}"
     type="${type}"
-    class="btn ${cls}"
+    class="btn icon-button ${cls}"
     title="${title || nothing}"
     aria-label="${label || title || nothing}"
     aria-haspopup="${haspopup ? 'true' : nothing}"
