@@ -1,10 +1,15 @@
 .conversejs {
     converse-split-resize {
-        // A thin divider matching the 1:1 contact-list/chat border (0.1rem),
-        // rather than the old 0.15em dotted grip which read as a thicker, busier
-        // line. Still draggable — the col-resize cursor marks the hit area.
+        // A thin divider (0.1rem) matching the 1:1 contact-list/chat border,
+        // that thickens into a bar on hover — like the left sidebar's resize
+        // handle. Still draggable; the col-resize cursor marks the hit area.
         background-color: var(--muc-color);
         cursor: col-resize;
         width: 0.1rem !important;
+        transition: width 0.1s ease;
+
+        &:hover {
+            width: 5px !important;
+        }
     }
 }
