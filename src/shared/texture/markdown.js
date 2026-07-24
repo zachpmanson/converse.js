@@ -30,6 +30,45 @@ function lineEnd(text, i) {
 }
 
 /**
+ * @typedef {Object} CodeBlockMatch
+ * @property {string} lang - The language annotation after the opening fence (may be empty).
+ * @property {number} contentStart - Index (within `text`) where the code starts.
+ * @property {number} contentEnd - Index (within `text`) where the code ends (before the closing fence).
+ * @property {number} end - Index (within `text`) at which the block has been fully consumed.
+ */
+
+/**
+ * Try to parse a fenced code block (```` ```lang ... ``` ````) starting at
+ * index `i`, which is assumed to be at the start of a line. The language
+ * annotation is optional. Requires a closing fence; returns null otherwise.
+ * @param {string} text
+ * @param {number} i
+ * @returns {CodeBlockMatch|null}
+ */
+export function parseCodeBlock(text, i) {
+    const first_le = lineEnd(text, i);
+    const m = (/^```[ \t]*([\w+#.-]*)[ \t]*$/).exec(text.slice(i, first_le));
+    if (!m) return null;
+
+    const lang = m[1] || '';
+    const contentStart = first_le < text.length ? first_le + 1 : first_le;
+
+    let cur = contentStart;
+    while (cur <= text.length) {
+        const le = lineEnd(text, cur);
+        if ((/^```[ \t]*$/).test(text.slice(cur, le))) {
+            // The newline just before the closing fence isn't part of the code.
+            const contentEnd = cur > contentStart ? cur - 1 : contentStart;
+            const end = le < text.length ? le + 1 : le;
+            return { lang, contentStart, contentEnd, end };
+        }
+        if (le >= text.length) break; // No closing fence.
+        cur = le + 1;
+    }
+    return null;
+}
+
+/**
  * @typedef {Object} HeadingMatch
  * @property {number} level - The heading level (1-6).
  * @property {number} contentStart - Index (within `text`) where the heading text starts.

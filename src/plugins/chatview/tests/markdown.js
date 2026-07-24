@@ -153,8 +153,33 @@ describe('The Markdown ("formatted") message view', function () {
             const el = await sendAndGet(_converse, view, contact_jid, src, 1);
             const pre = await u.waitUntil(() => el.querySelector('pre code.block'));
             // Fence markers are gone, content is preserved verbatim (no inline styling inside).
-            expect(pre.textContent).toBe('line one\nline *two*\n');
+            expect(pre.textContent).toBe('line one\nline *two*');
             expect(el.textContent.includes('```')).toBe(false);
+        }),
+    );
+
+    it(
+        'syntax-highlights a code block with a language annotation',
+        mock.initConverse(converse, ['chatBoxesFetched'], {}, async function (_converse) {
+            await mock.waitForRoster(_converse, 'current', 1);
+            const contact_jid = mock.cur_names[0].replace(/ /g, '.').toLowerCase() + '@montague.lit';
+            await mock.openChatBoxFor(_converse, contact_jid);
+            const view = _converse.chatboxviews.get(contact_jid);
+
+            let el = await sendAndGet(_converse, view, contact_jid, '```js\nconst x = 1;\n```', 1);
+            const code = await u.waitUntil(() => el.querySelector('pre code.language-js'));
+            expect(code.classList.contains('hljs')).toBe(true);
+            // highlight.js wraps tokens in .hljs-* spans; `const` is a keyword.
+            const kw = await u.waitUntil(() => el.querySelector('.hljs-keyword'));
+            expect(kw.textContent).toBe('const');
+            expect(code.textContent).toBe('const x = 1;');
+
+            // An unknown language falls back to a plain (un-highlighted) block.
+            el = await sendAndGet(_converse, view, contact_jid, '```wat\nnope()\n```', 2);
+            const plain = await u.waitUntil(() => el.querySelector('pre code.language-wat'));
+            expect(plain.classList.contains('hljs')).toBe(false);
+            expect(plain.querySelector('.hljs-keyword')).toBe(null);
+            expect(plain.textContent).toBe('nope()');
         }),
     );
 

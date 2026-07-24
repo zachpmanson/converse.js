@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Directive, directive } from 'lit/directive.js';
 import { api, u } from '@converse/headless';
 import tplAudio from './templates/audio.js';
@@ -22,7 +23,8 @@ import {
     tplMention,
     tplMentionWithNick,
 } from './utils.js';
-import { parseEmphasis, parseHeading, parseLink, parseList, parseTable } from './markdown.js';
+import { parseCodeBlock, parseEmphasis, parseHeading, parseLink, parseList, parseTable } from './markdown.js';
+import { highlightCode } from './highlight.js';
 import { styling_map } from './constants.js';
 
 const { addMediaURLsOffset, getMediaURLsMetadata } = u;
@@ -332,6 +334,19 @@ export class Texture extends String {
                 // the inline directive scanner below, which means their interior
                 // lines are never reached here — so block markers inside them are
                 // correctly left alone.
+                const code_block = parseCodeBlock(text_str, i);
+                if (code_block) {
+                    references.push({
+                        begin: i,
+                        end: code_block.end,
+                        template: tplMarkdownCodeBlock(
+                            this.slice(code_block.contentStart, code_block.contentEnd),
+                            code_block.lang,
+                        ),
+                    });
+                    i = code_block.end;
+                    continue;
+                }
                 const heading = parseHeading(text_str, i);
                 if (heading) {
                     const txt = this.slice(heading.contentStart, heading.contentEnd);
@@ -724,6 +739,22 @@ function safeLinkURI(url) {
  */
 function tplMarkdownLink(uri, label, offset, options) {
     return html`<a target="_blank" rel="noopener" href="${uri.href}">${renderMarkdown(label, offset, options)}</a>`;
+}
+
+/**
+ * A fenced code block. When a recognised language is annotated, the code is
+ * syntax-highlighted (highlight.js output, sanitised); otherwise it's rendered
+ * verbatim. No inline styling is applied inside code.
+ * @param {string} code
+ * @param {string} lang
+ */
+function tplMarkdownCodeBlock(code, lang) {
+    const highlighted = lang ? highlightCode(code, lang) : null;
+    const class_name = `block${lang ? ` language-${lang}` : ''}${highlighted ? ' hljs' : ''}`;
+    return html`<pre><code
+            class="${class_name}"
+            data-language="${ifDefined(lang || undefined)}"
+            >${highlighted ? unsafeHTML(highlighted) : code}</code></pre>`;
 }
 
 const markdown_headings = {

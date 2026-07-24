@@ -76,6 +76,39 @@
             }
         }
 
+        // Fenced code blocks. A fixed dark surface (readable regardless of the
+        // active Converse theme) that scrolls horizontally rather than wrapping.
+        pre {
+            margin: 0.4em 0;
+            padding: 0.6em 0.8em;
+            border-radius: 0.35em;
+            max-width: 100%;
+            overflow-x: auto;
+            background: #282c34;
+            color: #abb2bf;
+
+            code.block {
+                display: block;
+                background: none;
+                color: inherit;
+                white-space: pre;
+            }
+
+            // Compact highlight.js theme (atom-one-dark palette subset).
+            .hljs-comment, .hljs-quote { color: #5c6370; font-style: italic; }
+            .hljs-keyword, .hljs-formula { color: #c678dd; }
+            .hljs-section, .hljs-name, .hljs-selector-tag, .hljs-deletion, .hljs-subst { color: #e06c75; }
+            .hljs-literal { color: #56b6c2; }
+            .hljs-string, .hljs-regexp, .hljs-addition, .hljs-attribute, .hljs-meta .hljs-string { color: #98c379; }
+            .hljs-attr, .hljs-variable, .hljs-template-variable, .hljs-type,
+            .hljs-selector-class, .hljs-selector-attr, .hljs-selector-pseudo, .hljs-number { color: #d19a66; }
+            .hljs-symbol, .hljs-bullet, .hljs-link, .hljs-meta, .hljs-selector-id, .hljs-title { color: #61aeee; }
+            .hljs-built_in, .hljs-title.class_, .hljs-class .hljs-title { color: #e6c07b; }
+            .hljs-emphasis { font-style: italic; }
+            .hljs-strong { font-weight: bold; }
+            .hljs-link { text-decoration: underline; }
+        }
+
         .mention {
             font-weight: bold;
         }
