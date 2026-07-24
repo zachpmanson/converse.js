@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { _converse, u } from '@converse/headless';
 import { __ } from 'i18n';
 import { openDropdownAt } from 'shared/chat/utils.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 
 /**
  * @param {import('../occupant').default} el
@@ -24,13 +25,12 @@ export default (el) => {
             @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
         >
             <span
-                ><button
-                    type="button"
-                    class="btn btn--transparent back-button"
-                    @click=${() => el.muc.save({ 'sidebar_view': 'occupants' })}
-                >
-                    <converse-icon size="1em" class="fa fa-arrow-left"></converse-icon>
-                </button>
+                >${tplIconButton({
+                    class: 'btn--transparent back-button',
+                    icon: 'fa fa-arrow-left',
+                    label: __('Back'),
+                    handler: () => el.muc.save({ 'sidebar_view': 'occupants' }),
+                })}
                 <a
                     @click="${(ev) => {
                         ev.preventDefault();
