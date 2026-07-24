@@ -8,6 +8,7 @@ import 'shared/components/list-filter.js';
 import './../sidebar-occupant.js';
 import tplOccupantsFilter from './occupants-filter.js';
 import { openDropdownAt } from 'shared/chat/utils.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
 
 /**
  * @param {import('../occupants').default} el
@@ -84,9 +85,12 @@ export default (el) => {
     } else {
         // Only a single button is shown, not a dropdown.
         btns.push(
-            html` <i class="hide-occupants" @click=${(/** @type {MouseEvent} */ev) => el.closeSidebar(ev)}>
-                <converse-icon class="fa fa-times" size="1em"></converse-icon>
-            </i>`
+            tplIconButton({
+                class: 'hide-occupants',
+                icon: 'fa fa-times',
+                label: i18n_close,
+                handler: (/** @type {MouseEvent} */ ev) => el.closeSidebar(ev),
+            })
         );
     }
 

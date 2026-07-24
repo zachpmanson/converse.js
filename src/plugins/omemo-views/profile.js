@@ -40,11 +40,14 @@ export class Profile extends CustomElement {
         return this.devicelist ? tplProfile(this) : tplSpinner();
     }
 
-    /** @param {MouseEvent} ev */
-    async copyFingerprint(ev) {
+    /**
+     * @param {MouseEvent} ev
+     * @param {string} fingerprint - the formatted fingerprint to copy
+     */
+    async copyFingerprint(ev, fingerprint) {
         ev.preventDefault();
         const button = /** @type {HTMLButtonElement} */ (ev.currentTarget);
-        await navigator.clipboard.writeText(button.dataset.fingerprint);
+        await navigator.clipboard.writeText(fingerprint);
         // Briefly swap the icon to a checkmark for feedback.
         const icon = button.querySelector('converse-icon');
         icon?.classList.replace('fa-copy', 'fa-check');

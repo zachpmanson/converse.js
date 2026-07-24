@@ -2,6 +2,7 @@ import { html } from "lit";
 import { __ } from "i18n";
 import spinner from "templates/spinner.js";
 import { formatFingerprint, formatFingerprintForQRCode } from "../utils.js";
+import tplIconButton from "shared/components/templates/icon-button.js";
 import "shared/qrcode/component.js";
 
 /**
@@ -22,16 +23,12 @@ function tplCurrentDeviceFingerprint(el, device, label) {
             ${fingerprint
                 ? html`<span class="d-flex align-items-center justify-content-between">
                       <span class="fingerprint">${formatFingerprint(fingerprint)}</span>
-                      <button
-                          type="button"
-                          class="btn btn-sm copy-fingerprint"
-                          title="${i18n_copy}"
-                          aria-label="${i18n_copy}"
-                          data-fingerprint="${formatFingerprint(fingerprint)}"
-                          @click=${el.copyFingerprint}
-                      >
-                          <converse-icon class="fas fa-copy" size="1em"></converse-icon>
-                      </button>
+                      ${tplIconButton({
+                          class: "copy-fingerprint",
+                          icon: "fas fa-copy",
+                          title: i18n_copy,
+                          handler: (ev) => el.copyFingerprint(ev, formatFingerprint(fingerprint)),
+                      })}
                   </span>`
                 : spinner()}
         </li>
