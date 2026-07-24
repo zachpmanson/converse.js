@@ -82,6 +82,12 @@
             margin: 0.4em 0;
             padding: 0.6em 0.8em;
             border-radius: 0.35em;
+            // Pin the block to the width of the message column and scroll the
+            // code inside it, rather than letting a long line size the block to
+            // its content and push past the window. box-sizing keeps the padding
+            // inside that 100% so it doesn't spill over on its own.
+            box-sizing: border-box;
+            width: 100%;
             max-width: 100%;
             overflow-x: auto;
             background: #282c34;
@@ -246,8 +252,17 @@
                 line-height: 1.5em;
                 overflow-wrap: break-word;
                 width: 100%;
+                // This sits in a row flex (.chat-msg__body) beside the read
+                // receipt and the message-actions menu. Without min-width:0 it
+                // refuses to shrink below its content, so a wide code block
+                // grows it until the menu button is pushed off the side. The 0
+                // lets it shrink and the code block scroll inside itself; carry
+                // it down the chain so the <pre> is what ends up scrolling.
+                min-width: 0;
                 .chat-msg__body--wrapper {
+                    min-width: 0;
                     .chat-msg__text {
+                        min-width: 0;
                         color: var(--foreground-color);
                         padding: 0;
                         white-space: pre-wrap;
@@ -434,6 +449,13 @@
             justify-content: space-between;
             align-items: stretch;
             margin-inline-start: 0.5rem;
+            // Keep the message content within the chat column. Without this a
+            // wide child (e.g. a fenced code block) sizes this flex item to its
+            // content and pushes past the window; the cap lets it stay put and
+            // the code block scroll inside itself instead. min-width:0 defeats
+            // the flex default (min-width:auto) so the cap can actually win.
+            max-width: 100%;
+            min-width: 0;
             &:hover {
                 .btn--standalone {
                     opacity: 1;
