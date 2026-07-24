@@ -355,14 +355,10 @@ export class Texture extends String {
                 }
                 const list = parseList(text_str, i);
                 if (list) {
-                    const items = list.items.map((it) => ({
-                        txt: this.slice(it.begin, it.end),
-                        offset: it.begin,
-                    }));
                     references.push({
                         begin: i,
                         end: list.end,
-                        template: tplMarkdownList(list.ordered, list.start, items, this.options),
+                        template: tplMarkdownList(list, this.slice.bind(this), this.options),
                     });
                     i = list.end;
                     continue;
@@ -750,15 +746,21 @@ function tplMarkdownHeading(level, txt, offset, options) {
 }
 
 /**
- * @param {boolean} ordered
- * @param {number} start
- * @param {{txt: string, offset: number}[]} items
+ * Render a (possibly nested) Markdown list. Each item's content is sliced from
+ * the original text via `slice` and run through the Markdown pass; nested
+ * sub-lists recurse.
+ * @param {import('./markdown').ListMatch} node
+ * @param {(begin: number, end: number) => string} slice
  * @param {object} options
+ * @returns {import('lit').TemplateResult}
  */
-function tplMarkdownList(ordered, start, items, options) {
-    const lis = items.map((it) => html`<li>${renderMarkdown(it.txt, it.offset, options)}</li>`);
-    return ordered
-        ? html`<ol class="chat-msg__md-list" start="${start}">${lis}</ol>`
+function tplMarkdownList(node, slice, options) {
+    const lis = node.items.map((it) => {
+        const nested = it.children.map((child) => tplMarkdownList(child, slice, options));
+        return html`<li>${renderMarkdown(slice(it.begin, it.end), it.begin, options)}${nested}</li>`;
+    });
+    return node.ordered
+        ? html`<ol class="chat-msg__md-list" start="${node.start}">${lis}</ol>`
         : html`<ul class="chat-msg__md-list">${lis}</ul>`;
 }
 

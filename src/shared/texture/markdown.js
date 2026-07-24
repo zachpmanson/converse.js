@@ -62,6 +62,7 @@ export function parseHeading(text, i) {
  * @typedef {Object} ListItem
  * @property {number} begin - Index (within `text`) where the item's content starts.
  * @property {number} end - Index (within `text`) where the item's content ends.
+ * @property {ListMatch[]} children - Nested sub-lists belonging to this item.
  */
 
 /**
@@ -69,7 +70,7 @@ export function parseHeading(text, i) {
  * @property {boolean} ordered - Whether this is an ordered (numbered) list.
  * @property {number} start - The starting number for an ordered list.
  * @property {ListItem[]} items
- * @property {number} end - Index (within `text`) at which the block has been fully consumed.
+ * @property {number} [end] - Index (within `text`) at which the block has been fully consumed (top level only).
  */
 
 /**
@@ -80,37 +81,69 @@ export function parseHeading(text, i) {
 function matchListItem(text, i) {
     const le = lineEnd(text, i);
     const line = text.slice(i, le);
-    const m = (/^[ \t]*(?:([-*+])|(\d+)[.)])[ \t]+(\S.*)$/).exec(line);
+    const m = (/^([ \t]*)(?:([-*+])|(\d+)[.)])[ \t]+(\S.*)$/).exec(line);
     if (!m) return null;
-    const ordered = m[2] !== undefined;
-    const contentStart = i + (line.length - m[3].length);
-    return { ordered, start: ordered ? parseInt(m[2], 10) : 1, contentStart, contentEnd: le, end: le };
+    const ordered = m[3] !== undefined;
+    const contentStart = i + (line.length - m[4].length);
+    return {
+        ordered,
+        start: ordered ? parseInt(m[3], 10) : 1,
+        indent: m[1].length,
+        contentStart,
+        contentEnd: le,
+        end: le,
+    };
+}
+
+/**
+ * Assemble a flat list of items (each with an indentation depth) into a nested
+ * tree: an item more indented than the current level starts a sub-list under
+ * the preceding item; a less-indented item pops back out. Every item is placed
+ * somewhere, so no content is dropped.
+ * @param {{indent: number, ordered: boolean, start: number, begin: number, end: number}[]} raw
+ * @returns {ListMatch}
+ */
+function buildListTree(raw) {
+    /** @type {ListMatch} */
+    const root = { ordered: raw[0].ordered, start: raw[0].start, items: [] };
+    const stack = [{ indent: raw[0].indent, list: root }];
+    for (const it of raw) {
+        while (stack.length > 1 && it.indent < stack[stack.length - 1].indent) stack.pop();
+        let top = stack[stack.length - 1];
+        if (it.indent > top.indent && top.list.items.length) {
+            const parent = top.list.items[top.list.items.length - 1];
+            /** @type {ListMatch} */
+            const sub = { ordered: it.ordered, start: it.start, items: [] };
+            parent.children.push(sub);
+            stack.push({ indent: it.indent, list: sub });
+            top = stack[stack.length - 1];
+        }
+        top.list.items.push({ begin: it.begin, end: it.end, children: [] });
+    }
+    return root;
 }
 
 /**
  * Try to parse a list (ordered or unordered) starting at index `i`, which is
- * assumed to be at the start of a line. Consecutive list-item lines of the
- * same kind (ordered/unordered) are grouped into a single list.
+ * assumed to be at the start of a line. Consecutive list-item lines are grouped
+ * into a single (possibly nested) list based on their indentation.
  * @param {string} text
  * @param {number} i
  * @returns {ListMatch|null}
  */
 export function parseList(text, i) {
-    const first = matchListItem(text, i);
-    if (!first) return null;
-
-    const ordered = first.ordered;
-    const items = [];
+    const raw = [];
     let cur = i;
     while (cur < text.length) {
         if (cur !== 0 && text[cur - 1] !== '\n') break;
         const m = matchListItem(text, cur);
-        if (!m || m.ordered !== ordered) break;
-        items.push({ begin: m.contentStart, end: m.contentEnd });
+        if (!m) break;
+        raw.push({ indent: m.indent, ordered: m.ordered, start: m.start, begin: m.contentStart, end: m.contentEnd });
         cur = m.end < text.length ? m.end + 1 : text.length;
     }
-    if (!items.length) return null;
-    return { ordered, start: first.start, items, end: cur };
+    if (!raw.length) return null;
+    const root = buildListTree(raw);
+    return { ordered: root.ordered, start: root.start, items: root.items, end: cur };
 }
 
 /**

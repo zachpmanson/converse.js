@@ -119,6 +119,42 @@ describe('The Markdown ("formatted") message view', function () {
             el = await sendAndGet(_converse, view, contact_jid, '- a **bold** item', 3);
             await u.waitUntil(() => el.querySelector('ul.chat-msg__md-list li strong'));
             expect(el.querySelector('ul.chat-msg__md-list li strong').textContent).toBe('bold');
+
+            // Nested lists: indented items nest under the preceding item.
+            el = await sendAndGet(_converse, view, contact_jid, '- Fruit\n  - Apple\n  - Pear\n- Veg', 4);
+            await u.waitUntil(() => el.querySelector('ul.chat-msg__md-list ul.chat-msg__md-list'));
+            const top = el.querySelector('ul.chat-msg__md-list');
+            const topItems = top.querySelectorAll(':scope > li');
+            expect(topItems.length).toBe(2);
+            expect(topItems[1].textContent).toBe('Veg');
+            const nested = topItems[0].querySelector(':scope > ul.chat-msg__md-list');
+            expect(nested).not.toBe(null);
+            const nestedItems = nested.querySelectorAll(':scope > li');
+            expect(nestedItems.length).toBe(2);
+            expect(nestedItems[0].textContent).toBe('Apple');
+            expect(nestedItems[1].textContent).toBe('Pear');
+
+            // A nested ordered list under an unordered item keeps its own type.
+            el = await sendAndGet(_converse, view, contact_jid, '- steps\n  1. one\n  2. two', 5);
+            await u.waitUntil(() => el.querySelector('ul.chat-msg__md-list ol.chat-msg__md-list'));
+            expect(el.querySelectorAll('ol.chat-msg__md-list > li').length).toBe(2);
+        }),
+    );
+
+    it(
+        'renders multiline ``` code blocks',
+        mock.initConverse(converse, ['chatBoxesFetched'], {}, async function (_converse) {
+            await mock.waitForRoster(_converse, 'current', 1);
+            const contact_jid = mock.cur_names[0].replace(/ /g, '.').toLowerCase() + '@montague.lit';
+            await mock.openChatBoxFor(_converse, contact_jid);
+            const view = _converse.chatboxviews.get(contact_jid);
+
+            const src = 'here:\n```\nline one\nline *two*\n```';
+            const el = await sendAndGet(_converse, view, contact_jid, src, 1);
+            const pre = await u.waitUntil(() => el.querySelector('pre code.block'));
+            // Fence markers are gone, content is preserved verbatim (no inline styling inside).
+            expect(pre.textContent).toBe('line one\nline *two*\n');
+            expect(el.textContent.includes('```')).toBe(false);
         }),
     );
 
