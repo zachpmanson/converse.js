@@ -52,6 +52,34 @@ describe('The Markdown ("formatted") message view', function () {
     );
 
     it(
+        'renders [label](url) links and rejects unsafe schemes',
+        mock.initConverse(converse, ['chatBoxesFetched'], {}, async function (_converse) {
+            await mock.waitForRoster(_converse, 'current', 1);
+            const contact_jid = mock.cur_names[0].replace(/ /g, '.').toLowerCase() + '@montague.lit';
+            await mock.openChatBoxFor(_converse, contact_jid);
+            const view = _converse.chatboxviews.get(contact_jid);
+
+            let el = await sendAndGet(_converse, view, contact_jid, 'see [the site](https://conversejs.org) ok', 1);
+            const link = await u.waitUntil(() => el.querySelector('a[href="https://conversejs.org/"]'));
+            expect(link.textContent).toBe('the site');
+            expect(link.getAttribute('target')).toBe('_blank');
+            expect(link.getAttribute('rel')).toBe('noopener');
+            // The [label](url) markup itself is gone
+            expect(el.textContent).toBe('see the site ok');
+
+            // Inline styling works inside the label
+            el = await sendAndGet(_converse, view, contact_jid, '[**bold** link](https://conversejs.org)', 2);
+            await u.waitUntil(() => el.querySelector('a strong'));
+            expect(el.querySelector('a strong').textContent).toBe('bold');
+
+            // A javascript: URL is NOT turned into a link
+            el = await sendAndGet(_converse, view, contact_jid, '[x](javascript:alert(1))', 3);
+            await u.waitUntil(() => view.querySelectorAll('.chat-msg__text').length === 3);
+            expect(el.querySelector('a[href^="javascript"]')).toBe(null);
+        }),
+    );
+
+    it(
         'renders ATX headings',
         mock.initConverse(converse, ['chatBoxesFetched'], {}, async function (_converse) {
             await mock.waitForRoster(_converse, 'current', 1);
@@ -134,10 +162,15 @@ describe('The Markdown ("formatted") message view', function () {
             let toggle = await u.waitUntil(() => view.querySelector('.chat-msg__action-markdown'));
             expect(toggle.textContent.trim()).toBe('Show raw message');
 
+            // No raw-mode indicator while in the formatted view.
+            expect(view.querySelector('.chat-msg__raw-indicator')).toBe(null);
+
             // Clicking it switches to the XEP-0393 rendering, where the
             // directive characters are visible again (and a single `*` is bold).
             toggle.click();
             await u.waitUntil(() => el.querySelector('.styling-directive'));
+            // A raw-mode indicator now appears (beside the receipt tick).
+            await u.waitUntil(() => view.querySelector('.chat-msg__raw-indicator'));
             await u.waitUntil(
                 () =>
                     strip(el) ===
@@ -151,6 +184,8 @@ describe('The Markdown ("formatted") message view', function () {
             });
             toggle.click();
             await u.waitUntil(() => strip(el) === 'Some <em>italic</em> text');
+            // Indicator gone again after switching back to formatted.
+            await u.waitUntil(() => view.querySelector('.chat-msg__raw-indicator') === null);
         }),
     );
 

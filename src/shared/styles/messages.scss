@@ -372,6 +372,15 @@
                 margin-inline-end: 0;
                 color: var(--success-color);
             }
+
+            .chat-msg__raw-indicator {
+                // Same placement as the receipt tick, sitting beside it.
+                align-self: flex-start;
+                flex: 0 0 auto;
+                margin-inline-start: 0.5em;
+                margin-inline-end: 0;
+                color: var(--secondary-color);
+            }
         }
 
         .chat-msg__content {

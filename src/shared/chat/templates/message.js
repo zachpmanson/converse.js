@@ -18,6 +18,15 @@ function tplCheckmark() {
     ></converse-icon>`;
 }
 
+function tplRawIndicator() {
+    return html`<converse-icon
+        size="0.75em"
+        color="var(--chat-color)"
+        class="fa fa-code chat-msg__raw-indicator"
+        title="${__('Showing the raw message. Use the message menu to switch back to the formatted view.')}"
+    ></converse-icon>`;
+}
+
 /**
  * @param {import('../message').default} el
  */
@@ -125,6 +134,7 @@ export default (el) => {
                             : ''}
                         ${is_retracted ? el.renderRetraction() : el.renderMessageText()}
                     </div>
+                    ${el.model.get('show_raw') && !is_retracted ? tplRawIndicator() : ''}
                     ${el.model.get('received') &&
                     !is_me_message &&
                     !is_retracted &&

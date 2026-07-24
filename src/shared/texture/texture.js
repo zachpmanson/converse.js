@@ -22,7 +22,7 @@ import {
     tplMention,
     tplMentionWithNick,
 } from './utils.js';
-import { parseEmphasis, parseHeading, parseList, parseTable } from './markdown.js';
+import { parseEmphasis, parseHeading, parseLink, parseList, parseTable } from './markdown.js';
 import { styling_map } from './constants.js';
 
 const { addMediaURLsOffset, getMediaURLsMetadata } = u;
@@ -369,6 +369,26 @@ export class Texture extends String {
                 }
             }
 
+            // Markdown [label](url) links. Rendered only when the URL scheme
+            // is approved (http/https/xmpp/mailto), so `[x](javascript:…)`
+            // falls through to plain text.
+            if (this[i] === '[') {
+                const link = parseLink(text_str, i);
+                const uri = link && safeLinkURI(link.url);
+                if (uri) {
+                    const label = this.slice(link.labelStart, link.labelEnd);
+                    references.push({
+                        begin: i,
+                        end: link.end,
+                        template: tplMarkdownLink(uri, label, link.labelStart, this.options),
+                    });
+                    i = link.end;
+                    continue;
+                }
+                i++;
+                continue;
+            }
+
             // Inline emphasis follows Markdown semantics (`**`/`__` strong,
             // single `*`/`_` emphasis, `~~`/`~` strike) rather than XEP-0393's
             // single-`*`-is-bold rule.
@@ -680,6 +700,34 @@ export function getMarkdownDirectiveTemplate(d, text, offset, options) {
  */
 function inAnyRange(ranges, i) {
     return ranges.some(([start, end]) => i >= start && i < end);
+}
+
+const APPROVED_MARKDOWN_LINK_PROTOCOLS = ['http:', 'https:', 'xmpp:', 'mailto:'];
+
+/**
+ * Validate a Markdown link URL and return its parsed {@link URL} if the scheme
+ * is approved, otherwise `null` (so it won't be turned into a link).
+ * @param {string} url
+ * @returns {URL|null}
+ */
+function safeLinkURI(url) {
+    const http_url = (/^w{3}\./i).test(url) ? `http://${url}` : url;
+    try {
+        const uri = u.getURL(http_url);
+        return APPROVED_MARKDOWN_LINK_PROTOCOLS.includes(uri.protocol) ? uri : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * @param {URL} uri
+ * @param {string} label
+ * @param {number} offset
+ * @param {object} options
+ */
+function tplMarkdownLink(uri, label, offset, options) {
+    return html`<a target="_blank" rel="noopener" href="${uri.href}">${renderMarkdown(label, offset, options)}</a>`;
 }
 
 const markdown_headings = {

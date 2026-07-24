@@ -263,6 +263,34 @@ export function parseEmphasis(text, i) {
 }
 
 /**
+ * @typedef {Object} LinkMatch
+ * @property {number} labelStart - Index (within `text`) where the link label starts.
+ * @property {number} labelEnd - Index (within `text`) where the link label ends.
+ * @property {string} url - The raw URL (unvalidated — the caller must check the scheme).
+ * @property {number} end - Index (within `text`) at which the link has been fully consumed.
+ */
+
+/**
+ * Try to parse a Markdown inline link — `[label](url)` or `[label](url "title")`
+ * — at index `i`. The label and URL must both be non-empty; the caller is
+ * responsible for validating the URL scheme before rendering it.
+ *
+ * Note: the URL is matched as a run of non-whitespace, so a URL containing a
+ * literal `)` (e.g. some Wikipedia links) terminates early — an accepted
+ * limitation for now.
+ * @param {string} text
+ * @param {number} i
+ * @returns {LinkMatch|null}
+ */
+export function parseLink(text, i) {
+    if (text[i] !== '[') return null;
+    const m = (/^\[([^\]]+)\]\(\s*(\S+?)(?:\s+"[^"]*")?\s*\)/).exec(text.slice(i));
+    if (!m) return null;
+    const labelStart = i + 1;
+    return { labelStart, labelEnd: labelStart + m[1].length, url: m[2], end: i + m[0].length };
+}
+
+/**
  * Whether the given message text contains any Markdown/XEP-0393 styling that
  * would render differently in the formatted vs. raw view. Used to decide
  * whether to offer the per-message Raw/Formatted toggle.
@@ -278,5 +306,7 @@ export function containsMarkdown(text) {
     // A table: a row with a pipe immediately followed by a delimiter row.
     const table_re = /(^|\n)[^\n]*\|[^\n]*\n[ \t]*\|?[ \t]*:?-+:?[ \t]*(\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*(\n|$)/;
     if (table_re.test(text)) return true;
+    // A [label](url) link.
+    if ((/\[[^\]]+\]\([^)]+\)/).test(text)) return true;
     return false;
 }
