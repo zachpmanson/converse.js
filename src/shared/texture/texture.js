@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { until } from 'lit/directives/until.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { Directive, directive } from 'lit/directive.js';
 import { api, u } from '@converse/headless';
 import tplAudio from './templates/audio.js';
@@ -21,6 +22,7 @@ import {
     tplMention,
     tplMentionWithNick,
 } from './utils.js';
+import { parseHeading, parseList, parseTable } from './markdown.js';
 import { styling_map } from './constants.js';
 
 const { addMediaURLsOffset, getMediaURLsMetadata } = u;
@@ -57,6 +59,8 @@ export class Texture extends String {
      * @param {Object} [options]
      * @param {string} [options.nick] - The current user's nickname (only relevant if the message is in a XEP-0045 MUC)
      * @param {boolean} [options.render_styling] - Whether XEP-0393 message styling should be applied to the message
+     * @param {boolean} [options.render_markdown] - Whether the message should be rendered as Markdown (formatted view).
+     *  When set, the directive characters are removed and headings/lists/tables are supported. Supersedes `render_styling`.
      * @param {boolean} [options.embed_audio] - Whether audio URLs should be rendered as <audio> elements.
      *  If set to `true`, then audio files will always be rendered with an
      *  audio player. If set to `false`, they won't, and if not defined, then the `embed_audio` setting
@@ -91,6 +95,7 @@ export class Texture extends String {
         this.options = options;
         this.payload = [];
         this.references = [];
+        this.render_markdown = options?.render_markdown;
         this.render_styling = options?.render_styling;
         this.show_images = options?.show_images;
         this.hide_media_urls = options?.hide_media_urls;
@@ -286,6 +291,107 @@ export class Texture extends String {
         references.forEach((ref) => this.addTemplateResult(ref.begin, ref.end, ref.template));
     }
 
+    /**
+     * Render the text as Markdown (the "formatted" view).
+     *
+     * This reuses the XEP-0393 inline directive scanner — but renders the
+     * directives *without* their literal marker characters — and additionally
+     * recognises the block-level constructs XEP-0393 lacks: ATX headings,
+     * ordered/unordered lists and GFM tables. Block constructs are detected at
+     * the start of a line and take precedence over inline directives; their
+     * inner text is rendered recursively so mentions, emojis and hyperlinks
+     * keep working inside them.
+     */
+    addMarkdown() {
+        const text_str = this.toString();
+        // Indices covered by an XEP-0372 mention, so we don't treat directive
+        // characters inside a mention as styling markers.
+        const mention_idx = new Set();
+        this.mentions.forEach((m) => {
+            for (let k = Number(m.begin); k < Number(m.end); k++) mention_idx.add(k);
+        });
+        // As with addStyling, pre-detect URLs so directive characters inside
+        // them aren't mistaken for styling markers.
+        const url_ranges = getURLRanges(text_str);
+
+        const references = [];
+        let i = 0;
+        while (i < this.length) {
+            if (mention_idx.has(i)) {
+                i++;
+                continue;
+            }
+            if (inAnyRange(url_ranges, i)) {
+                i++;
+                continue;
+            }
+
+            if (i === 0 || this[i - 1] === '\n') {
+                // Block-level constructs are only valid at the start of a line.
+                // Fenced code blocks and quotes (`` ``` `` / `>`) are consumed by
+                // the inline directive scanner below, which means their interior
+                // lines are never reached here — so block markers inside them are
+                // correctly left alone.
+                const heading = parseHeading(text_str, i);
+                if (heading) {
+                    const txt = this.slice(heading.contentStart, heading.contentEnd);
+                    references.push({
+                        begin: i,
+                        end: heading.end,
+                        template: tplMarkdownHeading(heading.level, txt, heading.contentStart, this.options),
+                    });
+                    i = heading.end;
+                    continue;
+                }
+                const table = parseTable(text_str, i);
+                if (table) {
+                    references.push({
+                        begin: i,
+                        end: table.end,
+                        template: tplMarkdownTable(table.header, table.aligns, table.rows, this.options),
+                    });
+                    i = table.end;
+                    continue;
+                }
+                const list = parseList(text_str, i);
+                if (list) {
+                    const items = list.items.map((it) => ({
+                        txt: this.slice(it.begin, it.end),
+                        offset: it.begin,
+                    }));
+                    references.push({
+                        begin: i,
+                        end: list.end,
+                        template: tplMarkdownList(list.ordered, list.start, items, this.options),
+                    });
+                    i = list.end;
+                    continue;
+                }
+            }
+
+            const { d, length } = getDirectiveAndLength(this, i);
+            if (d && length) {
+                const is_quote = isQuoteDirective(d);
+                const end = i + length;
+                const slice_end = is_quote ? end : end - d.length;
+                let slice_begin = d === '```' ? i + d.length + 1 : i + d.length;
+                if (is_quote && this[slice_begin] === ' ') {
+                    slice_begin += 1;
+                }
+                const offset = slice_begin;
+                const text = this.slice(slice_begin, slice_end);
+                references.push({
+                    begin: i,
+                    template: getMarkdownDirectiveTemplate(d, text, offset, this.options),
+                    end,
+                });
+                i = end;
+            }
+            i++;
+        }
+        references.forEach((ref) => this.addTemplateResult(ref.begin, ref.end, ref.template));
+    }
+
     trimMeMessage() {
         if (this.offset === 0) {
             // Subtract `/me ` from 3rd person messages
@@ -330,7 +436,8 @@ export class Texture extends String {
          */
         await api.trigger('beforeMessageBodyTransformed', this, { synchronous: true });
 
-        if (this.render_styling) this.addStyling();
+        if (this.render_markdown) this.addMarkdown();
+        else if (this.render_styling) this.addStyling();
 
         await this.addAnnotations(this.addMentions);
         await this.addAnnotations(this.addHyperlinks);
@@ -434,6 +541,43 @@ class StylingDirective extends Directive {
 
 const renderStyling = directive(StylingDirective);
 
+// Kept here (like StylingDirective) to avoid circular dependencies
+class MarkdownDirective extends Directive {
+    /**
+     * @param {Texture} t
+     */
+    static async transform(t) {
+        try {
+            await t.addTemplates();
+        } catch (e) {
+            console.error(e);
+        }
+        return t.payload;
+    }
+
+    /**
+     * @param {string} txt
+     * @param {number} offset
+     * @param {object} options
+     */
+    render(txt, offset, options) {
+        const t = new Texture(
+            txt,
+            offset,
+            Object.assign({}, options, {
+                'render_markdown': true,
+                'render_styling': false,
+                'show_images': false,
+                'embed_videos': false,
+                'embed_audio': false,
+            }),
+        );
+        return html`${until(MarkdownDirective.transform(t), html`${t}`)}`;
+    }
+}
+
+const renderMarkdown = directive(MarkdownDirective);
+
 // prettier-ignore
 /* eslint-disable max-len */
 const styling_templates = {
@@ -468,4 +612,121 @@ export function getDirectiveTemplate(d, text, offset, options) {
     } else {
         return template(text, offset, options);
     }
+}
+
+// prettier-ignore
+/* eslint-disable max-len */
+// Markdown variants of the inline directives: same constructs as XEP-0393, but
+// the literal directive characters are removed from the rendered output.
+const markdown_templates = {
+    emphasis: /** @param {string} txt @param {number} i @param {object} options */ (txt, i, options) => html`<em>${renderMarkdown(txt, i, options)}</em>`,
+    preformatted: /** @param {string} txt */ (txt) => html`<code>${txt}</code>`,
+    preformatted_block: /** @param {string} txt */ (txt) => html`<pre><code class="block">${txt}</code></pre>`,
+    quote: /** @param {string} txt @param {number} i @param {object} options */ (txt, i, options) => html`<blockquote>${renderMarkdown(txt, i, options)}</blockquote>`,
+    strike: /** @param {string} txt @param {number} i @param {object} options */ (txt, i, options) => html`<del>${renderMarkdown(txt, i, options)}</del>`,
+    strong: /** @param {string} txt @param {number} i @param {object} options */ (txt, i, options) => html`<strong>${renderMarkdown(txt, i, options)}</strong>`,
+};
+/* eslint-enable max-len */
+
+/**
+ * Like {@link getDirectiveTemplate}, but renders the inline directive without
+ * its literal marker characters (the "formatted"/Markdown view).
+ * @param {string} d
+ * @param {string} text
+ * @param {number} offset
+ * @param {object} options
+ */
+export function getMarkdownDirectiveTemplate(d, text, offset, options) {
+    const template = markdown_templates[/** @type {{name: string}} */ (styling_map[d]).name];
+    if (isQuoteDirective(d)) {
+        const newtext = text
+            .replace(
+                /\n\u200B*>[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]?/g,
+                (m) => `\n${'\u200B'.repeat(m.length - 1)}`,
+            )
+            .replace(/\n$/, '');
+        return template(newtext, offset, options);
+    }
+    return template(text, offset, options);
+}
+
+/**
+ * Whether index `i` falls within any of the given `[start, end)` ranges.
+ * @param {Array<[number, number]>} ranges
+ * @param {number} i
+ * @returns {boolean}
+ */
+function inAnyRange(ranges, i) {
+    return ranges.some(([start, end]) => i >= start && i < end);
+}
+
+const markdown_headings = {
+    1: /** @param {any} c */ (c) => html`<h1 class="chat-msg__md-heading">${c}</h1>`,
+    2: /** @param {any} c */ (c) => html`<h2 class="chat-msg__md-heading">${c}</h2>`,
+    3: /** @param {any} c */ (c) => html`<h3 class="chat-msg__md-heading">${c}</h3>`,
+    4: /** @param {any} c */ (c) => html`<h4 class="chat-msg__md-heading">${c}</h4>`,
+    5: /** @param {any} c */ (c) => html`<h5 class="chat-msg__md-heading">${c}</h5>`,
+    6: /** @param {any} c */ (c) => html`<h6 class="chat-msg__md-heading">${c}</h6>`,
+};
+
+/**
+ * @param {number} level
+ * @param {string} txt
+ * @param {number} offset
+ * @param {object} options
+ */
+function tplMarkdownHeading(level, txt, offset, options) {
+    return (markdown_headings[level] ?? markdown_headings[6])(renderMarkdown(txt, offset, options));
+}
+
+/**
+ * @param {boolean} ordered
+ * @param {number} start
+ * @param {{txt: string, offset: number}[]} items
+ * @param {object} options
+ */
+function tplMarkdownList(ordered, start, items, options) {
+    const lis = items.map((it) => html`<li>${renderMarkdown(it.txt, it.offset, options)}</li>`);
+    return ordered
+        ? html`<ol class="chat-msg__md-list" start="${start}">${lis}</ol>`
+        : html`<ul class="chat-msg__md-list">${lis}</ul>`;
+}
+
+/**
+ * @param {'th'|'td'} tag
+ * @param {import('./markdown').TableCell} cell
+ * @param {'left'|'center'|'right'|null} align
+ * @param {object} options
+ */
+function tplMarkdownCell(tag, cell, align, options) {
+    const style = align ? `text-align:${align}` : undefined;
+    const content = renderMarkdown(cell.text, cell.offset, options);
+    return tag === 'th'
+        ? html`<th style="${ifDefined(style)}">${content}</th>`
+        : html`<td style="${ifDefined(style)}">${content}</td>`;
+}
+
+/**
+ * @param {import('./markdown').TableCell[]} header
+ * @param {Array<'left'|'center'|'right'|null>} aligns
+ * @param {import('./markdown').TableCell[][]} rows
+ * @param {object} options
+ */
+function tplMarkdownTable(header, aligns, rows, options) {
+    return html`<div class="chat-msg__md-table-wrap">
+        <table class="chat-msg__md-table">
+            <thead>
+                <tr>
+                    ${header.map((c, idx) => tplMarkdownCell('th', c, aligns[idx], options))}
+                </tr>
+            </thead>
+            <tbody>
+                ${rows.map(
+                    (r) => html`<tr>
+                        ${r.map((c, idx) => tplMarkdownCell('td', c, aligns[idx], options))}
+                    </tr>`,
+                )}
+            </tbody>
+        </table>
+    </div>`;
 }

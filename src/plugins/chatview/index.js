@@ -40,6 +40,7 @@ converse.plugins.add('converse-chatview', {
             'filter_url_query_params': null,
             'image_urls_regex': null,
             'message_limit': 0,
+            'message_markdown': true,
             'muc_hats': ['xep317'],
             'render_media': true,
             'show_message_avatar': true,

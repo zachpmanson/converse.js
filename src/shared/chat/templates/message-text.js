@@ -56,6 +56,7 @@ export default (el) => {
                 .model="${el.model}"
                 hide_url_previews=${el.model.get('hide_url_previews')}
                 ?is_me_message=${el.model.isMeCommand()}
+                ?show_raw=${el.model.get('show_raw')}
                 text="${text}"
             ></converse-chat-message-body>
             ${el.model.get('edited') ? tplEditedIcon(el) : ''}

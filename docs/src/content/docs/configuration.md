@@ -898,6 +898,19 @@ Determines the allowed amount of characters in a chat message. A value of zero m
 
 You should therefore also configure your XMPP server to limit message sizes.
 
+### message_markdown
+
+- Default: `true`
+- Possible values: `true`, `false`
+
+Determines whether chat messages are rendered as Markdown (the "formatted" view) by default.
+
+When enabled, the directive characters are removed from the rendered output (`*bold*` renders as **bold**, not `*bold*`), and additional constructs that [XEP-0393](https://xmpp.org/extensions/xep-0393.html) doesn't cover are supported: ATX headings (`#`), ordered/unordered lists and [GFM](https://github.github.com/gfm/) tables. Wide tables scroll horizontally within the message rather than widening the chat column.
+
+Regardless of this setting, each message's overflow (kebab) menu has a **Raw ⇄ Formatted** toggle so the original source (with all the directive characters visible, rendered per XEP-0393) is always one click away. The toggle only appears on messages that actually contain styling.
+
+This setting has no effect on messages for which styling is disabled (see `allow_message_styling`, or the per-message XEP-0393 `<unstyled/>` hint).
+
 ### modtools_disable_assign
 
 - Default: `false`

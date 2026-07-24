@@ -28,6 +28,43 @@
         code {
             font-family: monospace;
         }
+
+        // Markdown ("formatted" view) block constructs
+        .chat-msg__md-heading {
+            font-weight: bold;
+            line-height: 1.2;
+            margin: 0.3em 0 0.2em 0;
+        }
+        h1.chat-msg__md-heading { font-size: 1.4em; }
+        h2.chat-msg__md-heading { font-size: 1.3em; }
+        h3.chat-msg__md-heading { font-size: 1.2em; }
+        h4.chat-msg__md-heading { font-size: 1.1em; }
+        h5.chat-msg__md-heading,
+        h6.chat-msg__md-heading { font-size: 1em; }
+
+        .chat-msg__md-list {
+            margin: 0.25em 0;
+            padding-inline-start: 1.5em;
+        }
+
+        .chat-msg__md-table-wrap {
+            display: block;
+            overflow-x: auto;
+            max-width: 100%;
+            margin: 0.3em 0;
+        }
+        .chat-msg__md-table {
+            border-collapse: collapse;
+            th, td {
+                border: 1px solid var(--secondary-color);
+                padding: 0.2em 0.5em;
+                text-align: start;
+            }
+            th {
+                font-weight: bold;
+            }
+        }
+
         .mention {
             font-weight: bold;
         }

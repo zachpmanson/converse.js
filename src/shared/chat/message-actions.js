@@ -4,6 +4,7 @@ import { api, log, _converse, u, constants, converse } from '@converse/headless'
 import { CustomElement } from 'shared/components/element.js';
 import { __ } from 'i18n';
 import { isMediaURLDomainAllowed, isDomainWhitelisted } from 'utils/url.js';
+import { containsMarkdown } from 'shared/texture/markdown.js';
 
 import './styles/message-actions.scss';
 
@@ -309,6 +310,33 @@ class MessageActions extends CustomElement {
     }
 
     /** @param {MouseEvent} [ev] */
+    onMarkdownToggleClicked(ev) {
+        ev?.preventDefault?.();
+        this.model.save('show_raw', !this.model.get('show_raw'));
+    }
+
+    /**
+     * Adds a Raw/Formatted (Markdown) rendering toggle to this message's action
+     * buttons, if the message contains styling/Markdown that renders
+     * differently between the two views.
+     * @param {Array<import('./types').MessageActionButton>} buttons
+     */
+    addMarkdownToggle(buttons) {
+        if (!api.settings.get('message_markdown')) return;
+        if (this.model.get('is_unstyled') || !api.settings.get('allow_message_styling')) return;
+        if (!containsMarkdown(this.model.getMessageText())) return;
+
+        const raw = this.model.get('show_raw');
+        buttons.push({
+            'i18n_text': raw ? __('Show formatted message') : __('Show raw message'),
+            'handler': /** @param {MouseEvent} ev */ (ev) => this.onMarkdownToggleClicked(ev),
+            'button_class': 'chat-msg__action-markdown',
+            'icon_class': 'fas fa-code',
+            'name': 'markdown',
+        });
+    }
+
+    /** @param {MouseEvent} [ev] */
     async onMessageCopyButtonClicked(ev) {
         ev?.preventDefault?.();
         await navigator.clipboard.writeText(this.model.getMessageText());
@@ -415,6 +443,7 @@ class MessageActions extends CustomElement {
         }
 
         this.addMediaRenderingToggle(buttons);
+        this.addMarkdownToggle(buttons);
 
         buttons.push({
             'i18n_text': __('Copy'),

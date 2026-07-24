@@ -16,6 +16,10 @@ export default class MessageBody extends CustomElement {
             hide_url_previews: { type: String },
             is_me_message: { type: Boolean },
             model: { type: Object },
+            // Whether to show the raw (XEP-0393) view instead of the formatted
+            // (Markdown) view. Bound as an attribute so a per-message toggle
+            // re-renders this element.
+            show_raw: { type: Boolean },
             text: { type: String },
         }
     }
@@ -25,6 +29,7 @@ export default class MessageBody extends CustomElement {
         this.text = null;
         this.model = null;
         this.hide_url_previews = null;
+        this.show_raw = false;
     }
 
     initialize () {
@@ -49,6 +54,11 @@ export default class MessageBody extends CustomElement {
     render () {
         const callback = () => this.model.collection?.trigger('rendered', this.model);
         const offset = 0;
+        const styling_allowed = !this.model.get('is_unstyled') && api.settings.get('allow_message_styling');
+        // Markdown (the "formatted" view) is the default; the per-message
+        // toggle flips to the raw XEP-0393 view. Both are gated on styling
+        // being allowed for this message at all.
+        const render_markdown = styling_allowed && api.settings.get('message_markdown') && !this.show_raw;
         /** @type {{ [key: string]: any }} */
         const options = {
             media_urls: this.model.get('media_urls'),
@@ -56,7 +66,8 @@ export default class MessageBody extends CustomElement {
             nick: this.model.chatbox.get('nick'),
             onImgClick: /** @param {MouseEvent} ev */ (ev) => this.onImgClick(ev),
             onImgLoad: () => this.onImgLoad(),
-            render_styling: !this.model.get('is_unstyled') && api.settings.get('allow_message_styling'),
+            render_markdown,
+            render_styling: styling_allowed && !render_markdown,
             show_me_message: true,
         }
         if (this.hide_url_previews === "false") {
