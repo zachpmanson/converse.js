@@ -107,6 +107,16 @@
                 margin-top: 0.75em;
             }
 
+            // Drag-and-drop: a contact being dragged, and the group it's hovered over.
+            .roster-contact--dragging {
+                opacity: 0.5;
+            }
+            .roster-group--drag-over {
+                outline: 2px dashed var(--chat-color);
+                outline-offset: -2px;
+                background-color: var(--highlight-color);
+            }
+
             .group-toggle, .group-toggle .fa {
                 color: var(--chat-color) !important;
                 &:hover {

@@ -144,6 +144,118 @@ export function toggleGroup(ev, name) {
     }
 }
 
+// The MIME type used to carry a dragged roster contact between drag handlers.
+const CONTACT_DND_TYPE = 'application/x-converse-contact';
+
+/**
+ * The pseudo-group headers a contact can't be dropped into (they're computed,
+ * not real XEP-0083 groups). "Ungrouped" is deliberately excluded — dropping
+ * onto it means "remove from all groups".
+ * @returns {string[]}
+ */
+function getUndroppableGroups() {
+    const {
+        HEADER_UNSAVED_CONTACTS,
+        HEADER_CURRENT_CONTACTS,
+        HEADER_PENDING_CONTACTS,
+        HEADER_REQUESTING_CONTACTS,
+        HEADER_UNREAD,
+    } = _converse.labels;
+    return [
+        HEADER_UNSAVED_CONTACTS,
+        HEADER_CURRENT_CONTACTS,
+        HEADER_PENDING_CONTACTS,
+        HEADER_REQUESTING_CONTACTS,
+        HEADER_UNREAD,
+    ];
+}
+
+/**
+ * Whether a contact can be dropped onto the group with the given name.
+ * @param {string} name
+ * @returns {boolean}
+ */
+export function isGroupDropTarget(name) {
+    return !getUndroppableGroups().includes(name);
+}
+
+/**
+ * Move (or copy) a roster contact into a group, persisting the change to the
+ * contact's XEP-0083 roster groups on the server.
+ * @param {string} jid
+ * @param {string} from_group - The group the contact was dragged out of.
+ * @param {string} to_group - The group it was dropped onto.
+ * @param {boolean} [copy] - Add to `to_group` while keeping `from_group` (instead of moving).
+ * @returns {Promise<void>|void}
+ */
+export function moveContactToGroup(jid, from_group, to_group, copy = false) {
+    const contact = /** @type {RosterContact} */ (_converse.state.roster.get(jid));
+    if (!contact || to_group === from_group || !isGroupDropTarget(to_group)) return;
+
+    const current = /** @type {string[]} */ (
+        u.unique(/** @type {string[]} */ (contact.get('groups') ?? []).filter((n) => n?.trim()))
+    );
+    let next;
+    if (to_group === _converse.labels.HEADER_UNGROUPED) {
+        next = []; // Dropping onto "Ungrouped" removes the contact from all groups.
+    } else {
+        next = copy ? [...current] : current.filter((g) => g !== from_group);
+        if (!next.includes(to_group)) next.push(to_group);
+    }
+    // No-op if the group membership is unchanged.
+    if (next.length === current.length && next.every((g) => current.includes(g))) return;
+    return contact.update({ groups: next });
+}
+
+/**
+ * @param {DragEvent} ev
+ * @param {RosterContact} contact
+ * @param {string} group_name - The group the contact is being dragged out of.
+ */
+export function onRosterContactDragStart(ev, contact, group_name) {
+    ev.dataTransfer.setData(CONTACT_DND_TYPE, JSON.stringify({ jid: contact.get('jid'), group: group_name }));
+    ev.dataTransfer.effectAllowed = 'copyMove';
+    /** @type {HTMLElement} */ (ev.currentTarget).classList.add('roster-contact--dragging');
+}
+
+/** @param {DragEvent} ev */
+export function onRosterContactDragEnd(ev) {
+    /** @type {HTMLElement} */ (ev.currentTarget).classList.remove('roster-contact--dragging');
+}
+
+/** @param {DragEvent} ev */
+export function onRosterGroupDragOver(ev) {
+    if (!ev.dataTransfer.types.includes(CONTACT_DND_TYPE)) return; // Ignore non-contact drags.
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = ev.ctrlKey || ev.metaKey ? 'copy' : 'move';
+    /** @type {HTMLElement} */ (ev.currentTarget).classList.add('roster-group--drag-over');
+}
+
+/** @param {DragEvent} ev */
+export function onRosterGroupDragLeave(ev) {
+    const el = /** @type {HTMLElement} */ (ev.currentTarget);
+    // Ignore leave events that fire while moving between the group's own children.
+    if (el.contains(/** @type {Node} */ (ev.relatedTarget))) return;
+    el.classList.remove('roster-group--drag-over');
+}
+
+/**
+ * @param {DragEvent} ev
+ * @param {string} to_group - The group being dropped onto.
+ */
+export function onRosterGroupDrop(ev, to_group) {
+    ev.preventDefault();
+    /** @type {HTMLElement} */ (ev.currentTarget).classList.remove('roster-group--drag-over');
+    const raw = ev.dataTransfer.getData(CONTACT_DND_TYPE);
+    if (!raw) return;
+    try {
+        const { jid, group } = JSON.parse(raw);
+        moveContactToGroup(jid, group, to_group, ev.ctrlKey || ev.metaKey);
+    } catch (e) {
+        log.error(e);
+    }
+}
+
 /**
  * Return a string of tab-separated values that are to be used when
  * matching against filter text.
@@ -475,6 +587,8 @@ Object.assign(u, {
         unblockContact,
         highlightRosterItem,
         toggleGroup,
+        isGroupDropTarget,
+        moveContactToGroup,
         getFilterCriteria,
         isContactFiltered,
         shouldShowContact,

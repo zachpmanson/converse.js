@@ -3,14 +3,23 @@ import { repeat } from 'lit/directives/repeat.js';
 import { _converse, api, u } from '@converse/headless';
 import 'shared/components/icons.js';
 import { __ } from 'i18n';
-import { toggleGroup } from '../utils.js';
+import {
+    isGroupDropTarget,
+    onRosterContactDragEnd,
+    onRosterContactDragStart,
+    onRosterGroupDragLeave,
+    onRosterGroupDragOver,
+    onRosterGroupDrop,
+    toggleGroup,
+} from '../utils.js';
 
 const { isUniView } = u;
 
 /**
  * @param {import('@converse/headless/types/plugins/roster/contact').default} contact
+ * @param {string} group_name - The group this contact is being rendered under.
  */
-function renderContact(contact) {
+function renderContact(contact, group_name) {
     const jid = contact.get('jid');
     const extra_classes = [];
     if (isUniView()) {
@@ -42,9 +51,20 @@ function renderContact(contact) {
         extra_classes.push(subscription);
         extra_classes.push(contact.getStatus());
     }
+    // Only genuine ("current") contacts have groups they can be dragged between.
+    const is_draggable =
+        api.settings.get('roster_groups') &&
+        !requesting &&
+        ask !== 'subscribe' &&
+        (subscription === 'both' || subscription === 'to');
     return html` <li
         class="list-item d-flex controlbox-padded ${extra_classes.join(' ')}"
         data-status="${contact.getStatus()}"
+        draggable="${is_draggable ? 'true' : 'false'}"
+        @dragstart=${is_draggable
+            ? (/** @type {DragEvent} */ ev) => onRosterContactDragStart(ev, contact, group_name)
+            : null}
+        @dragend=${is_draggable ? onRosterContactDragEnd : null}
     >
         <converse-roster-contact .model=${contact}></converse-roster-contact>
     </li>`;
@@ -58,7 +78,14 @@ export default (o) => {
     // without a group-toggle header (and therefore without collapse behaviour).
     const is_ungrouped = o.name === _converse.labels.HEADER_UNGROUPED;
     const is_collapsed = !is_ungrouped && collapsed.includes(o.name);
-    return html`<div class="roster-group ${is_ungrouped ? 'roster-group--ungrouped' : ''}" data-group="${o.name}">
+    const is_drop_target = isGroupDropTarget(o.name);
+    return html`<div
+        class="roster-group ${is_ungrouped ? 'roster-group--ungrouped' : ''}"
+        data-group="${o.name}"
+        @dragover=${is_drop_target ? onRosterGroupDragOver : null}
+        @dragleave=${is_drop_target ? onRosterGroupDragLeave : null}
+        @drop=${is_drop_target ? (/** @type {DragEvent} */ ev) => onRosterGroupDrop(ev, o.name) : null}
+    >
         ${is_ungrouped
             ? ''
             : html`<a
@@ -85,7 +112,11 @@ export default (o) => {
             class="items-list roster-group-contacts ${is_collapsed ? 'roster-group-contacts--collapsed' : ''}"
             data-group="${o.name}"
         >
-            ${repeat(o.contacts, (c) => c.get('jid'), renderContact)}
+            ${repeat(
+                o.contacts,
+                (c) => c.get('jid'),
+                (c) => renderContact(c, o.name)
+            )}
         </ul>
     </div>`;
 };
