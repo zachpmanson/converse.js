@@ -7,6 +7,8 @@ import { _converse, api, u, constants } from '@converse/headless';
 import 'plugins/muc-views/modals/add-muc.js';
 import { __ } from 'i18n';
 import { getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
+import tplIconButton from 'shared/components/templates/icon-button.js';
+import tplListHeading from 'shared/components/templates/list-heading.js';
 
 import '../styles/roomsgroups.scss';
 
@@ -162,35 +164,23 @@ export default (el) => {
     const i18n_title_new_room = __('Add a groupchat');
     const is_closed = el.model.get('toggle_state') === CLOSED;
 
-    return html` <div class="d-flex controlbox-padded">
-            <span class="w-100 controlbox-heading controlbox-heading--groupchats">
-                <a
-                    class="list-toggle open-rooms-toggle"
-                    role="heading"
-                    aria-level="3"
-                    title="${i18n_desc_rooms}"
-                    @click=${(/** @type {Event} */ ev) => el.toggleRoomsList(ev)}
-                >
-                    ${i18n_heading_chatrooms}
-                    ${rooms.length
-                        ? html`<converse-icon
-                              class="fa ${is_closed ? 'fa-caret-right' : 'fa-caret-down'}"
-                              size="1em"
-                              color="var(--muc-color)"
-                          ></converse-icon>`
-                        : ''}
-                </a>
-            </span>
-            <a
-                class="btn btn--transparent btn--standalone show-add-muc-modal"
-                role="button"
-                title="${i18n_title_new_room}"
-                aria-label="${i18n_title_new_room}"
-                @click="${(/** @type {MouseEvent} */ ev) => api.modal.show('converse-add-muc-modal', { 'model': el.model }, ev)}"
-            >
-                <converse-icon class="fa fa-plus" size="1em"></converse-icon>
-            </a>
-        </div>
+    return html` ${tplListHeading({
+            label: i18n_heading_chatrooms,
+            title: i18n_desc_rooms,
+            modifier: 'groupchats',
+            toggle_class: 'open-rooms-toggle',
+            is_closed,
+            show_caret: !!rooms.length,
+            color: 'var(--muc-color)',
+            on_toggle: (ev) => el.toggleRoomsList(ev),
+            action: tplIconButton({
+                class: 'btn--transparent btn--standalone show-add-muc-modal',
+                icon: 'fa fa-plus',
+                color: 'var(--muc-color)',
+                title: i18n_title_new_room,
+                handler: (ev) => api.modal.show('converse-add-muc-modal', { 'model': el.model }, ev),
+            }),
+        })}
 
         <div class="list-container list-container--openrooms ${rooms.length ? '' : 'hidden'}">
             <ul class="items-list rooms-list open-rooms-list ${is_closed ? 'collapsed' : ''}">

@@ -62,6 +62,10 @@
                     border-top-right-radius: 0;
                     border-bottom-radius: var(--chatbox-border-radius);
                     field-sizing: content;
+                    // Animate the auto-resize (field-sizing) as newlines are
+                    // added/removed, so the compose box grows and shrinks
+                    // smoothly instead of snapping to the new height.
+                    transition: height 0.12s ease-out;
                     padding: 1em 0.5em 0.5em 0.5rem;
                     width: 100%;
                     border: none;

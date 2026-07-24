@@ -12,6 +12,7 @@ import {
     contactsComparator,
 } from '../utils.js';
 import { openDropdownAt } from 'shared/chat/utils.js';
+import tplListHeading from 'shared/components/templates/list-heading.js';
 
 const { CLOSED } = constants;
 
@@ -117,33 +118,21 @@ export default (el) => {
     }
 
     return html`
-        <div
-            class="d-flex controlbox-padded"
-            @contextmenu=${(/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget)}
-        >
-            <span class="w-100 controlbox-heading controlbox-heading--contacts">
-                <a
-                    class="list-toggle open-contacts-toggle"
-                    title="${i18n_toggle_contacts}"
-                    role="heading"
-                    aria-level="3"
-                    @click="${el.toggleRoster}"
-                >
-                    ${i18n_heading_contacts}
-                    ${roster.length
-                        ? html`<converse-icon
-                              class="fa ${is_closed ? 'fa-caret-right' : 'fa-caret-down'}"
-                              size="1em"
-                              color="var(--chat-color)"
-                          ></converse-icon>`
-                        : ''}
-                </a>
-            </span>
-            <converse-dropdown
+        ${tplListHeading({
+            label: i18n_heading_contacts,
+            title: i18n_toggle_contacts,
+            modifier: 'contacts',
+            toggle_class: 'open-contacts-toggle',
+            is_closed,
+            show_caret: !!roster.length,
+            color: 'var(--chat-color)',
+            on_toggle: el.toggleRoster,
+            on_contextmenu: (/** @type {MouseEvent} */ ev) => openDropdownAt(ev, ev.currentTarget),
+            action: html`<converse-dropdown
                 class="chatbox-btn btn-group dropstart dropdown--contacts"
                 .items=${btns}
-            ></converse-dropdown>
-        </div>
+            ></converse-dropdown>`,
+        })}
 
         <div class="list-container roster-contacts ${is_closed ? 'hidden' : ''}">
             ${is_filter_visible

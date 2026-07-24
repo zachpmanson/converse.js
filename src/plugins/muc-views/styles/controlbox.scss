@@ -14,10 +14,13 @@
             }
         }
 
+        // Matches .open-contacts-toggle (rosterview): the heading keeps its
+        // accent colour on hover rather than lightening, so both collapsible
+        // panels behave identically.
         .open-rooms-toggle, .open-rooms-toggle converse-icon {
             color: var(--muc-color) !important;
             &:hover {
-                color: var(--muc-color-hover) !important;
+                color: var(--muc-color) !important;
             }
         }
 

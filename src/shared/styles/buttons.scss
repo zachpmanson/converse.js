@@ -309,12 +309,21 @@
         }
     }
 
-    // Consistent hover/focus feedback for every icon button (see the shared
-    // `tplIconButton` helper). Transparent icon buttons take the same subtle
-    // highlight fill the dropdown toggles already use; the send button carries
-    // a solid accent background, so it darkens on hover instead of having its
-    // colour replaced by the highlight.
+    // Every icon button (see the shared `tplIconButton` helper) is a flex box
+    // that optically centres its icon both axes — so a glyph is never pushed
+    // off-centre by baseline/line-height quirks — and shares one square target
+    // size regardless of where it's used.
     .btn.icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4em;
+        line-height: 1;
+
+        // Consistent hover/focus feedback. Transparent icon buttons take the
+        // same subtle highlight fill the dropdown toggles already use; the send
+        // button carries a solid accent background, so it darkens on hover
+        // instead of having its colour replaced by the highlight.
         &:not(.send-button):hover,
         &:not(.send-button):focus-visible {
             background-color: var(--highlight-color);
