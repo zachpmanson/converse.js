@@ -185,7 +185,10 @@ export class ChatToolbar extends CustomElement {
 
     /** @param {InputEvent} ev */
     onFileSelection(ev) {
-        this.model.sendFiles(/** @type {HTMLInputElement} */ (ev.target).files);
+        const input = /** @type {HTMLInputElement} */ (ev.target);
+        this.model.stageFiles(input.files);
+        // Reset so picking the same file again still fires a change event.
+        input.value = '';
     }
 
     /** @param {MouseEvent} ev */

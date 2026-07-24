@@ -3,6 +3,7 @@ import { api, u } from "@converse/headless";
 import { html } from "lit";
 import { resetElementHeight } from "plugins/chatview/utils.js";
 import 'shared/chat/reply-preview.js';
+import 'shared/chat/file-upload-preview.js';
 
 /**
  * @param {import('../message-form').default} el
@@ -59,6 +60,8 @@ export default (el) => {
                     aria-relevant="additions"
                 ></span>
             </div>
+
+            <converse-file-upload-preview .model=${el.model}></converse-file-upload-preview>
 
             ${show_toolbar
                 ? html` <converse-chat-toolbar

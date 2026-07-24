@@ -496,6 +496,49 @@ export default function ModelWithMessages(BaseModel) {
         }
 
         /**
+         * Buffer files for sending without uploading them yet. Staged files are
+         * held (and previewed in the compose area) until the message form is
+         * submitted, at which point {@link sendStagedFiles} uploads and sends
+         * them. `staged_files` is a plain instance property (not a model
+         * attribute) so the un-serializable File objects never hit storage.
+         * @param {FileList|File[]} files
+         */
+        stageFiles(files) {
+            this.staged_files = [...(this.staged_files ?? []), ...Array.from(files)];
+            this.trigger('change:staged_files');
+        }
+
+        /**
+         * Remove a single staged file by its index.
+         * @param {number} index
+         */
+        unstageFile(index) {
+            if (!this.staged_files?.length) return;
+            this.staged_files = this.staged_files.filter((_, i) => i !== index);
+            this.trigger('change:staged_files');
+        }
+
+        /**
+         * Discard all staged files without sending them.
+         */
+        clearStagedFiles() {
+            if (!this.staged_files?.length) return;
+            this.staged_files = [];
+            this.trigger('change:staged_files');
+        }
+
+        /**
+         * Upload and send any currently staged files, then clear the staging area.
+         */
+        sendStagedFiles() {
+            const files = this.staged_files ?? [];
+            if (!files.length) return;
+            this.staged_files = [];
+            this.trigger('change:staged_files');
+            this.sendFiles(files);
+        }
+
+        /**
          * Responsible for setting the editable attribute of messages.
          * If api.settings.get('allow_message_corrections') is "last", then only the last
          * message sent from me will be editable. If set to "all" all messages

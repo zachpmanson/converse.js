@@ -110,7 +110,7 @@ export default class MessageForm extends CustomElement {
         if (ev.clipboardData.files.length !== 0) {
             ev.stopPropagation();
             ev.preventDefault();
-            this.model.sendFiles(Array.from(ev.clipboardData.files));
+            this.model.stageFiles(Array.from(ev.clipboardData.files));
         }
     }
 
@@ -123,7 +123,7 @@ export default class MessageForm extends CustomElement {
             return;
         }
         ev.preventDefault();
-        this.model.sendFiles(ev.dataTransfer.files);
+        this.model.stageFiles(ev.dataTransfer.files);
     }
 
     /**
@@ -253,10 +253,13 @@ export default class MessageForm extends CustomElement {
         const { chatboxviews } = _converse.state;
         const textarea = /** @type {HTMLTextAreaElement} */ (this.querySelector('.chat-textarea'));
         const message_text = textarea.value.trim();
-        if (
-            (api.settings.get('message_limit') && message_text.length > api.settings.get('message_limit')) ||
-            !message_text.replace(/\s/g, '').length
-        ) {
+        const has_text = !!message_text.replace(/\s/g, '').length;
+        const has_staged_files = (this.model.staged_files?.length ?? 0) > 0;
+        if (api.settings.get('message_limit') && message_text.length > api.settings.get('message_limit')) {
+            return;
+        }
+        // Nothing to send: no text and no staged files.
+        if (!has_text && !has_staged_files) {
             return;
         }
         if (!api.connection.get().authenticated) {
@@ -275,14 +278,20 @@ export default class MessageForm extends CustomElement {
         textarea.setAttribute('disabled', 'disabled');
         /** @type {EmojiDropdown} */ (this.querySelector('converse-emoji-dropdown'))?.hide();
 
-        const is_command = await parseMessageForCommands(this.model, message_text);
-        const message = is_command ? null : await this.model.sendMessage({ 'body': message_text, spoiler_hint });
+        const is_command = has_text ? await parseMessageForCommands(this.model, message_text) : false;
+        const message =
+            is_command || !has_text ? null : await this.model.sendMessage({ 'body': message_text, spoiler_hint });
         if (is_command || message) {
             hint_el.value = '';
             this.animateSentText(textarea, message_text);
             textarea.value = '';
             textarea.style.height = 'auto';
             this.model.save({ 'draft': '' });
+        }
+        // Upload and send any files staged in the compose area. These go out as
+        // their own messages, after the text message above.
+        if (has_staged_files) {
+            this.model.sendStagedFiles();
         }
         if (api.settings.get('view_mode') === 'overlayed') {
             // XXX: Chrome flexbug workaround. The .chat-content area

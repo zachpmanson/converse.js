@@ -1,0 +1,84 @@
+converse-file-upload-preview {
+    display: block;
+
+    // With no staged files the element renders `nothing`, leaving an empty
+    // block. Collapse it entirely unless it actually holds the preview strip.
+    &:not(:has(.file-upload-preview)) {
+        display: none;
+    }
+
+    .file-upload-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5em;
+        padding: 0.5em 0.75em;
+        background-color: var(--chat-head-color);
+        border-top: 1px solid var(--chat-separator-border-color, rgba(0, 0, 0, 0.1));
+
+        &__item {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            max-width: 100%;
+            padding: 0.25em 0.5em 0.25em 0.25em;
+            background-color: var(--background-color, rgba(0, 0, 0, 0.03));
+            border: 1px solid var(--chat-separator-border-color, rgba(0, 0, 0, 0.1));
+            border-radius: 0.4em;
+        }
+
+        &__thumb {
+            width: 2.5em;
+            height: 2.5em;
+            object-fit: cover;
+            border-radius: 0.25em;
+            flex-shrink: 0;
+        }
+
+        &__icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5em;
+            height: 2.5em;
+            color: var(--foreground-color);
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        &__meta {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        &__name {
+            font-size: 0.85em;
+            color: var(--foreground-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 12em;
+        }
+
+        &__size {
+            font-size: 0.75em;
+            color: var(--foreground-color);
+            opacity: 0.6;
+        }
+
+        &__remove {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25em;
+            color: var(--foreground-color);
+            opacity: 0.7;
+            flex-shrink: 0;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+}
