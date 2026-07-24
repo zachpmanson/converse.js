@@ -101,13 +101,6 @@
                 flex-wrap: nowrap;
             }
 
-            .chatbox-btn {
-                &:active {
-                    position: relative;
-                    top: 1px;
-                }
-            }
-
             converse-dropdown {
                 .dropdown-menu {
                     converse-icon {
