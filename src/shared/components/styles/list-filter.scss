@@ -52,3 +52,43 @@ converse-list-filter {
         }
     }
 }
+
+// The always-visible controlbox sidebar filter follows the mono chrome: a flat,
+// wide field with sharp corners and a single thin ink underline, rather than the
+// default rounded, boxed input — matching the sidebar's other borders.
+converse-list-filter.sidebar-filter-container {
+    margin-bottom: 0.5em;
+}
+
+.sidebar-filter {
+    .btn-group {
+        position: relative;
+        width: 100%;
+    }
+
+    .items-filter.form-control {
+        width: 100%;
+        margin: 0;
+        padding: 0.6em 1.8em 0.6em 0.25em;
+        font-size: var(--font-size);
+        color: var(--foreground-color);
+        background-color: var(--background-color);
+        border: none;
+        border-bottom: 0.1rem solid var(--controlbox-color);
+        border-radius: 0;
+        box-shadow: none;
+
+        &:focus {
+            border-color: var(--controlbox-color);
+            box-shadow: none;
+        }
+    }
+
+    .clear-input {
+        position: absolute;
+        inset-inline-end: 0.35em;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+}
