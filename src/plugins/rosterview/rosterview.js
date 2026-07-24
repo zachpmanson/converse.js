@@ -20,7 +20,10 @@ export default class RosterView extends CustomElement {
 
         await api.waitUntil('rosterInitialized');
 
-        const { chatboxes, presences, roster } = _converse.state;
+        const { chatboxes, presences, roster, roster_filter } = _converse.state;
+        // The filter input now lives at the top of the sidebar (outside this
+        // panel), so re-render whenever its text changes.
+        this.listenTo(roster_filter, 'change', () => this.requestUpdate());
         this.listenTo(_converse, 'rosterContactsFetched', () => this.requestUpdate());
         this.listenTo(presences, 'change:show', () => this.requestUpdate());
         this.listenTo(chatboxes, 'change:hidden', () => this.requestUpdate());

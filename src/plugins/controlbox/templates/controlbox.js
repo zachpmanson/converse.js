@@ -2,6 +2,8 @@ import { html, nothing } from 'lit';
 import { _converse, api, converse, constants } from '@converse/headless';
 import { __ } from 'i18n';
 import { getChatStyle } from 'shared/chat/utils.js';
+import 'shared/components/list-filter.js';
+import tplSidebarFilter from './sidebar-filter.js';
 
 const { Strophe } = converse.env;
 const { ANONYMOUS } = constants;
@@ -55,6 +57,15 @@ export default (el) => {
         ${el.model.get('connected')
             ? html`<converse-user-profile></converse-user-profile>
                   <div class="controlbox-pane">
+                      ${_converse.state.roster_filter
+                          ? html`<converse-list-filter
+                                class="controlbox-section sidebar-filter-container"
+                                always_visible
+                                .model=${_converse.state.roster_filter}
+                                .items=${_converse.state.roster}
+                                .template=${tplSidebarFilter}
+                            ></converse-list-filter>`
+                          : ''}
                       <converse-headlines-feeds-list class="controlbox-section"></converse-headlines-feeds-list>
                       <div id="chatrooms" class="controlbox-section"><converse-rooms-list></converse-rooms-list></div>
                       ${api.settings.get('authentication') === ANONYMOUS

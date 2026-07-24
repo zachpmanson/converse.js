@@ -14,10 +14,12 @@ export default class ListFilter extends CustomElement {
         this.model = null;
         this.template = null;
         this.promise = Promise.resolve();
+        this.always_visible = false;
     }
 
     static get properties() {
         return {
+            always_visible: { type: Boolean },
             items: { type: Array },
             model: { type: Object },
             promise: { type: Promise },
@@ -95,7 +97,7 @@ export default class ListFilter extends CustomElement {
      * @returns {boolean}
      */
     shouldBeVisible() {
-        return this.items?.length >= 5 || this.isActive();
+        return this.always_visible || this.items?.length >= 5 || this.isActive();
     }
 
     /**

@@ -308,12 +308,11 @@ export function isContactFiltered(contact, groupname) {
 /**
  * @param {RosterContact} contact
  * @param {string} groupname
- * @param {import('@converse/headless').Model} model
  * @returns {boolean}
  */
-export function shouldShowContact(contact, groupname, model) {
-    if (!model.get('filter_visible')) return true;
-
+export function shouldShowContact(contact, groupname) {
+    // The sidebar filter is always present, so contacts are always filtered
+    // against it (an empty query matches everything — see isContactFiltered).
     const chat_status = contact.getStatus();
     if (api.settings.get('hide_offline_users') && chat_status === 'offline') {
         // If pending or requesting, show
@@ -331,11 +330,8 @@ export function shouldShowContact(contact, groupname, model) {
 
 /**
  * @param {string} group
- * @param {import('@converse/headless').Model} model
  */
-export function shouldShowGroup(group, model) {
-    if (!model.get('filter_visible')) return true;
-
+export function shouldShowGroup(group) {
     const filter = _converse.state.roster_filter;
     const type = filter.get('type');
     if (type === 'groups') {

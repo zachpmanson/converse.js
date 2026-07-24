@@ -28,6 +28,14 @@ export class RoomsList extends CustomElement {
         this.listenTo(chatboxes, 'vcard:change', () => this.requestUpdate());
         this.listenTo(this.model, 'change', () => this.requestUpdate());
 
+        // The sidebar filter (shared with the contacts list) filters groupchats
+        // by name too, so re-render on its changes once it exists.
+        api.waitUntil('rosterInitialized').then(() => {
+            const { roster_filter } = _converse.state;
+            if (roster_filter) this.listenTo(roster_filter, 'change', () => this.requestUpdate());
+            this.requestUpdate();
+        });
+
         // Re-render room bookmark toggles when the bookmark set changes.
         api.waitUntil('bookmarksInitialized').then(() => {
             this.listenTo(_converse.state.bookmarks, 'add', () => this.requestUpdate());
@@ -83,8 +91,13 @@ export class RoomsList extends CustomElement {
 
     /** @returns {import('@converse/headless').MUC[]} */
     getRoomsToShow() {
-        const { chatboxes } = _converse.state;
-        const rooms = chatboxes.filter((m) => m.get('type') === CHATROOMS_TYPE && !m.get('closed'));
+        const { chatboxes, roster_filter } = _converse.state;
+        let rooms = chatboxes.filter((m) => m.get('type') === CHATROOMS_TYPE && !m.get('closed'));
+        // Honour the shared sidebar filter's text, matching room display names.
+        const q = roster_filter?.get('text')?.toLowerCase();
+        if (q) {
+            rooms = rooms.filter((m) => m.getDisplayName().toLowerCase().includes(q));
+        }
         rooms.sort((a, b) => (a.getDisplayName().toLowerCase() <= b.getDisplayName().toLowerCase() ? -1 : 1));
         return rooms;
     }
