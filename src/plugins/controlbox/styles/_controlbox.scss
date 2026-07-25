@@ -313,7 +313,13 @@
                 overflow-x: hidden;
 
                 @include media-breakpoint-up(md) {
-                    #controlbox {
+                    // Exclude the logged-out state: before login the controlbox
+                    // holds the login/registration form and must fill the screen
+                    // (see the `.logged-out { width: 100% }` rule above), not sit
+                    // pinned to the sidebar width. Without :not(.logged-out) this
+                    // rule has equal specificity but comes later in source, so it
+                    // would win and box the login form into the 250px sidebar.
+                    #controlbox:not(.logged-out) {
                         flex: 0 0 var(--controlbox-width);
                         width: var(--controlbox-width);
                         min-width: 0;
