@@ -224,15 +224,17 @@ describe('Notifications', function () {
         });
     });
 
-    describe('A Favicon Message Counter', function () {
+    describe('The Favicon', function () {
+        const faviconColor = () => {
+            const link = document.querySelector('link[rel~="icon"]');
+            return (/fill%3D%22(\w+)%22/).exec(link?.getAttribute('href') ?? '')?.[1] ?? null;
+        };
+
         it(
-            'is incremented when the message is received and the window is not focused',
+            'turns red when a message is received and the window is not focused',
             mock.initConverse(converse, [], { 'show_tab_notifications': false }, async function (_converse) {
                 await mock.waitForRoster(_converse, 'current');
                 await mock.openControlBox(_converse);
-
-                const favico = jasmine.createSpyObj('favico', ['badge']);
-                spyOn(converse.env, 'Favico').and.returnValue(favico);
 
                 const sender_jid = mock.cur_names[0].replace(/ /g, '.').toLowerCase() + '@montague.lit';
                 const view = await mock.openChatBoxFor(_converse, sender_jid);
@@ -253,7 +255,8 @@ describe('Notifications', function () {
                 await _converse.handleMessageStanza(msg);
                 expect(_converse.api.trigger).toHaveBeenCalledWith('message', jasmine.any(Object));
 
-                expect(favico.badge.calls.count()).toBe(0);
+                // With show_tab_notifications disabled, the favicon doesn't turn red
+                expect(faviconColor()).not.toBe('red');
 
                 _converse.api.settings.set('show_tab_notifications', true);
                 const msg2 = stx`
@@ -267,30 +270,24 @@ describe('Notifications', function () {
                     </message>`;
 
                 await _converse.handleMessageStanza(msg2);
-                await u.waitUntil(() => favico.badge.calls.count() === 1);
-                expect(favico.badge.calls.mostRecent().args.pop()).toBe(2);
+                await u.waitUntil(() => faviconColor() === 'red');
 
                 expect(view.model.get('num_unread')).toBe(2);
 
-                // Check that it's cleared when the window is focused
+                // Check that it turns white again when the window is focused
                 view.model.isHidden.and.returnValue(false);
                 document.dispatchEvent(new Event('visibilitychange'));
 
-                await u.waitUntil(() => favico.badge.calls.count() === 2);
-                expect(favico.badge.calls.mostRecent().args.pop()).toBe(0);
-
+                await u.waitUntil(() => faviconColor() === 'white');
                 expect(view.model.get('num_unread')).toBe(0);
             }),
         );
 
         it(
-            'is not incremented when the message is received and the window is focused',
+            'stays white when a message is received and the window is focused',
             mock.initConverse(converse, [], {}, async function (_converse) {
                 await mock.waitForRoster(_converse, 'current');
                 await mock.openControlBox(_converse);
-
-                const favico = jasmine.createSpyObj('favico', ['badge']);
-                spyOn(converse.env, 'Favico').and.returnValue(favico);
 
                 document.dispatchEvent(new Event('visibilitychange'));
                 const message = 'This message will not increment the message counter';
@@ -310,7 +307,7 @@ describe('Notifications', function () {
                 setTimeout(() => {
                     const view = _converse.chatboxviews.get(sender_jid);
                     expect(view.model.get('num_unread')).toBe(0);
-                    expect(favico.badge.calls.count()).toBe(0);
+                    expect(faviconColor()).not.toBe('red');
                     promise.resolve();
                 }, 500);
                 return promise;
@@ -318,11 +315,9 @@ describe('Notifications', function () {
         );
 
         it(
-            'is incremented from zero when chatbox was closed after viewing previously received messages and the window is not focused now',
+            'turns red again after the chatbox was closed and a new message arrives while unfocused',
             mock.initConverse(converse, [], {}, async function (_converse) {
                 await mock.waitForRoster(_converse, 'current');
-                const favico = jasmine.createSpyObj('favico', ['badge']);
-                spyOn(converse.env, 'Favico').and.returnValue(favico);
                 const message = 'This message will always increment the message counter from zero';
                 const sender_jid = mock.cur_names[0].replace(/ /g, '.').toLowerCase() + '@montague.lit';
                 const msgFactory = () => stx`
@@ -340,8 +335,7 @@ describe('Notifications', function () {
 
                 await _converse.handleMessageStanza(msgFactory());
                 let view = _converse.chatboxviews.get(sender_jid);
-                await u.waitUntil(() => favico.badge.calls.count() === 1, 1000);
-                expect(favico.badge.calls.mostRecent().args.pop()).toBe(1);
+                await u.waitUntil(() => faviconColor() === 'red');
                 expect(view.model.get('num_unread')).toBe(1);
 
                 view.model.isHidden.and.returnValue(false);
@@ -351,19 +345,17 @@ describe('Notifications', function () {
                 await u.waitUntil(() => u.isVisible(view));
                 expect(view.model.get('num_unread')).toBe(0);
 
-                await u.waitUntil(() => favico.badge.calls.count() === 2);
-                expect(favico.badge.calls.mostRecent().args.pop()).toBe(0);
+                await u.waitUntil(() => faviconColor() === 'white');
 
                 // close chatbox and leave converse-chat page again
                 view.close();
                 view.model.isHidden.and.returnValue(true);
 
-                // check that msg_counter is incremented from zero again
+                // check that the favicon turns red from zero again
                 await _converse.handleMessageStanza(msgFactory());
                 view = _converse.chatboxviews.get(sender_jid);
                 await u.waitUntil(() => u.isVisible(view));
-                await u.waitUntil(() => favico.badge.calls.count() === 3);
-                expect(favico.badge.calls.mostRecent().args.pop()).toBe(1);
+                await u.waitUntil(() => faviconColor() === 'red');
             }),
         );
     });

@@ -4,7 +4,6 @@
  * @typedef {module:headless-plugins-chat-utils.MessageData} MessageData
  * @typedef {import('@converse/headless').RosterContact} RosterContact
  */
-import Favico from 'favico.js-slevomat';
 import { __, i18n } from 'i18n';
 import { _converse, api, converse, log } from '@converse/headless';
 
@@ -12,10 +11,23 @@ const { Strophe, u } = converse.env;
 const { isEmptyMessage, isTestEnv } = u;
 const supports_html5_notification = 'Notification' in window;
 
-converse.env.Favico = Favico;
-
-/** @type {Favico} */
-let favicon;
+/**
+ * Point the page's favicon at a filled circle of the given colour.
+ * @param {string} color - Any valid CSS colour
+ */
+export function setCircleFavicon(color) {
+    const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">` +
+        `<circle cx="16" cy="16" r="15" fill="${color}"/></svg>`;
+    let link = /** @type {HTMLLinkElement} */ (document.querySelector('link[rel~="icon"]'));
+    if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+    }
+    link.type = 'image/svg+xml';
+    link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
 
 /**
  * @param {string} from - The JID of the sender
@@ -39,8 +51,7 @@ export function areDesktopNotificationsEnabled() {
  */
 
 export function clearFavicon() {
-    favicon?.badge(0);
-    favicon = null;
+    setCircleFavicon('white');
     /** @type navigator */ (navigator)
         .clearAppBadge?.()
         .catch((e) => log.error('Could not clear unread count in app badge ' + e));
@@ -48,10 +59,9 @@ export function clearFavicon() {
 
 export function updateUnreadFavicon() {
     if (api.settings.get('show_tab_notifications')) {
-        favicon = favicon ?? new converse.env.Favico({ type: 'circle', animation: 'pop' });
         const chats = _converse.state.chatboxes.models;
         const num_unread = chats.reduce((/** @type {number} */ acc, chat) => acc + (chat.get('num_unread') || 0), 0);
-        favicon.badge(num_unread);
+        setCircleFavicon(num_unread ? 'red' : 'white');
         /** @type navigator */ (navigator)
             .setAppBadge?.(num_unread)
             .catch((e) => log.error('Could set unread count in app badge - ' + e));

@@ -11,6 +11,7 @@ import {
     handleFeedback,
     handleMessageNotification,
     requestPermission,
+    setCircleFavicon,
     updateUnreadFavicon
 } from './utils.js';
 
@@ -31,6 +32,9 @@ converse.plugins.add('converse-notification', {
             show_tab_notifications: true,
             sounds_path: api.settings.get('assets_path') + '/sounds/'
         });
+
+        // Start from a plain white favicon; it turns red when there are unread messages.
+        setCircleFavicon('white');
 
         /************************ Event Handlers ************************/
         api.listen.on('clearSession', clearFavicon); // Needed for tests
