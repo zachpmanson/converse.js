@@ -160,6 +160,15 @@
                     converse-icon.chat-status {
                         position: relative;
                         border: 2px solid var(--background-color);
+                        // Keep the white ring a circle: the base .chat-status
+                        // adds padding-bottom:0.2em, making the bordered box
+                        // taller than wide (an oval under border-radius:50%).
+                        // Zero the padding, drop the inline line-box height, and
+                        // pin a 1:1 box so it hugs the square icon.
+                        padding: 0;
+                        line-height: 0;
+                        aspect-ratio: 1;
+                        box-sizing: content-box;
                         svg {
                             display: flex;
                         }
