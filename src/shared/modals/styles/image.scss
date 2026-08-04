@@ -1,11 +1,22 @@
-converse-image-modal {
-    // Let the dialog grow to the image instead of the shared 600px cap.
+// Scoped under `#converse-modals converse-image-modal` on purpose: the shared
+// defaults are `.conversejs .modal-dialog { max-width: 600px }` (0,2,0) and
+// `#converse-modals .modal .modal-body { max-height: 75vh }` (1,2,0). These
+// overrides must out-specify both, or the modal stays capped at 600px/75vh and
+// never grows to the image.
+#converse-modals converse-image-modal {
+    // Let the dialog shrink-wrap the image instead of the shared 600px cap.
     .modal-dialog {
         width: auto;
         max-width: 80vw;
     }
     .modal-content {
         width: auto;
+    }
+    // Drop the 75vh height cap / scroll / padding so the body grows to the image.
+    .modal .modal-body {
+        max-height: none;
+        overflow: visible;
+        padding: 0;
     }
     // Cap the image at 80vw/80vh; auto on the other axis keeps it proportional.
     .chat-image--modal {
