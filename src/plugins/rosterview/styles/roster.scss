@@ -67,12 +67,25 @@
                 text-overflow: ellipsis;
                 display: flex;
                 justify-content: space-between;
+                align-items: stretch;
 
                 .open-chat {
                     width: 100%;
+                    // Fill the full row so the clickable area matches the hover
+                    // highlight. Previously the <a> was inset by the <li>'s 1em
+                    // padding and only as tall as the avatar, so the side and
+                    // top/bottom strips darkened on hover but weren't clickable.
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5em;
+                    padding-inline-start: 1em;
                 }
 
                 .contact-actions {
+                    display: flex;
+                    align-items: center;
+                    // Keep the right-edge inset the <li> padding used to give.
+                    padding-inline-end: 1em;
                     .dropdown-item {
                         converse-icon {
                             margin-inline-end: 0.5em;
@@ -127,6 +140,11 @@
             }
 
             .list-item {
+                // The clickable <a> now owns the row's side padding and full
+                // height (see .open-chat above), so drop the controlbox-padded
+                // inset here and let the children stretch to the 2.5em row.
+                padding-inline: 0;
+                align-items: stretch;
 
                 .list-item-link {
                     margin: 0;
