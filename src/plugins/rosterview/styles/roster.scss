@@ -176,7 +176,8 @@
                     .contact-name {
                         max-width: 85%;
                         float: none;
-                        height: 100%;
+                        // No height:100% — the .open-chat flex row centers it;
+                        // a full-height span would top-align the text instead.
                         &.unread-msgs {
                             max-width: 60%;
                         }
