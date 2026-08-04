@@ -1,6 +1,18 @@
 converse-image-modal {
+    // Let the dialog grow to the image instead of the shared 600px cap.
+    .modal-dialog {
+        width: auto;
+        max-width: 80vw;
+    }
+    .modal-content {
+        width: auto;
+    }
+    // Cap the image at 80vw/80vh; auto on the other axis keeps it proportional.
     .chat-image--modal {
-        max-height: 99%;
-        max-width: 100%;
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 80vw;
+        max-height: 80vh;
     }
 }
