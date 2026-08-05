@@ -92,8 +92,11 @@ export function parseHeading(text, i) {
     const contentStart = i + (line.length - line.slice(m[1].length).replace(/^[ \t]+/, '').length);
     const contentEnd = contentStart + m[2].length;
     // Consume the trailing newline too, so the block element doesn't leave an
-    // extra blank line behind it.
-    const end = le < text.length ? le + 1 : le;
+    // extra blank line behind it. A single blank line after the heading (the
+    // conventional way to write markdown) is also swallowed — the heading's
+    // margin already provides that separation.
+    let end = le < text.length ? le + 1 : le;
+    if (text[end] === '\n') end += 1;
     return { level, contentStart, contentEnd, end };
 }
 

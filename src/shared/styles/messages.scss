@@ -27,6 +27,9 @@
 
         code {
             font-family: monospace;
+            // Bootstrap's reboot paints <code> pink ($code-color); inline code
+            // should just be monospace in the surrounding text color.
+            color: inherit;
         }
 
         // Markdown ("formatted" view) block constructs
