@@ -27,7 +27,7 @@
           version = "14.0.0";
           src = ./.;
 
-          npmDepsHash = "sha256-SOwM6V0IDSI+TdO6htnGQPsPSAvIyTrYAusB6lX2S58=";
+          npmDepsHash = "sha256-VQC1ramAOsdxWeqBU5KtundBUlPCJmyopP1HIyLRko4=";
 
           nodejs = pkgs.nodejs_24;
 
