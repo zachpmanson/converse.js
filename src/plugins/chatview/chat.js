@@ -13,6 +13,14 @@ const { ACTIVE } = constants;
  */
 export default class ChatView extends DragResizable(BaseChatView) {
     length = 200;
+    drag_depth = 0;
+
+    static get properties() {
+        return {
+            model: { type: Object },
+            drag_active: { state: true },
+        };
+    }
 
     async initialize() {
         const { chatboxviews, chatboxes } = _converse.state;
@@ -55,6 +63,58 @@ export default class ChatView extends DragResizable(BaseChatView) {
         this.model.setChatState(ACTIVE);
         this.model.clearUnreadMsgCounter();
         this.maybeFocus();
+    }
+
+    /**
+     * Handle `dragenter` on the chat view — increment a depth counter so
+     * we only show the overlay when the drag truly enters/exits the view.
+     * @param {DragEvent} ev
+     */
+    onDragEnter(ev) {
+        ev.preventDefault();
+        this.drag_depth += 1;
+        if (this.drag_depth === 1) {
+            this.drag_active = true;
+            this.requestUpdate();
+        }
+    }
+
+    /**
+     * Handle `dragleave` — decrement depth, hide overlay when the drag
+     * truly leaves the chat view.
+     * @param {DragEvent} ev
+     */
+    onDragLeave(ev) {
+        ev.preventDefault();
+        this.drag_depth -= 1;
+        if (this.drag_depth <= 0) {
+            this.drag_depth = 0;
+            this.drag_active = false;
+            this.requestUpdate();
+        }
+    }
+
+    /**
+     * Handle `dragover` — required to allow the drop.
+     * @param {DragEvent} ev
+     */
+    onDragOver(ev) {
+        ev.preventDefault();
+    }
+
+    /**
+     * Handle files dropped anywhere in the chat view area.
+     * @param {DragEvent} ev
+     */
+    onDrop(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.drag_depth = 0;
+        this.drag_active = false;
+        this.requestUpdate();
+
+        if (!ev.dataTransfer?.files?.length) return;
+        this.model.stageFiles(ev.dataTransfer.files);
     }
 }
 

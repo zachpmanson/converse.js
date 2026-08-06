@@ -15,13 +15,7 @@ export default (el) => {
     const i18n_not_allowed = __("You're not allowed to send messages in this room");
     if (conn_status === converse.ROOMSTATUS.ENTERED) {
         return html`
-            <div
-                class="chat-bottom-panel__dropzone ${el.drag_active ? 'drag-active' : ''}"
-                @dragenter=${/** @param {DragEvent} ev */ (ev) => el.onDragEnter(ev)}
-                @dragleave=${/** @param {DragEvent} ev */ (ev) => el.onDragLeave(ev)}
-                @dragover=${/** @param {DragEvent} ev */ (ev) => el.onDragOver(ev)}
-                @drop=${/** @param {DragEvent} ev */ (ev) => el.onDrop(ev)}
-            >
+            <div>
                 ${el.model.ui.get('scrolled') && el.model.get('num_unread_general')
                     ? html`<div
                           class="new-msgs-indicator"
@@ -37,7 +31,6 @@ export default (el) => {
                 ${el.model.canPostMessages()
                     ? html`<converse-muc-message-form .model=${el.model}></converse-muc-message-form>`
                     : html`<span class="muc-bottom-panel muc-bottom-panel--muted">${i18n_not_allowed}</span>`}
-                ${el.drag_active ? html`<div class="chat-bottom-panel__drop-overlay">${__('Drop to send files')}</div>` : ''}
             </div>
         `;
     } else if (conn_status == converse.ROOMSTATUS.NICKNAME_REQUIRED) {

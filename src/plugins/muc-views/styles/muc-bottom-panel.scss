@@ -1,6 +1,21 @@
 .conversejs {
     converse-muc {
 
+        .chat-view__drop-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--muc-color, #333);
+            color: #fff;
+            font-size: var(--font-size-large);
+            font-weight: 600;
+            opacity: 0.92;
+            z-index: 100;
+            pointer-events: none;
+        }
+
         .muc-bottom-panel,
         converse-muc-bottom-panel {
             display: contents;
@@ -9,33 +24,6 @@
             font-size: var(--font-size-small);
             background-color: var(--background-color);
             color: var(--foreground-color);
-
-            .chat-bottom-panel__dropzone {
-                position: relative;
-
-                &.drag-active {
-                    .chat-message-form {
-                        opacity: 0.6;
-                        transition: opacity 0.15s ease;
-                    }
-                }
-
-                .chat-bottom-panel__drop-overlay {
-                    position: absolute;
-                    inset: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: var(--muc-color, #333);
-                    color: #fff;
-                    font-size: var(--font-size-large);
-                    font-weight: 600;
-                    border-radius: var(--chatbox-border-radius, 0.5em);
-                    opacity: 0.92;
-                    z-index: 10;
-                    pointer-events: none;
-                }
-            }
 
             &.muc-bottom-panel--muted {
                 border-top: 0.1rem solid var(--muc-color) !important;

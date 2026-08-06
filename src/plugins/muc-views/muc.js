@@ -5,7 +5,15 @@ import tplMuc from './templates/muc.js';
 
 export default class MUCView extends DragResizable(BaseChatView) {
     length = 300;
+    drag_depth = 0;
     is_chatroom = true;
+
+    static get properties() {
+        return {
+            model: { type: Object },
+            drag_active: { state: true },
+        };
+    }
 
     async initialize() {
         this.model = await api.rooms.get(this.jid);
@@ -45,6 +53,56 @@ export default class MUCView extends DragResizable(BaseChatView) {
         if (this.model.get('hidden')) return;
         if (this.model.session.get('connection_status') !== converse.ROOMSTATUS.ENTERED) return;
         this.maybeFocus();
+    }
+
+    /**
+     * Handle `dragenter` on the MUC view.
+     * @param {DragEvent} ev
+     */
+    onDragEnter(ev) {
+        ev.preventDefault();
+        this.drag_depth += 1;
+        if (this.drag_depth === 1) {
+            this.drag_active = true;
+            this.requestUpdate();
+        }
+    }
+
+    /**
+     * Handle `dragleave` on the MUC view.
+     * @param {DragEvent} ev
+     */
+    onDragLeave(ev) {
+        ev.preventDefault();
+        this.drag_depth -= 1;
+        if (this.drag_depth <= 0) {
+            this.drag_depth = 0;
+            this.drag_active = false;
+            this.requestUpdate();
+        }
+    }
+
+    /**
+     * Handle `dragover` — required to allow the drop.
+     * @param {DragEvent} ev
+     */
+    onDragOver(ev) {
+        ev.preventDefault();
+    }
+
+    /**
+     * Handle files dropped anywhere in the MUC view area.
+     * @param {DragEvent} ev
+     */
+    onDrop(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.drag_depth = 0;
+        this.drag_active = false;
+        this.requestUpdate();
+
+        if (!ev.dataTransfer?.files?.length) return;
+        this.model.stageFiles(ev.dataTransfer.files);
     }
 
     onConnectionStatusChanged() {

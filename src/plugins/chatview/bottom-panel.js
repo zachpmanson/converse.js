@@ -15,13 +15,11 @@ export default class ChatBottomPanel extends CustomElement {
     constructor() {
         super();
         this.model = null;
-        this.drag_depth = 0;
     }
 
     static get properties() {
         return {
             model: { type: Object },
-            drag_active: { state: true },
         };
     }
 
@@ -50,59 +48,6 @@ export default class ChatBottomPanel extends CustomElement {
     viewUnreadMessages(ev) {
         ev?.preventDefault?.();
         this.model.ui.set({ 'scrolled': false });
-    }
-
-    /**
-     * Handle `dragenter` on the bottom panel — increment a depth counter so
-     * we only toggle the overlay when the drag truly enters/exits the panel
-     * (not when crossing child element boundaries).
-     * @param {DragEvent} ev
-     */
-    onDragEnter(ev) {
-        ev.preventDefault();
-        this.drag_depth += 1;
-        if (this.drag_depth === 1) {
-            this.drag_active = true;
-            this.requestUpdate();
-        }
-    }
-
-    /**
-     * Handle `dragleave` — decrement depth, hide overlay when the drag
-     * truly leaves the panel.
-     * @param {DragEvent} ev
-     */
-    onDragLeave(ev) {
-        ev.preventDefault();
-        this.drag_depth -= 1;
-        if (this.drag_depth <= 0) {
-            this.drag_depth = 0;
-            this.drag_active = false;
-            this.requestUpdate();
-        }
-    }
-
-    /**
-     * Handle `dragover` — required to allow the drop.
-     * @param {DragEvent} ev
-     */
-    onDragOver(ev) {
-        ev.preventDefault();
-    }
-
-    /**
-     * Handle files dropped anywhere in the bottom panel area.
-     * @param {DragEvent} ev
-     */
-    onDrop(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        this.drag_depth = 0;
-        this.drag_active = false;
-        this.requestUpdate();
-
-        if (!ev.dataTransfer?.files?.length) return;
-        this.model.stageFiles(ev.dataTransfer.files);
     }
 
     clearMessages(ev) {

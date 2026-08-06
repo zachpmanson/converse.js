@@ -1,6 +1,7 @@
 import { html, nothing } from 'lit';
 import { api, constants } from '@converse/headless';
 import { getChatStyle } from 'shared/chat/utils.js';
+import { __ } from 'i18n';
 
 const { CHATROOMS_TYPE } = constants;
 
@@ -13,7 +14,14 @@ export default (el) => {
     const is_overlayed = api.settings.get('view_mode') === 'overlayed';
     const style = getChatStyle(el.model);
     return html`
-        <div class="flyout box-flyout" style="${style || nothing}">
+        <div
+            class="flyout box-flyout"
+            style="${style || nothing}"
+            @dragenter=${/** @param {DragEvent} ev */ (ev) => el.onDragEnter(ev)}
+            @dragleave=${/** @param {DragEvent} ev */ (ev) => el.onDragLeave(ev)}
+            @dragover=${/** @param {DragEvent} ev */ (ev) => el.onDragOver(ev)}
+            @drop=${/** @param {DragEvent} ev */ (ev) => el.onDrop(ev)}
+        >
             ${is_overlayed ? html`<converse-dragresize></converse-dragresize>` : ''}
             ${el.model
                 ? html`
@@ -46,6 +54,9 @@ export default (el) => {
                           <converse-chat-bottom-panel .model="${el.model}" class="bottom-panel">
                           </converse-chat-bottom-panel>
                       </div>
+                      ${el.drag_active
+                          ? html`<div class="chat-view__drop-overlay">${__('Drop to send files')}</div>`
+                          : ''}
                   `
                 : ''}
         </div>
