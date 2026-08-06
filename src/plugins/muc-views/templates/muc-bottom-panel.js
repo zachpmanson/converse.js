@@ -15,21 +15,30 @@ export default (el) => {
     const i18n_not_allowed = __("You're not allowed to send messages in this room");
     if (conn_status === converse.ROOMSTATUS.ENTERED) {
         return html`
-            ${el.model.ui.get('scrolled') && el.model.get('num_unread_general')
-                ? html`<div
-                      class="new-msgs-indicator"
-                      @click=${/** @param {MouseEvent} ev */ (ev) => el.viewUnreadMessages(ev)}
-                  >
-                      ▼ ${unread_msgs} ▼
-                  </div>`
-                : ''}
+            <div
+                class="chat-bottom-panel__dropzone ${el.drag_active ? 'drag-active' : ''}"
+                @dragenter=${/** @param {DragEvent} ev */ (ev) => el.onDragEnter(ev)}
+                @dragleave=${/** @param {DragEvent} ev */ (ev) => el.onDragLeave(ev)}
+                @dragover=${/** @param {DragEvent} ev */ (ev) => el.onDragOver(ev)}
+                @drop=${/** @param {DragEvent} ev */ (ev) => el.onDrop(ev)}
+            >
+                ${el.model.ui.get('scrolled') && el.model.get('num_unread_general')
+                    ? html`<div
+                          class="new-msgs-indicator"
+                          @click=${/** @param {MouseEvent} ev */ (ev) => el.viewUnreadMessages(ev)}
+                      >
+                          ▼ ${unread_msgs} ▼
+                      </div>`
+                    : ''}
 
-            <converse-edit-preview .model=${el.model}></converse-edit-preview>
-            <converse-reply-preview .model=${el.model}></converse-reply-preview>
+                <converse-edit-preview .model=${el.model}></converse-edit-preview>
+                <converse-reply-preview .model=${el.model}></converse-reply-preview>
 
-            ${el.model.canPostMessages()
-                ? html`<converse-muc-message-form .model=${el.model}></converse-muc-message-form>`
-                : html`<span class="muc-bottom-panel muc-bottom-panel--muted">${i18n_not_allowed}</span>`}
+                ${el.model.canPostMessages()
+                    ? html`<converse-muc-message-form .model=${el.model}></converse-muc-message-form>`
+                    : html`<span class="muc-bottom-panel muc-bottom-panel--muted">${i18n_not_allowed}</span>`}
+                ${el.drag_active ? html`<div class="chat-bottom-panel__drop-overlay">${__('Drop to send files')}</div>` : ''}
+            </div>
         `;
     } else if (conn_status == converse.ROOMSTATUS.NICKNAME_REQUIRED) {
         if (api.settings.get('muc_show_logs_before_join')) {
