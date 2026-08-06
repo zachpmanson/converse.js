@@ -162,8 +162,6 @@ class ChatBox extends ModelWithVCard(ModelWithMessages(ModelWithContact(ColorAwa
             message = __('%1$s has gone offline', fullname);
         } else if (show === 'away') {
             message = __('%1$s has gone away', fullname);
-        } else if (show === 'dnd') {
-            message = __('%1$s is busy', fullname);
         } else if (show === 'online') {
             message = __('%1$s is online', fullname);
         }

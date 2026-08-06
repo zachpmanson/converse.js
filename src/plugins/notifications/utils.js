@@ -198,8 +198,6 @@ function showChatStateNotification(contact) {
         message = __('has gone offline');
     } else if (chat_state === 'away') {
         message = __('has gone away');
-    } else if (chat_state === 'dnd') {
-        message = __('is busy');
     } else if (chat_state === 'online') {
         message = __('has come online');
     }
