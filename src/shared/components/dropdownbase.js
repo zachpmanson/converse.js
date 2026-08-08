@@ -29,10 +29,6 @@ export default class DropdownBase extends CustomElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // Reset inherited line-height so the flex layout isn't stretched
-        // by parent components that set line-height (e.g. roster's
-        // .list-item-action with line-height: 2em).
-        this.style.lineHeight = 'normal';
         this.registerEvents();
     }
 
