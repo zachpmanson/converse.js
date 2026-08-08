@@ -8,6 +8,7 @@ import 'plugins/muc-views/modals/add-muc.js';
 import { __ } from 'i18n';
 import { getMUCActionButtons } from 'plugins/muc-views/utils.js';
 import { getHeadingDropdownItem, getUnreadMsgsDisplay, openDropdownAt } from 'shared/chat/utils.js';
+import tplDropdownItem from 'shared/components/templates/dropdown-item.js';
 import tplIconButton from 'shared/components/templates/icon-button.js';
 import tplListHeading from 'shared/components/templates/list-heading.js';
 
@@ -44,30 +45,28 @@ function tplRoomItem(el, room) {
 
     if (_converse.state.bookmarks) {
         const is_bookmarked = el.isBookmarked(room.get('jid'));
-        action_btns.push(html`<a
-            class="dropdown-item toggle-bookmark"
-            role="button"
-            data-room-jid="${room.get('jid')}"
-            data-room-name="${room.getDisplayName()}"
-            title="${is_bookmarked ? __('Remove this bookmark') : __('Bookmark this groupchat')}"
-            @click=${(/** @type {Event} */ ev) => el.toggleRoomBookmark(ev)}
-        >
-            <converse-icon class="fa fa-bookmark" size="1em"></converse-icon>&nbsp;${is_bookmarked
-                ? __('Unbookmark')
-                : __('Bookmark')}
-        </a>`);
+        action_btns.push(tplDropdownItem({
+            tag: 'a',
+            icon: 'fa fa-bookmark',
+            class: 'toggle-bookmark',
+            title: is_bookmarked ? __('Remove this bookmark') : __('Bookmark this groupchat'),
+            text: is_bookmarked ? __('Unbookmark') : __('Bookmark'),
+            data_room_jid: room.get('jid'),
+            data_room_name: room.getDisplayName(),
+            handler: (/** @type {Event} */ ev) => el.toggleRoomBookmark(ev),
+        }));
     }
 
-    action_btns.push(html`<a
-        class="dropdown-item close-room"
-        role="button"
-        data-room-jid="${room.get('jid')}"
-        data-room-name="${room.getDisplayName()}"
-        title="${i18n_leave_room}"
-        @click=${(/** @type {Event} */ ev) => el.closeRoom(ev)}
-    >
-        <converse-icon class="fa fa-sign-out-alt" size="1em"></converse-icon>&nbsp;${__('Leave')}
-    </a>`);
+    action_btns.push(tplDropdownItem({
+        tag: 'a',
+        icon: 'fa fa-sign-out-alt',
+        class: 'close-room',
+        title: i18n_leave_room,
+        text: __('Leave'),
+        data_room_jid: room.get('jid'),
+        data_room_name: room.getDisplayName(),
+        handler: (/** @type {Event} */ ev) => el.closeRoom(ev),
+    }));
     return html` <li
         class="list-item controlbox-padded available-chatroom d-flex flex-row ${isCurrentlyOpen(room)
             ? 'open'

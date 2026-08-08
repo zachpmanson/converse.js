@@ -3,6 +3,7 @@ import { until } from 'lit/directives/until.js';
 import { api, log, _converse, u, constants, converse } from '@converse/headless';
 import { CustomElement } from 'shared/components/element.js';
 import { __ } from 'i18n';
+import tplDropdownItem from 'shared/components/templates/dropdown-item.js';
 import { isMediaURLDomainAllowed, isDomainWhitelisted } from 'utils/url.js';
 import { containsMarkdown } from 'shared/texture/markdown.js';
 
@@ -98,18 +99,15 @@ class MessageActions extends CustomElement {
         // A button may supply a custom Lit template (e.g. the inline reaction
         // row) instead of the standard icon + text item.
         if (o.template) return o.template;
-        return html`
-            <button
-                type="button"
-                class="dropdown-item chat-msg__action ${o.button_class}"
-                ?disabled=${o.disabled}
-                title="${o.i18n_title ?? ''}"
-                @click=${o.handler}
-            >
-                <converse-icon class="${o.icon_class}" color="var(--foreground-color)" size="1em"></converse-icon
-                >&nbsp;${o.i18n_text}
-            </button>
-        `;
+        return tplDropdownItem({
+            tag: 'button',
+            icon: o.icon_class,
+            class: `chat-msg__action ${o.button_class}`,
+            title: o.i18n_title ?? '',
+            text: o.i18n_text,
+            disabled: o.disabled,
+            handler: o.handler,
+        });
     }
 
     /** @param {MouseEvent} ev */

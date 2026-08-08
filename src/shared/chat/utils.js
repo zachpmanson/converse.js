@@ -8,6 +8,7 @@ import { api, converse } from '@converse/headless';
 import { html } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { MOBILE_CUTOFF } from 'shared/constants.js';
+import tplDropdownItem from 'shared/components/templates/dropdown-item.js';
 import tplIconButton from 'shared/components/templates/icon-button.js';
 import tplNewDay from './templates/new-day.js';
 
@@ -80,18 +81,14 @@ export function getUnreadMsgsDisplay(model) {
 export async function getHeadingDropdownItem(promise_or_data) {
     const data = await promise_or_data;
     return data
-        ? html`
-              <a
-                  href="#"
-                  role="button"
-                  class="dropdown-item ${data.a_class}"
-                  @click=${data.handler}
-                  title="${data.i18n_title}"
-              >
-                  <converse-icon size="1em" class="fa ${data.icon_class}"></converse-icon>
-                  ${data.i18n_text}
-              </a>
-          `
+        ? tplDropdownItem({
+              tag: 'a',
+              icon: `fa ${data.icon_class}`,
+              class: data.a_class,
+              title: data.i18n_title,
+              text: data.i18n_text,
+              handler: data.handler,
+          })
         : '';
 }
 
