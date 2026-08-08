@@ -127,7 +127,7 @@ export default class DropdownBase extends CustomElement {
         if (this.classList.contains('dropstart')) {
             return createPopper(this.button, this.menu, {
                 strategy: 'fixed',
-                placement: 'left-start',
+                placement: 'left',
             });
         }
         return createPopper(this.button, this.menu, {
