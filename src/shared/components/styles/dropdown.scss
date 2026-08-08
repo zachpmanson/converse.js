@@ -12,8 +12,6 @@
 
     converse-emoji-dropdown,
     converse-dropdown {
-        align-items: center;
-
         &.dropup {
             &.dropup--left {
                 .dropdown-menu {
@@ -24,6 +22,7 @@
         }
 
         .btn--standalone {
+            align-self: center;
             padding: 0 0.2em;
             margin: 0;
         }
