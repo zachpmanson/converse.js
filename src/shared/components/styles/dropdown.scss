@@ -38,6 +38,7 @@
             margin-top: -0.2em !important;
             padding-top: 0;
             padding-bottom: 0;
+            border-radius: 0;
             box-shadow: var(--raised-el-shadow);
             // The menu is focused (tabindex="-1") when opened via right-click so
             // keyboard navigation works; don't draw a focus ring around it.
