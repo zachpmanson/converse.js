@@ -41,7 +41,48 @@ export default class MessageForm extends CustomElement {
             }
         };
         document.addEventListener('emojiSelected', this.handleEmojiSelection);
+        this.restoreHeight();
         this.requestUpdate();
+    }
+
+    /**
+     * The compose box's top divider can be dragged to resize it (see
+     * {@link #onStartResize}). Restore the saved height on load.
+     */
+    async restoreHeight() {
+        const height = await api.user.settings.get('chat_textarea_height');
+        if (height) this.style.setProperty('--chat-textarea-height', `${height}px`);
+    }
+
+    /**
+     * Drag-handler for the divider above the compose box. Live-updates the
+     * `--chat-textarea-height` custom property (the textarea's min-height)
+     * while dragging and persists the final height to the user settings.
+     * @param {MouseEvent} ev
+     */
+    onStartResize(ev) {
+        ev.preventDefault();
+        const textarea = /** @type {HTMLElement} */ (this.querySelector('.chat-textarea'));
+        const start_y = ev.clientY;
+        const start_height = textarea.offsetHeight;
+        const min = 60;
+        const max = window.innerHeight * 0.6;
+        let height = start_height;
+        const onMove = (/** @type {MouseEvent} */ e) => {
+            height = Math.min(Math.max(start_height + (start_y - e.clientY), min), max);
+            this.style.setProperty('--chat-textarea-height', `${height}px`);
+        };
+        const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            document.body.style.userSelect = '';
+            document.body.style.cursor = '';
+            api.user.settings.set('chat_textarea_height', height);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'row-resize';
     }
 
     disconnectedCallback() {

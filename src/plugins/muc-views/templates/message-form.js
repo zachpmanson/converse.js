@@ -22,6 +22,11 @@ export default (el) => {
             <input type="submit" class="btn btn-primary" name="join" value="Join" />
         </form>
         <form class="chat-message-form" @submit="${/** @param {SubmitEvent} ev */ (ev) => el.onFormSubmitted(ev)}">
+            <div
+                class="chat-textarea-resize-handle"
+                title="${__("Drag to resize")}"
+                @mousedown="${/** @param {MouseEvent} ev */ (ev) => el.onStartResize(ev)}"
+            ></div>
             <input
                 type="text"
                 placeholder="${label_spoiler_hint || ""}"
